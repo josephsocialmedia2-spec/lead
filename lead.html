@@ -1,0 +1,706 @@
+ <!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>Dashboard Lead Immobiliare (Offline)</title>
+
+  <!-- INCOLLA QUI IL TUO <style> ORIGINALE (colori oro/viola ecc.) -->
+  <style>
+    /* ✅ Usa il CSS del tuo file esistente.
+       Se vuoi, puoi lasciare questo mini-CSS SOLO per farlo vedere subito.
+       Meglio: sostituiscilo col tuo <style> completo. */
+
+    :root{
+      --bg:#0b1120; --text:#f3f4f6; --muted:#a0adb8; --gold:#d8a23a;
+      --border: rgba(225,225,225,0.18);
+      --shadow: 0 14px 50px rgba(0,0,0,0.45);
+      --radius: 18px;
+      --sans: system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family:var(--sans); color:var(--text);
+      background:
+        radial-gradient(900px 500px at 15% 10%, rgba(216,162,58,.18), transparent 60%),
+        radial-gradient(900px 600px at 85% 30%, rgba(123,79,189,.14), transparent 55%),
+        radial-gradient(900px 600px at 70% 85%, rgba(74,143,114,.14), transparent 55%),
+        var(--bg);
+    }
+    .wrap{max-width:1150px;margin:0 auto;padding:14px 12px 84px}
+    header{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+    .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+    .btn{
+      border:1px solid var(--border);
+      background:rgba(255,255,255,.04);
+      color:var(--text);
+      padding:8px 10px;
+      border-radius:12px;
+      cursor:pointer;
+      font-weight:950;
+      letter-spacing:.2px;
+      font-size:11px;
+      line-height:1;
+      white-space:nowrap;
+      text-decoration:none;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      user-select:none;
+      transition: transform .14s ease, filter .14s ease, box-shadow .14s ease, border-color .14s ease;
+      box-shadow: 0 10px 22px rgba(0,0,0,.18);
+    }
+    .btn:hover{transform: translateY(-2px) scale(1.01);border-color: rgba(216,162,58,.22);box-shadow: 0 14px 34px rgba(0,0,0,.30);filter: brightness(1.06);}
+    .btn:active{ transform: translateY(0px) scale(.99); }
+    .btn.primary{background: linear-gradient(135deg, rgba(216,162,58,.95), rgba(216,162,58,.72));color:#111;border-color: rgba(216,162,58,.55);}
+    .btn.blue{background: linear-gradient(135deg, rgba(57,90,140,.95), rgba(57,90,140,.70));border-color: rgba(57,90,140,.55);}
+    .btn.violet{background: linear-gradient(135deg, rgba(123,79,189,.95), rgba(123,79,189,.70));border-color: rgba(123,79,189,.55);}
+    .btn.gray{background: rgba(255,255,255,.04);}
+    .btn.tiny{padding:6px 9px;font-size:10px;border-radius:11px;box-shadow:none}
+
+    .pill{
+      font-size:10px;color:var(--muted);padding:6px 10px;border:1px solid var(--border);
+      border-radius:999px;background:rgba(0,0,0,.18);font-weight:900;letter-spacing:.2px;
+      display:inline-flex;gap:8px;align-items:center;white-space:nowrap;
+    }
+    .hintTop{margin: 6px 0 10px;font-size:11px;color: var(--muted);line-height: 1.35;}
+    .layout{display:grid;grid-template-columns: 1fr 360px;gap:12px;align-items:start;margin-top:12px}
+    @media (max-width: 980px){ .layout{ grid-template-columns:1fr; } }
+
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+    .section{padding:12px}
+    .section + .section{border-top:1px solid rgba(255,255,255,.10)}
+    .h{margin:0 0 8px;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;font-weight:950}
+
+    input, select, textarea{
+      width:100%; padding:10px 12px; border-radius:14px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(0,0,0,.18); color:var(--text);
+      outline:none; font-weight:850; font-size:12px;
+    }
+    textarea{resize:vertical;min-height:90px;line-height:1.25}
+    input:focus, select:focus, textarea:focus{
+      border-color: rgba(216,162,58,.45);
+      box-shadow: 0 0 0 6px rgba(216,162,58,.12);
+    }
+
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    @media (max-width: 980px){ .grid2{ grid-template-columns:1fr; } }
+
+    .mini{
+      font-family:var(--mono);
+      font-size:12px;
+      color:var(--muted);
+      white-space:pre-wrap;
+      word-break:break-word;
+      background:rgba(0,0,0,.18);
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:14px;
+      padding:10px;
+    }
+
+    /* ✅ aggiunte per liste dashboard */
+    .list{display:flex;flex-direction:column;gap:10px}
+    .item{
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:14px;
+      background: rgba(0,0,0,.14);
+      padding:10px;
+    }
+    .item b{font-size:12px}
+    .subtle{font-size:11px;color:var(--muted);line-height:1.35;margin-top:6px}
+    .bottomBar{
+      position: fixed; left: 0; right: 0; bottom: 0;
+      padding: 10px 12px;
+      background: rgba(0,0,0,.35);
+      border-top: 1px solid rgba(255,255,255,.12);
+      backdrop-filter: blur(8px);
+      display:flex; justify-content:flex-end; z-index: 50;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+
+    <!-- TOP -->
+    <header>
+      <div class="row" style="flex:1;">
+        <button class="btn primary" id="btnScrollAction" type="button">➕ Azione</button>
+        <button class="btn blue" id="btnScrollConv" type="button">🧩 Conversazione</button>
+        <button class="btn violet" id="btnExportCSV" type="button">📄 Export CSV</button>
+
+        <span class="pill">
+          <span id="metaActions">Azioni: 0</span><span>•</span>
+          <span id="metaConvs">Conversazioni: 0</span><span>•</span>
+          <span id="metaToday">Oggi: —</span>
+        </span>
+      </div>
+
+      <div class="row">
+        <button class="btn tiny gray" id="btnBackup" type="button">🧾 Backup JSON</button>
+        <label class="btn tiny gray" style="cursor:pointer;">
+          📥 Import JSON
+          <input id="fileImport" type="file" accept="application/json" style="display:none;">
+        </label>
+        <button class="btn tiny gray" id="btnReset" type="button">🗑️ Reset</button>
+      </div>
+    </header>
+
+    <div class="hintTop">
+      Offline: dati salvati nel <b>browser</b> (LocalStorage). Usa <b>Backup JSON</b> per sicurezza e <b>Export CSV</b> per Excel.
+    </div>
+
+    <div class="layout">
+      <!-- MAIN -->
+      <div class="card">
+
+        <div class="section">
+          <p class="h">Oggi</p>
+          <div class="grid2">
+            <div>
+              <div class="subtle">Azioni di oggi</div>
+              <div class="mini" id="actionsTodayBox">—</div>
+            </div>
+            <div>
+              <div class="subtle">Follow-up in scadenza</div>
+              <div class="mini" id="followupsBox">—</div>
+              <div id="followupsList" class="list" style="margin-top:10px;"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section" id="secAction">
+          <p class="h">Registra azione</p>
+          <div class="grid2">
+            <div>
+              <label class="subtle">Data</label>
+              <input id="a_when" type="date"/>
+            </div>
+            <div>
+              <label class="subtle">Canale</label>
+              <select id="a_channel"></select>
+            </div>
+          </div>
+          <div class="grid2" style="margin-top:10px;">
+            <div>
+              <label class="subtle">Minuti</label>
+              <input id="a_minutes" type="number" min="1" value="30"/>
+            </div>
+            <div>
+              <label class="subtle">Nota</label>
+              <input id="a_note" placeholder="Es. Commenti in gruppi zona X"/>
+            </div>
+          </div>
+          <div class="row" style="margin-top:10px;">
+            <button class="btn primary" id="btnAddAction" type="button">✅ Salva azione</button>
+            <span class="pill" id="actionMsg" style="display:none;">OK</span>
+          </div>
+        </div>
+
+        <div class="section" id="secConv">
+          <p class="h">Registra conversazione</p>
+          <div class="grid2">
+            <div>
+              <label class="subtle">Nome</label>
+              <input id="c_name" placeholder="Es. Mario R."/>
+            </div>
+            <div>
+              <label class="subtle">Città/Zona</label>
+              <input id="c_zone" placeholder="Es. Roma - Prati"/>
+            </div>
+          </div>
+
+          <div class="grid2" style="margin-top:10px;">
+            <div>
+              <label class="subtle">Origine</label>
+              <input id="c_origin" placeholder="Es. FB gruppo X / IG / SEO"/>
+            </div>
+            <div>
+              <label class="subtle">Stato</label>
+              <select id="c_stage"></select>
+            </div>
+          </div>
+
+          <div class="grid2" style="margin-top:10px;">
+            <div>
+              <label class="subtle">Follow-up</label>
+              <input id="c_follow" type="date"/>
+            </div>
+            <div>
+              <label class="subtle">Nota breve</label>
+              <input id="c_note_short" placeholder="Opzionale"/>
+            </div>
+          </div>
+
+          <div style="margin-top:10px;">
+            <label class="subtle">Note dettagliate</label>
+            <textarea id="c_note" placeholder="Dettagli utili..."></textarea>
+          </div>
+
+          <div class="row" style="margin-top:10px;">
+            <button class="btn blue" id="btnAddConv" type="button">✅ Salva conversazione</button>
+            <span class="pill" id="convMsg" style="display:none;">OK</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- SIDE -->
+      <div class="card">
+        <div class="section">
+          <p class="h">Report settimana</p>
+          <div class="mini" id="reportBox">—</div>
+        </div>
+
+        <div class="section">
+          <p class="h">Ricerca</p>
+          <input id="q" placeholder="Cerca nome / zona / origine / note"/>
+          <div class="row" style="margin-top:10px;">
+            <button class="btn gray" id="btnSearch" type="button">🔎 Cerca</button>
+            <button class="btn tiny gray" id="btnClearSearch" type="button">Svuota</button>
+          </div>
+          <div class="subtle" style="margin-top:10px;">Risultati</div>
+          <div id="searchResults" class="list" style="margin-top:8px;"></div>
+        </div>
+
+        <div class="section">
+          <p class="h">Note operative</p>
+          <div class="subtle">
+            Per trasferire dati su un altro PC: fai <b>Backup JSON</b> → poi <b>Import JSON</b>.
+            Per Excel: usa <b>Export CSV</b>.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottomBar">
+    <span class="pill">Offline • LocalStorage • Export CSV/JSON</span>
+  </div>
+
+<script>
+/* =========================
+   CONFIG
+========================= */
+const CHANNELS = ["social","gruppi","video","seo","forum"];
+const PIPELINE = ["aperta","qualificata","consulenza","incarico","persa"];
+const STORAGE_KEY = "dash_immobiliare_v1";
+
+/* =========================
+   UTILS
+========================= */
+const el = (id) => document.getElementById(id);
+const pad2 = (n) => String(n).padStart(2,"0");
+const todayStr = () => {
+  const d = new Date();
+  return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
+};
+const parseDate = (s) => {
+  const [y,m,d] = (s||"").split("-").map(Number);
+  if(!y||!m||!d) return null;
+  return new Date(y, m-1, d);
+};
+const newId = (prefix) => `${prefix}_${Date.now()}_${Math.floor(Math.random()*1e6)}`;
+
+function weekRange(refDate){
+  const d = new Date(refDate);
+  const day = d.getDay(); // 0 sun .. 6 sat
+  const mondayOffset = (day === 0 ? -6 : 1 - day);
+  const start = new Date(d); start.setDate(d.getDate() + mondayOffset);
+  const end = new Date(start); end.setDate(start.getDate() + 6);
+  const fmt = (x)=> `${x.getFullYear()}-${pad2(x.getMonth()+1)}-${pad2(x.getDate())}`;
+  return {start, end, startStr: fmt(start), endStr: fmt(end)};
+}
+
+function downloadFile(filename, content, mime){
+  const blob = new Blob([content], {type: mime || "text/plain"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+}
+
+function toCSV(rows, headers){
+  const esc = (v) => {
+    const s = (v === null || v === undefined) ? "" : String(v);
+    const needs = /[",\n;]/.test(s);
+    const safe = s.replaceAll('"','""');
+    return needs ? `"${safe}"` : safe;
+  };
+  return [
+    headers.join(";"),
+    ...rows.map(r => headers.map(h => esc(r[h])).join(";"))
+  ].join("\n");
+}
+
+/* =========================
+   DATA LAYER (LocalStorage)
+========================= */
+function loadDB(){
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if(!raw){
+    const init = { actions: [], conversations: [], meta: { created_at: new Date().toISOString() } };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(init));
+    return init;
+  }
+  try { return JSON.parse(raw); }
+  catch {
+    const init = { actions: [], conversations: [], meta: { created_at: new Date().toISOString(), recovered: true } };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(init));
+    return init;
+  }
+}
+function saveDB(db){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
+}
+
+/* =========================
+   BUSINESS LOGIC
+========================= */
+function actionsToday(db, day){
+  return db.actions.filter(a => a.when === day);
+}
+function followupsDue(db, day){
+  const t = parseDate(day);
+  if(!t) return [];
+  return db.conversations
+    .filter(c => c.next_followup && c.stage !== "incarico" && c.stage !== "persa")
+    .filter(c => parseDate(c.next_followup) && parseDate(c.next_followup) <= t)
+    .sort((a,b) => (a.next_followup||"").localeCompare(b.next_followup||""));
+}
+function weeklyReport(db, refDay){
+  const ref = parseDate(refDay) || new Date();
+  const {start, end, startStr, endStr} = weekRange(ref);
+  const inRange = (ds) => {
+    const d = parseDate(ds);
+    return d && d >= start && d <= end;
+  };
+  const timeByChannel = Object.fromEntries(CHANNELS.map(c => [c,0]));
+  let total = 0;
+  db.actions.forEach(a=>{
+    if(inRange(a.when)){
+      const m = Number(a.minutes||0);
+      if(timeByChannel[a.channel] !== undefined) timeByChannel[a.channel] += m;
+      total += m;
+    }
+  });
+  const pipelineCounts = Object.fromEntries(PIPELINE.map(p => [p,0]));
+  db.conversations.forEach(c=>{
+    if(pipelineCounts[c.stage] !== undefined) pipelineCounts[c.stage] += 1;
+  });
+  return {startStr, endStr, timeByChannel, total, pipelineCounts};
+}
+
+/* =========================
+   RENDER
+========================= */
+function showPill(id, text){
+  const p = el(id);
+  p.textContent = text;
+  p.style.display = "inline-flex";
+  setTimeout(()=> p.style.display="none", 1100);
+}
+
+function render(){
+  const db = loadDB();
+  const day = todayStr();
+
+  el("metaActions").textContent = `Azioni: ${db.actions.length}`;
+  el("metaConvs").textContent = `Conversazioni: ${db.conversations.length}`;
+  el("metaToday").textContent = `Oggi: ${day}`;
+
+  el("a_when").value = el("a_when").value || day;
+
+  // Actions today
+  const at = actionsToday(db, day);
+  const totalMin = at.reduce((s,x)=> s + Number(x.minutes||0), 0);
+  el("actionsTodayBox").textContent =
+    at.length
+      ? `Totale oggi: ${totalMin} min\n` + at.slice().reverse().map(a=>`- [${a.channel}] ${a.minutes}m — ${a.note||""}`).join("\n")
+      : "Nessuna azione registrata oggi.";
+
+  // Followups
+  const fu = followupsDue(db, day);
+  el("followupsBox").textContent = fu.length ? `In scadenza: ${fu.length}` : "Nessun follow-up in scadenza 🎉";
+
+  const list = el("followupsList");
+  list.innerHTML = "";
+  fu.slice(0,30).forEach(c=>{
+    const div = document.createElement("div");
+    div.className = "item";
+    div.innerHTML = `
+      <b>${c.name}</b>
+      <span class="pill" style="margin-left:8px">${c.stage}</span>
+      <span class="pill" style="margin-left:6px">${c.next_followup}</span>
+      <div class="subtle">${c.city_zone} — ${c.origin}</div>
+      ${c.note ? `<div class="subtle">${String(c.note).slice(0,160)}</div>` : ""}
+      <div class="row" style="margin-top:8px">
+        ${PIPELINE.map(s=>`<button class="btn tiny gray" data-act="stage" data-id="${c.id}" data-stage="${s}">${s}</button>`).join("")}
+        <button class="btn tiny gray" data-act="note" data-id="${c.id}">📝 Nota</button>
+        <button class="btn tiny gray" data-act="follow" data-id="${c.id}">📅 Follow-up</button>
+      </div>
+    `;
+    list.appendChild(div);
+  });
+
+  list.querySelectorAll("button").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const act = btn.dataset.act;
+      const id = btn.dataset.id;
+      const db2 = loadDB();
+      const conv = db2.conversations.find(x=>x.id===id);
+      if(!conv) return;
+
+      if(act === "stage"){
+        conv.stage = btn.dataset.stage;
+        if(conv.stage === "incarico" || conv.stage === "persa") conv.next_followup = null;
+        conv.last_touch = day;
+        saveDB(db2);
+        render();
+      }
+      if(act === "note"){
+        const txt = prompt("Nota da aggiungere:");
+        if(txt && txt.trim()){
+          conv.note = (conv.note ? conv.note + "\n" : "") + `[${day}] ${txt.trim()}`;
+          conv.last_touch = day;
+          saveDB(db2);
+          render();
+        }
+      }
+      if(act === "follow"){
+        const nd = prompt("Nuova data follow-up (YYYY-MM-DD) o vuoto per rimuovere:", conv.next_followup || "");
+        if(nd === null) return;
+        conv.next_followup = nd.trim() ? nd.trim() : null;
+        conv.last_touch = day;
+        saveDB(db2);
+        render();
+      }
+    });
+  });
+
+  // Report
+  const rep = weeklyReport(db, day);
+  const t = rep.timeByChannel;
+  const p = rep.pipelineCounts;
+  el("reportBox").textContent =
+    `Settimana: ${rep.startStr} → ${rep.endStr}\n\n` +
+    `Tempo per canale:\n` +
+    Object.keys(t).map(k=>`- ${k}: ${t[k]} min`).join("\n") +
+    `\n\nPipeline:\n` +
+    Object.keys(p).map(k=>`- ${k}: ${p[k]}`).join("\n") +
+    `\n\nTotale minuti: ${rep.total}`;
+}
+
+/* =========================
+   INIT + EVENTS
+========================= */
+function fillSelects(){
+  const a = el("a_channel");
+  const s = el("c_stage");
+  if(a.options.length === 0) CHANNELS.forEach(c => a.add(new Option(c,c)));
+  if(s.options.length === 0) PIPELINE.forEach(p => s.add(new Option(p,p)));
+}
+
+document.addEventListener("DOMContentLoaded", ()=>{
+  fillSelects();
+  el("a_when").value = todayStr();
+
+  // scroll helpers
+  el("btnScrollAction").addEventListener("click", ()=> el("secAction").scrollIntoView({behavior:"smooth"}));
+  el("btnScrollConv").addEventListener("click", ()=> el("secConv").scrollIntoView({behavior:"smooth"}));
+
+  // add action
+  el("btnAddAction").addEventListener("click", ()=>{
+    const db = loadDB();
+    const when = el("a_when").value || todayStr();
+    const channel = el("a_channel").value;
+    const minutes = parseInt(el("a_minutes").value || "0", 10);
+    const note = (el("a_note").value || "").trim();
+
+    if(!CHANNELS.includes(channel) || !minutes || minutes <= 0){
+      showPill("actionMsg", "❌ Controlla canale/minuti");
+      return;
+    }
+    db.actions.push({ id: newId("act"), when, channel, minutes, note });
+    saveDB(db);
+    el("a_note").value = "";
+    showPill("actionMsg", "✅ Salvata");
+    render();
+  });
+
+  // add conversation
+  el("btnAddConv").addEventListener("click", ()=>{
+    const db = loadDB();
+    const name = (el("c_name").value || "Senza nome").trim();
+    const city_zone = (el("c_zone").value || "N/D").trim();
+    const origin = (el("c_origin").value || "N/D").trim();
+    const stage = el("c_stage").value;
+    const next_followup = el("c_follow").value ? el("c_follow").value : null;
+    const noteShort = (el("c_note_short").value || "").trim();
+    const noteLong = (el("c_note").value || "").trim();
+    const created = todayStr();
+
+    if(!PIPELINE.includes(stage)){
+      showPill("convMsg", "❌ Stato non valido");
+      return;
+    }
+
+    const note = [noteShort, noteLong].filter(Boolean).join("\n");
+    db.conversations.push({
+      id: newId("conv"),
+      name, city_zone, origin, stage,
+      created, last_touch: created,
+      next_followup, note
+    });
+    saveDB(db);
+
+    el("c_name").value = "";
+    el("c_zone").value = "";
+    el("c_origin").value = "";
+    el("c_follow").value = "";
+    el("c_note_short").value = "";
+    el("c_note").value = "";
+    showPill("convMsg", "✅ Salvata");
+    render();
+  });
+
+  // search
+  el("btnSearch").addEventListener("click", ()=>{
+    const q = (el("q").value || "").toLowerCase().trim();
+    const db = loadDB();
+    const box = el("searchResults");
+    box.innerHTML = "";
+
+    if(!q){
+      const d = document.createElement("div");
+      d.className = "item";
+      d.innerHTML = `<b>Inserisci un testo di ricerca.</b><div class="subtle">Nome / zona / origine / note</div>`;
+      box.appendChild(d);
+      return;
+    }
+
+    const res = db.conversations.filter(c=>{
+      const blob = [c.id,c.name,c.city_zone,c.origin,c.stage,c.note].join(" ").toLowerCase();
+      return blob.includes(q);
+    }).slice(0,50);
+
+    if(!res.length){
+      const d = document.createElement("div");
+      d.className = "item";
+      d.innerHTML = `<b>Nessun risultato.</b><div class="subtle">Prova con una parola diversa.</div>`;
+      box.appendChild(d);
+      return;
+    }
+
+    res.forEach(c=>{
+      const d = document.createElement("div");
+      d.className = "item";
+      d.innerHTML = `
+        <b>${c.name}</b>
+        <span class="pill" style="margin-left:8px">${c.stage}</span>
+        <div class="subtle">${c.city_zone} — ${c.origin} — follow-up: ${c.next_followup || "—"}</div>
+        ${c.note ? `<div class="subtle">${String(c.note).slice(0,160)}</div>` : ""}
+        <div class="row" style="margin-top:8px">
+          <button class="btn tiny gray" data-act="note" data-id="${c.id}">📝 Nota</button>
+          <button class="btn tiny gray" data-act="follow" data-id="${c.id}">📅 Follow-up</button>
+        </div>
+      `;
+      box.appendChild(d);
+    });
+
+    box.querySelectorAll("button").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        const id = btn.dataset.id;
+        const act = btn.dataset.act;
+        const db2 = loadDB();
+        const conv = db2.conversations.find(x=>x.id===id);
+        if(!conv) return;
+        const day = todayStr();
+
+        if(act === "note"){
+          const txt = prompt("Nota da aggiungere:");
+          if(txt && txt.trim()){
+            conv.note = (conv.note ? conv.note + "\n" : "") + `[${day}] ${txt.trim()}`;
+            conv.last_touch = day;
+            saveDB(db2);
+            render();
+          }
+        }
+        if(act === "follow"){
+          const nd = prompt("Nuova data follow-up (YYYY-MM-DD) o vuoto per rimuovere:", conv.next_followup || "");
+          if(nd === null) return;
+          conv.next_followup = nd.trim() ? nd.trim() : null;
+          conv.last_touch = day;
+          saveDB(db2);
+          render();
+        }
+      });
+    });
+  });
+
+  el("btnClearSearch").addEventListener("click", ()=>{
+    el("q").value = "";
+    el("searchResults").innerHTML = "";
+  });
+
+  // export CSV
+  el("btnExportCSV").addEventListener("click", ()=>{
+    const db = loadDB();
+    const day = todayStr();
+    const actionsHeaders = ["id","when","channel","minutes","note"];
+    const convHeaders = ["id","name","city_zone","origin","stage","created","last_touch","next_followup","note"];
+
+    downloadFile(`azioni_${day}.csv`, toCSV(db.actions, actionsHeaders), "text/csv;charset=utf-8");
+    downloadFile(`conversazioni_${day}.csv`, toCSV(db.conversations, convHeaders), "text/csv;charset=utf-8");
+  });
+
+  // backup JSON
+  el("btnBackup").addEventListener("click", ()=>{
+    const db = loadDB();
+    const day = todayStr();
+    downloadFile(`backup_dashboard_${day}.json`, JSON.stringify(db, null, 2), "application/json;charset=utf-8");
+  });
+
+  // import JSON
+  el("fileImport").addEventListener("change", async (e)=>{
+    const file = e.target.files?.[0];
+    if(!file) return;
+    try{
+      const txt = await file.text();
+      const obj = JSON.parse(txt);
+      if(!obj || !Array.isArray(obj.actions) || !Array.isArray(obj.conversations)){
+        alert("JSON non valido (mancano actions/conversations).");
+        return;
+      }
+      saveDB(obj);
+      alert("Import completato ✅");
+      render();
+    } catch(err){
+      alert("Errore import: " + err);
+    } finally {
+      e.target.value = "";
+    }
+  });
+
+  // reset
+  el("btnReset").addEventListener("click", ()=>{
+    if(!confirm("Reset totale dei dati su questo browser? (irreversibile)")) return;
+    localStorage.removeItem(STORAGE_KEY);
+    render();
+  });
+
+  render();
+});
+</script>
+</body>
+</html>
+
+
