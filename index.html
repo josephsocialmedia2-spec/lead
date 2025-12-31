@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="it">
 <head>
@@ -366,6 +367,7 @@
       </div>
 
       <div class="row">
+        <button class="btn tiny gray" id="btnHelp" type="button" data-tooltip="Istruzioni d\'uso">📘 Istruzioni</button>
         <button class="btn tiny gray" id="btnInstall" type="button" data-tooltip="Installa come app" style="display:none">⬇️ Installa</button>
         <button class="btn tiny gray" id="btnBackup" type="button" data-tooltip="Crea backup JSON">🧾 Backup JSON</button>
         <label class="btn tiny gray" style="cursor:pointer;" data-tooltip="Importa dati da JSON">
@@ -772,6 +774,49 @@
       <div style="margin-top:15px;">
         <div class="h">Pipeline attuale</div>
         <div id="statsPipelineChart" class="chart-container"></div>
+      </div>
+
+      <div class="hr"></div>
+
+      <div class="row" style="justify-content:flex-end;">
+        <button class="btn gray" value="cancel" type="submit">Chiudi</button>
+      </div>
+    </form>
+  </dialog>
+
+
+  <!-- DIALOG: ISTRUZIONI -->
+  <dialog id="dlgHelp">
+    <form method="dialog">
+      <div class="dlgHead">
+        <div class="dlgTitle">Istruzioni d’uso</div>
+        <button class="btn tiny gray" value="cancel" type="submit">✖️ Chiudi</button>
+      </div>
+
+      <div class="mini" style="line-height:1.5;">
+📌 GUIDA RAPIDA (anche per principianti)
+
+1️⃣ REGISTRA UN’AZIONE
+- Clicca ➕ Azione
+- Inserisci data, canale e minuti
+- Premi ✅ Salva azione
+
+2️⃣ REGISTRA UN LEAD
+- Clicca 🧩 Conversazione
+- Compila Nome, Zona e Stato
+- Imposta Follow-up se devi ricontattare
+- Premi ✅ Salva conversazione
+
+3️⃣ OGNI GIORNO
+- Guarda “Follow-up in scadenza”
+- Usa i pulsanti ⏰ Scaduti / 📅 Oggi / 🗓️ 7gg
+
+4️⃣ TROVA UN CONTATTO
+- Usa Ricerca o Filtri per stato, data o tag
+
+5️⃣ NON PERDERE I DATI
+- Premi 🧾 Backup JSON almeno 1 volta a settimana
+- Per Excel usa 📄 Export CSV
       </div>
 
       <div class="hr"></div>
@@ -2037,6 +2082,9 @@ document.addEventListener("DOMContentLoaded", () => {
   
   // Stats dialog
   el("btnStats").addEventListener("click", renderStatsDialog);
+  
+  // Istruzioni
+  el("btnHelp").addEventListener("click", () => el("dlgHelp").showModal());
   
   // Dialog save handlers
   el("btnSaveConv").addEventListener("click", () => {
