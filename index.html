@@ -1,865 +1,123 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Agenda Operativa (Oggi)</title>
-  <style>
-    :root{
-      --bg:#0b0d12;
-      --panel:#121622;
-      --panel2:#0f1320;
-      --text:#e9eefc;
-      --muted:#aab3cc;
-      --border:rgba(255,255,255,.10);
-      --shadow: 0 12px 40px rgba(0,0,0,.35);
-
-      --dot-blue:#4ea3ff;     /* NUOVO */
-      --dot-cyan:#34d2ff;     /* CONTATTATO */
-      --dot-green:#34d399;    /* QUALIFICATO */
-      --dot-purple:#a78bfa;   /* APPUNTAMENTO_FISSATO */
-      --dot-amber:#fbbf24;    /* PAUSA */
-      --dot-red:#fb7185;      /* SCARTATO */
-
-      --todo:#6b7280;
-      --done:#34d399;
-      --skip:#fbbf24;
-      --lock:#64748b;
-      --pause:#94a3b8;
-    }
-    *{box-sizing:border-box}
-    body{
-      margin:0;
-      min-height:100svh;
-      display:grid;
-      place-items:center;
-      background: radial-gradient(1200px 600px at 50% -10%, rgba(78,163,255,.18), transparent 60%),
-                  radial-gradient(900px 500px at 10% 20%, rgba(167,139,250,.14), transparent 60%),
-                  var(--bg);
-      color:var(--text);
-      font: 14px/1.35 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
-      padding: 20px;
-    }
-
-    /* Smartphone frame */
-    .phone{
-      width:min(420px, 96vw);
-      height: min(860px, 92svh);
-      background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
-      border:1px solid var(--border);
-      border-radius: 28px;
-      box-shadow: var(--shadow);
-      padding: 14px;
-      position:relative;
-      overflow:hidden;
-    }
-    .screen{
-      height:100%;
-      border-radius: 20px;
-      background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01));
-      border:1px solid var(--border);
-      overflow:hidden;
-      display:flex;
-      flex-direction:column;
-    }
-
-    /* Top bar */
-    .topbar{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      padding: 12px 12px 10px;
-      background: rgba(0,0,0,.18);
-      border-bottom: 1px solid var(--border);
-    }
-    .title{
-      display:flex;
-      flex-direction:column;
-      gap:2px;
-      min-width:0;
-    }
-    .title h1{
-      margin:0;
-      font-size: 14px;
-      letter-spacing:.2px;
-      font-weight:700;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-    }
-    .title .sub{
-      color:var(--muted);
-      font-size: 12px;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-    }
-    .btn{
-      appearance:none;
-      border:1px solid var(--border);
-      background: rgba(255,255,255,.05);
-      color:var(--text);
-      padding: 9px 10px;
-      border-radius: 12px;
-      cursor:pointer;
-      font-weight:650;
-      letter-spacing:.2px;
-      transition: transform .05s ease, background .15s ease;
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      user-select:none;
-    }
-    .btn:active{ transform: translateY(1px); }
-    .btn:hover{ background: rgba(255,255,255,.08); }
-    .btn.small{ padding:8px 10px; font-size: 13px; }
-    .btn.ghost{ background: transparent; }
-    .btn[disabled]{ opacity:.45; cursor:not-allowed; }
-
-    /* Content scroll */
-    .content{
-      padding: 12px;
-      overflow:auto;
-      -webkit-overflow-scrolling:touch;
-      display:flex;
-      flex-direction:column;
-      gap: 10px;
-    }
-
-    .card{
-      background: rgba(18,22,34,.72);
-      border:1px solid var(--border);
-      border-radius: 16px;
-      padding: 12px;
-    }
-    .card h2{
-      margin:0 0 8px 0;
-      font-size: 13px;
-      color: var(--muted);
-      letter-spacing:.2px;
-      font-weight:700;
-      text-transform: uppercase;
-    }
-
-    /* Legend dots */
-    .legend{
-      display:flex;
-      flex-wrap:wrap;
-      gap:8px 10px;
-      align-items:center;
-    }
-    .chip{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      padding: 6px 10px;
-      border-radius: 999px;
-      border:1px solid var(--border);
-      background: rgba(255,255,255,.03);
-      color: var(--text);
-      font-size: 12px;
-      white-space:nowrap;
-    }
-    .dot{
-      width:10px; height:10px;
-      border-radius: 999px;
-      display:inline-block;
-      box-shadow: 0 0 0 2px rgba(0,0,0,.25) inset;
-    }
-    .dot.blue{ background: var(--dot-blue); }
-    .dot.cyan{ background: var(--dot-cyan); }
-    .dot.green{ background: var(--dot-green); }
-    .dot.purple{ background: var(--dot-purple); }
-    .dot.amber{ background: var(--dot-amber); }
-    .dot.red{ background: var(--dot-red); }
-
-    /* Agenda list */
-    .agenda{
-      display:flex;
-      flex-direction:column;
-      gap: 8px;
-    }
-    .row{
-      display:grid;
-      grid-template-columns: 86px 1fr auto;
-      gap: 10px;
-      align-items:stretch;
-      padding: 10px;
-      border-radius: 14px;
-      border:1px solid var(--border);
-      background: rgba(255,255,255,.03);
-    }
-    .time{
-      font-weight:800;
-      letter-spacing:.2px;
-      font-size: 12px;
-      color: var(--text);
-      display:flex;
-      flex-direction:column;
-      justify-content:center;
-      gap:4px;
-    }
-    .time .tag{
-      font-weight:700;
-      font-size: 11px;
-      color: var(--muted);
-    }
-    .main{
-      display:flex;
-      flex-direction:column;
-      gap: 6px;
-      min-width:0;
-    }
-    .main .task{
-      display:flex;
-      align-items:center;
-      gap:8px;
-      min-width:0;
-    }
-    .task input{
-      width:100%;
-      border:1px solid var(--border);
-      background: rgba(0,0,0,.20);
-      color: var(--text);
-      padding: 9px 10px;
-      border-radius: 12px;
-      outline:none;
-      font-weight:650;
-    }
-    .task input::placeholder{ color: rgba(233,238,252,.45); font-weight:600; }
-    .meta{
-      display:flex;
-      gap:8px;
-      flex-wrap:wrap;
-      align-items:center;
-      color: var(--muted);
-      font-size: 12px;
-    }
-    .pill{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      padding: 5px 9px;
-      border-radius: 999px;
-      border:1px solid var(--border);
-      background: rgba(0,0,0,.20);
-      color: var(--text);
-      font-size: 12px;
-      font-weight:700;
-    }
-    .pill .s{
-      width:8px;height:8px;border-radius:999px;display:inline-block;
-    }
-    .s.todo{ background: var(--todo); }
-    .s.done{ background: var(--done); }
-    .s.skip{ background: var(--skip); }
-    .s.lock{ background: var(--lock); }
-    .s.pause{ background: var(--pause); }
-
-    .actions{
-      display:flex;
-      flex-direction:column;
-      gap:8px;
-      justify-content:center;
-      align-items:flex-end;
-      min-width: 92px;
-    }
-    .actions .mini{
-      width: 92px;
-      justify-content:center;
-    }
-
-    .row.locked{
-      opacity:.7;
-    }
-    .row.locked .task input{
-      opacity:.75;
-    }
-
-    .pauseRow{
-      grid-template-columns: 86px 1fr;
-      background: rgba(148,163,184,.10);
-    }
-    .pauseRow .main{
-      justify-content:center;
-    }
-    .pauseText{
-      font-weight:800;
-      letter-spacing:.2px;
-      color: rgba(233,238,252,.9);
-    }
-    .pauseHint{ color: var(--muted); font-size:12px; margin-top:4px; }
-
-    /* Contacts */
-    .contacts{
-      display:flex;
-      flex-direction:column;
-      gap:8px;
-    }
-    .contact{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      padding:10px;
-      border-radius:14px;
-      border:1px solid var(--border);
-      background: rgba(255,255,255,.03);
-    }
-    .c-left{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      min-width:0;
-    }
-    .c-name{
-      font-weight:800;
-      overflow:hidden;
-      text-overflow:ellipsis;
-      white-space:nowrap;
-      max-width: 180px;
-    }
-    .c-meta{
-      color: var(--muted);
-      font-size:12px;
-      margin-top:2px;
-    }
-    select{
-      border:1px solid var(--border);
-      background: rgba(0,0,0,.20);
-      color: var(--text);
-      padding: 8px 10px;
-      border-radius: 12px;
-      font-weight:700;
-      outline:none;
-    }
-
-    /* Footer bar */
-    .footer{
-      padding: 10px 12px;
-      border-top:1px solid var(--border);
-      background: rgba(0,0,0,.18);
-      display:flex;
-      gap:10px;
-      justify-content:space-between;
-      align-items:center;
-    }
-    .statusline{
-      color: var(--muted);
-      font-size: 12px;
-      overflow:hidden;
-      text-overflow:ellipsis;
-      white-space:nowrap;
-      max-width: 62%;
-    }
-
-    /* Modal */
-    .modalOverlay{
-      position:absolute;
-      inset:0;
-      background: rgba(0,0,0,.55);
-      display:none;
-      align-items:flex-end;
-      justify-content:center;
-      padding: 14px;
-    }
-    .modalOverlay.open{ display:flex; }
-    .modal{
-      width:100%;
-      max-width: 520px;
-      background: rgba(18,22,34,.96);
-      border:1px solid var(--border);
-      border-radius: 18px;
-      box-shadow: var(--shadow);
-      overflow:hidden;
-    }
-    .modalHeader{
-      padding: 12px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      border-bottom:1px solid var(--border);
-      background: rgba(0,0,0,.18);
-    }
-    .modalHeader strong{ font-size:13px; letter-spacing:.2px; }
-    .modalBody{
-      padding: 12px;
-      max-height: 60svh;
-      overflow:auto;
-      color: rgba(233,238,252,.92);
-    }
-    .modalBody h3{
-      margin: 10px 0 6px;
-      font-size: 12px;
-      text-transform: uppercase;
-      color: var(--muted);
-      letter-spacing:.2px;
-    }
-    .modalBody ul{ margin: 6px 0 12px 18px; color: rgba(233,238,252,.9); }
-    .modalBody li{ margin: 6px 0; }
-    .mono{
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-      font-size: 12px;
-      color: rgba(233,238,252,.9);
-      background: rgba(0,0,0,.20);
-      border:1px solid var(--border);
-      padding: 10px;
-      border-radius: 12px;
-      white-space: pre-wrap;
-    }
-  </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agenda Operativa</title>
 </head>
+
 <body>
-  <div class="phone" role="application" aria-label="Agenda Operativa">
-    <div class="screen">
 
-      <div class="topbar">
-        <div class="title">
-          <h1 id="pageTitle">Agenda Operativa</h1>
-          <div class="sub" id="pageSub">Oggi • 08:00–20:00 (pausa 13:00–14:30)</div>
-        </div>
-        <button class="btn small" id="btnInstructions" type="button" aria-haspopup="dialog" aria-controls="modal">
-          🧾 Istruzioni
-        </button>
-      </div>
+<!-- APP CONTAINER -->
+<div class="app">
 
-      <div class="content" id="content">
-        <div class="card" id="sundayCard" style="display:none;">
-          <h2>Domenica</h2>
-          <div class="mono">OFF — nessuna attività prevista oggi.</div>
-        </div>
+  <!-- HEADER FISSO -->
+  <header class="app-header">
+    <button class="day-nav prev">←</button>
 
-        <div class="card">
-          <h2>Regole (pallini colorati)</h2>
-          <div class="legend" aria-label="Legenda stati contatto">
-            <span class="chip"><span class="dot blue"></span> NUOVO</span>
-            <span class="chip"><span class="dot cyan"></span> CONTATTATO</span>
-            <span class="chip"><span class="dot green"></span> QUALIFICATO</span>
-            <span class="chip"><span class="dot purple"></span> APPUNTAMENTO</span>
-            <span class="chip"><span class="dot amber"></span> PAUSA</span>
-            <span class="chip"><span class="dot red"></span> SCARTATO</span>
-          </div>
-        </div>
-
-        <div class="card" id="agendaCard">
-          <h2>Oggi (blocchi 08:00–20:00)</h2>
-          <div class="agenda" id="agenda"></div>
-        </div>
-
-        <div class="card" id="contactsCard">
-          <h2>Contatti (demo)</h2>
-          <div class="contacts" id="contacts"></div>
-          <div style="display:flex; gap:10px; margin-top:10px;">
-            <button class="btn small" id="addContact" type="button">➕ Aggiungi</button>
-            <button class="btn small ghost" id="clearContacts" type="button">🗑️ Svuota</button>
-          </div>
-          <div class="mono" style="margin-top:10px;">
-Nota: qui i pallini indicano lo STATO. "rimandi" simula la regola: a 3 → PAUSA.
-          </div>
-        </div>
-      </div>
-
-      <div class="footer">
-        <div class="statusline" id="statusline">Pronto.</div>
-        <div style="display:flex; gap:10px;">
-          <button class="btn small" id="btnExport" type="button">📥 Export</button>
-          <button class="btn small ghost" id="btnReset" type="button">🔄 Reset</button>
-        </div>
-      </div>
-
-      <!-- Modal Istruzioni -->
-      <div class="modalOverlay" id="overlay" role="dialog" aria-modal="true" aria-label="Istruzioni" tabindex="-1">
-        <div class="modal" id="modal">
-          <div class="modalHeader">
-            <strong>ISTRUZIONI (Operativo, neutro, per stati)</strong>
-            <button class="btn small" id="btnClose" type="button">✕ Chiudi</button>
-          </div>
-          <div class="modalBody">
-            <h3>Obiettivo</h3>
-            <div class="mono">Controllare il PROCEDIMENTO. Non convincere. Non vendere. Non motivare.</div>
-
-            <h3>Stati contatto</h3>
-            <div class="mono">NUOVO → CONTATTATO → QUALIFICATO → APPUNTAMENTO_FISSATO
-PAUSA (stop) • SCARTATO (fine)</div>
-
-            <h3>Regole ferree</h3>
-            <ul>
-              <li><b>Appuntamento vietato</b> se manca anche uno: motivo vendita, tempi, prezzo atteso/range, JTBD.</li>
-              <li>Ogni rimando aumenta <b>rimandi</b>. A 3 → stato <b>PAUSA</b>.</li>
-              <li>Solo info/prezzo senza problema reale → <b>SCARTATO</b> o <b>PAUSA</b>.</li>
-              <li>Ogni interazione produce <b>uno</b>: avanzamento, pausa, scarto.</li>
-            </ul>
-
-            <h3>Domanda guida</h3>
-            <div class="mono">“Che problema sta cercando di risolvere questa persona con questa casa?”</div>
-
-            <h3>Agenda oggi</h3>
-            <div class="mono">08:00–13:00  •  PAUSA 13:00–14:30  •  14:30–20:00
-Domenica: OFF</div>
-          </div>
-        </div>
-      </div>
-
+    <div class="day-info">
+      <div class="day-label">Lunedì</div>
+      <div class="day-date">23 Marzo 2026</div>
     </div>
-  </div>
 
-<script>
-  // ====== Util ======
-  const $ = (sel) => document.querySelector(sel);
-  const agendaEl = $("#agenda");
-  const contactsEl = $("#contacts");
-  const statusline = $("#statusline");
+    <button class="day-nav next">→</button>
+  </header>
 
-  function pad(n){ return String(n).padStart(2,"0"); }
-  function fmtDate(d){
-    const days = ["Dom","Lun","Mar","Mer","Gio","Ven","Sab"];
-    const months = ["Gen","Feb","Mar","Apr","Mag","Giu","Lug","Ago","Set","Ott","Nov","Dic"];
-    return `${days[d.getDay()]} ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
-  }
+  <!-- INFO BAR -->
+  <section class="info-bar">
+    <span>08:00 – 20:00</span>
+    <span>Pausa 13:00 – 14:30</span>
+    <button class="settings-btn">⚙️</button>
+  </section>
 
-  function setStatus(msg){
-    statusline.textContent = msg;
-  }
+  <!-- CONTENUTO SCROLLABILE -->
+  <main class="agenda">
 
-  // ====== Regole agenda ======
-  // 08:00–13:00 = 5 blocchi da 60 min
-  // PAUSA 13:00–14:30
-  // 14:30–19:30 = 5 blocchi da 60 min
-  // 19:30–20:00 = 1 blocco da 30 min
-  const blocksTemplate = [
-    { id:1,  start:"08:00", end:"09:00" },
-    { id:2,  start:"09:00", end:"10:00" },
-    { id:3,  start:"10:00", end:"11:00" },
-    { id:4,  start:"11:00", end:"12:00" },
-    { id:5,  start:"12:00", end:"13:00" },
-    { pause:true, start:"13:00", end:"14:30" },
-    { id:6,  start:"14:30", end:"15:30" },
-    { id:7,  start:"15:30", end:"16:30" },
-    { id:8,  start:"16:30", end:"17:30" },
-    { id:9,  start:"17:30", end:"18:30" },
-    { id:10, start:"18:30", end:"19:30" },
-    { id:11, start:"19:30", end:"20:00" },
-  ];
+    <!-- DOMENICA OFF -->
+    <!--
+    <section class="day-off">
+      <h2>Domenica</h2>
+      <p>Nessuna attività programmata</p>
+    </section>
+    -->
 
-  // ====== Stato (localStorage per oggi) ======
-  const today = new Date();
-  const key = "agenda_operativa:" + today.toISOString().slice(0,10);
+    <!-- TIMELINE ORARIA -->
+    <section class="timeline">
 
-  const defaultState = {
-    date: today.toISOString().slice(0,10),
-    blocks: blocksTemplate
-      .filter(b => !b.pause)
-      .map(b => ({
-        id: b.id,
-        start: b.start,
-        end: b.end,
-        text: "",
-        status: (b.id === 1 ? "todo" : "locked"), // vincolo: sblocco a catena
-        skipReason: ""
-      })),
-    contacts: [
-      { name:"Contatto A", stato:"NUOVO", rimandi:0 },
-      { name:"Contatto B", stato:"CONTATTATO", rimandi:1 },
-      { name:"Contatto C", stato:"QUALIFICATO", rimandi:0 }
-    ]
-  };
+      <!-- ORA 08 -->
+      <div class="hour">
+        <div class="hour-label">08:00</div>
 
-  function loadState(){
-    try{
-      const raw = localStorage.getItem(key);
-      return raw ? JSON.parse(raw) : structuredClone(defaultState);
-    }catch(e){
-      return structuredClone(defaultState);
-    }
-  }
-  function saveState(){
-    try{
-      localStorage.setItem(key, JSON.stringify(state));
-    }catch(e){
-      // se storage bloccato, almeno non crasha
-    }
-  }
-
-  let state = loadState();
-
-  // ====== Vincolo blocchi: sblocco progressivo ======
-  function recomputeLocks(){
-    // primo sempre sbloccato
-    for(const b of state.blocks){
-      b.status = (b.id === 1) ? (b.status === "done" || b.status === "skipped" ? b.status : "todo") : b.status;
-    }
-    for(let i=0; i<state.blocks.length; i++){
-      const prev = state.blocks[i-1];
-      const curr = state.blocks[i];
-      if(curr.id === 1) continue;
-
-      const prevClosed = prev && (prev.status === "done" || prev.status === "skipped");
-      if(prevClosed){
-        if(curr.status === "locked") curr.status = "todo";
-      }else{
-        // se precedente non chiuso, blocca i successivi (se non chiusi)
-        if(curr.status !== "done" && curr.status !== "skipped"){
-          curr.status = "locked";
-        }
-      }
-    }
-    saveState();
-  }
-
-  // ====== Render Agenda ======
-  function statusPill(status){
-    if(status === "todo") return `<span class="pill"><span class="s todo"></span>DA FARE</span>`;
-    if(status === "done") return `<span class="pill"><span class="s done"></span>FATTO</span>`;
-    if(status === "skipped") return `<span class="pill"><span class="s skip"></span>SALTATO</span>`;
-    return `<span class="pill"><span class="s lock"></span>BLOCCATO</span>`;
-  }
-
-  function renderAgenda(){
-    agendaEl.innerHTML = "";
-
-    // Domenica OFF
-    const isSunday = today.getDay() === 0;
-    $("#sundayCard").style.display = isSunday ? "block" : "none";
-    $("#agendaCard").style.display = isSunday ? "none" : "block";
-    $("#contactsCard").style.display = isSunday ? "none" : "block";
-    $("#btnExport").disabled = false; // export rimane utile anche domenica
-    $("#btnReset").disabled = false;
-
-    if(isSunday) return;
-
-    // Render blocchi + riga pausa
-    for(const item of blocksTemplate){
-      if(item.pause){
-        const pauseRow = document.createElement("div");
-        pauseRow.className = "row pauseRow";
-        pauseRow.innerHTML = `
-          <div class="time">
-            ${item.start}–${item.end}
-            <div class="tag">Pausa</div>
+        <div class="block">
+          <div class="block-header">
+            <span class="block-title">Contatta NUOVI</span>
+            <span class="block-icon">💲</span>
           </div>
-          <div class="main">
-            <div class="pauseText">PAUSA (non inclusa)</div>
-            <div class="pauseHint">Nessuna azione. Nessun contatto.</div>
-          </div>
-        `;
-        agendaEl.appendChild(pauseRow);
-        continue;
-      }
 
-      const b = state.blocks.find(x => x.id === item.id);
-      const locked = b.status === "locked";
-      const row = document.createElement("div");
-      row.className = "row" + (locked ? " locked" : "");
-      row.innerHTML = `
-        <div class="time">
-          ${b.start}–${b.end}
-          <div class="tag">Blocco ${b.id}</div>
-        </div>
-
-        <div class="main">
-          <div class="task">
-            <input
-              type="text"
-              ${locked ? "disabled" : ""}
-              value="${escapeHtml(b.text)}"
-              placeholder="Istruzione/blocco (es: contatti NUOVI, qualifica, agenda...)"
-              data-id="${b.id}"
-              aria-label="Testo blocco ${b.id}"
-            />
+          <div class="block-status">
+            <span class="status-dot todo"></span>
+            <span class="status-text">DA FARE</span>
           </div>
-          <div class="meta">
-            ${statusPill(b.status)}
-            ${b.status === "skipped" && b.skipReason ? `<span class="pill"><span class="s pause"></span>Motivo: ${escapeHtml(b.skipReason)}</span>` : ""}
+
+          <div class="block-actions">
+            <button>✔ FATTO</button>
+            <button>⏭ NON FATTO</button>
           </div>
         </div>
+      </div>
 
-        <div class="actions">
-          <button class="btn small mini" type="button" data-act="done" data-id="${b.id}" ${locked ? "disabled" : ""}>✅ Fatto</button>
-          <button class="btn small mini ghost" type="button" data-act="skip" data-id="${b.id}" ${locked ? "disabled" : ""}>
-            ${b.status === "skipped" ? "↩️ Annulla" : "⏭️ Salta"}
-          </button>
-        </div>
-      `;
-      agendaEl.appendChild(row);
-    }
+      <!-- ORA 09 -->
+      <div class="hour">
+        <div class="hour-label">09:00</div>
+        <div class="block locked">
+          <div class="block-header">
+            <span class="block-title">Qualifica CONTATTATI</span>
+            <span class="block-icon">💲</span>
+          </div>
 
-    // Listeners input
-    agendaEl.querySelectorAll("input[data-id]").forEach(inp => {
-      inp.addEventListener("input", (e)=>{
-        const id = Number(e.target.dataset.id);
-        const b = state.blocks.find(x=>x.id===id);
-        b.text = e.target.value;
-        saveState();
-      });
-    });
-
-    // Listeners bottoni
-    agendaEl.querySelectorAll("button[data-act]").forEach(btn=>{
-      btn.addEventListener("click", ()=>{
-        const id = Number(btn.dataset.id);
-        const act = btn.dataset.act;
-        const b = state.blocks.find(x=>x.id===id);
-        if(!b) return;
-
-        if(act === "done"){
-          // toggle fatto
-          b.status = (b.status === "done") ? "todo" : "done";
-          if(b.status === "done"){ b.skipReason = ""; }
-          setStatus(`Blocco ${id}: ${b.status === "done" ? "FATTO" : "DA FARE"}.`);
-        }
-
-        if(act === "skip"){
-          if(b.status === "skipped"){
-            b.status = "todo";
-            b.skipReason = "";
-            setStatus(`Blocco ${id}: salto annullato.`);
-          }else{
-            const reason = prompt("Motivo del salto (obbligatorio):");
-            if(!reason || !reason.trim()){
-              setStatus(`Blocco ${id}: salto bloccato (manca motivo).`);
-              return;
-            }
-            b.status = "skipped";
-            b.skipReason = reason.trim();
-            setStatus(`Blocco ${id}: SALTATO.`);
-          }
-        }
-
-        recomputeLocks();
-        renderAgenda();
-      });
-    });
-  }
-
-  // ====== Render Contatti (demo) ======
-  function dotClassFor(stato){
-    switch(stato){
-      case "NUOVO": return "blue";
-      case "CONTATTATO": return "cyan";
-      case "QUALIFICATO": return "green";
-      case "APPUNTAMENTO_FISSATO": return "purple";
-      case "PAUSA": return "amber";
-      case "SCARTATO": return "red";
-      default: return "blue";
-    }
-  }
-
-  function renderContacts(){
-    contactsEl.innerHTML = "";
-    for(let i=0; i<state.contacts.length; i++){
-      const c = state.contacts[i];
-      const wrap = document.createElement("div");
-      wrap.className = "contact";
-      const blocked = (c.stato === "PAUSA" || c.stato === "SCARTATO");
-      wrap.innerHTML = `
-        <div class="c-left">
-          <span class="dot ${dotClassFor(c.stato)}" title="${c.stato}"></span>
-          <div style="min-width:0;">
-            <div class="c-name">${escapeHtml(c.name)}</div>
-            <div class="c-meta">stato: <b>${c.stato}</b> • rimandi: <b>${c.rimandi}</b>${blocked ? " • (stop)" : ""}</div>
+          <div class="block-status">
+            <span class="status-dot locked"></span>
+            <span class="status-text">BLOCCATO</span>
           </div>
         </div>
+      </div>
 
-        <div style="display:flex; gap:8px; align-items:center;">
-          <select data-i="${i}" aria-label="Stato contatto ${escapeHtml(c.name)}">
-            ${["NUOVO","CONTATTATO","QUALIFICATO","APPUNTAMENTO_FISSATO","PAUSA","SCARTATO"].map(s =>
-              `<option value="${s}" ${s===c.stato?"selected":""}>${s}</option>`
-            ).join("")}
-          </select>
-          <button class="btn small ghost" type="button" data-inc="${i}" title="Simula rimando (+1)">+rim</button>
+      <!-- PAUSA -->
+      <div class="break">
+        <div class="break-title">PAUSA</div>
+        <div class="break-time">13:00 – 14:30</div>
+      </div>
+
+      <!-- ORA 14:30 -->
+      <div class="hour">
+        <div class="hour-label">14:30</div>
+        <div class="block">
+          <div class="block-header">
+            <span class="block-title">Follow-up controllato</span>
+            <span class="block-icon">💲</span>
+          </div>
         </div>
-      `;
-      contactsEl.appendChild(wrap);
-    }
+      </div>
 
-    contactsEl.querySelectorAll("select[data-i]").forEach(sel=>{
-      sel.addEventListener("change",(e)=>{
-        const idx = Number(e.target.dataset.i);
-        state.contacts[idx].stato = e.target.value;
-        saveState();
-        renderContacts();
-        setStatus(`Contatto: stato → ${state.contacts[idx].stato}`);
-      });
-    });
+      <!-- ... altri blocchi ... -->
 
-    contactsEl.querySelectorAll("button[data-inc]").forEach(btn=>{
-      btn.addEventListener("click", ()=>{
-        const idx = Number(btn.dataset.inc);
-        const c = state.contacts[idx];
-        c.rimandi += 1;
-        if(c.rimandi >= 3){
-          c.stato = "PAUSA";
-          setStatus(`Rimandi=3 → contatto in PAUSA (stop).`);
-        }else{
-          setStatus(`Rimando registrato (rimandi=${c.rimandi}).`);
-        }
-        saveState();
-        renderContacts();
-      });
-    });
-  }
+    </section>
+  </main>
 
-  // ====== Export / Reset ======
-  $("#btnExport").addEventListener("click", ()=>{
-    const payload = {
-      ...state,
-      exportedAt: new Date().toISOString(),
-      label: "Agenda Operativa (oggi) 08:00–20:00, pausa 13:00–14:30, domenica OFF"
-    };
-    const blob = new Blob([JSON.stringify(payload, null, 2)], {type:"application/json"});
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = `agenda_${state.date}.json`;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    setStatus("Export completato.");
-  });
+  <!-- PULSANTE WHATSAPP -->
+  <button class="fab-whatsapp">
+    🟢 Chiama Agenzia
+  </button>
 
-  $("#btnReset").addEventListener("click", ()=>{
-    if(!confirm("Reset giornata (oggi)?")) return;
-    localStorage.removeItem(key);
-    state = structuredClone(defaultState);
-    setStatus("Reset completato.");
-    recomputeLocks();
-    renderAgenda();
-    renderContacts();
-  });
+  <!-- FOOTER STATUS -->
+  <footer class="status-bar">
+    <span class="status-message">
+      Blocco 1 completato
+    </span>
+    <button class="sync-btn">🔄 Sync</button>
+  </footer>
 
-  // ====== Modal istruzioni ======
-  const overlay = $("#overlay");
-  $("#btnInstructions").addEventListener("click", ()=>{
-    overlay.classList.add("open");
-    overlay.focus();
-  });
-  $("#btnClose").addEventListener("click", ()=> overlay.classList.remove("open"));
-  overlay.addEventListener("click", (e)=>{
-    if(e.target === overlay) overlay.classList.remove("open");
-  });
-  document.addEventListener("keydown", (e)=>{
-    if(e.key === "Escape") overlay.classList.remove("open");
-  });
+</div>
 
-  // ====== Header date ======
-  $("#pageTitle").textContent = "Agenda (Oggi)";
-  $("#pageSub").textContent = `${fmtDate(today)} • 08:00–20:00 (pausa 13:00–14:30) • Domenica OFF`;
-
-  // ====== HTML escape ======
-  function escapeHtml(s){
-    return String(s ?? "")
-      .replaceAll("&","&amp;")
-      .replaceAll("<","&lt;")
-      .replaceAll(">","&gt;")
-      .replaceAll('"',"&quot;")
-      .replaceAll("'","&#039;");
-  }
-
-  // Init
-  recomputeLocks();
-  renderAgenda();
-  renderContacts();
-</script>
 </body>
 </html>
