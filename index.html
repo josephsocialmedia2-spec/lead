@@ -1,123 +1,704 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Agenda Operativa</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Acquisizione Strategica — Seduti (Copia/Incolla)</title>
+  <style>
+    :root{
+      --bg:#0a0a0b;
+      --card:#101114;
+      --card2:#0d0e10;
+      --text:#f3f4f6;
+      --muted:#a1a1aa;
+      --line:#23252b;
+      --gold:#d4af37;
+      --gold2:#b8942e;
+      --danger:#ef4444;
+      --r:18px;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;background:var(--bg);color:var(--text)}
+    header{
+      position:sticky;top:0;z-index:10;
+      background:rgba(10,10,11,.92);backdrop-filter:blur(10px);
+      border-bottom:1px solid var(--line);
+      padding:12px 16px;display:flex;gap:10px;align-items:center
+    }
+    h1{margin:0;font-size:16px;letter-spacing:.2px}
+    .tiny{font-size:12px;color:var(--muted)}
+    main{max-width:1250px;margin:0 auto;padding:16px}
+    .grid{display:grid;grid-template-columns:1.15fr .85fr;gap:16px}
+    .card{
+      background:linear-gradient(180deg,var(--card),var(--card2));
+      border:1px solid var(--line);
+      border-radius:var(--r);
+      padding:14px;
+      box-shadow:0 10px 25px rgba(0,0,0,.35);
+    }
+    .card h2{margin:0 0 10px 0;font-size:14px}
+    label{display:block;font-size:12px;color:var(--muted);margin:8px 0 6px}
+    input,select,textarea{
+      width:100%;padding:10px 12px;border:1px solid var(--line);
+      border-radius:14px;font-size:14px;background:#0b0c0e;color:var(--text)
+    }
+    textarea{min-height:90px;resize:vertical}
+    select{appearance:none}
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    .row > *{flex:1}
+    .two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .hr{height:1px;background:var(--line);margin:12px 0}
+
+    button{
+      border:1px solid var(--line);
+      background:#0b0c0e;
+      color:var(--text);
+      border-radius:14px;
+      padding:10px 12px;
+      cursor:pointer;
+    }
+    button:active{transform:translateY(1px)}
+    button.gold{
+      background:linear-gradient(180deg,var(--gold),var(--gold2));
+      border-color:rgba(212,175,55,.35);
+      color:#0a0a0b;
+      font-weight:800;
+    }
+    button.ghost{
+      background:transparent;border-color:rgba(212,175,55,.25);color:var(--gold);
+    }
+    button.danger{
+      background:transparent;border-color:rgba(239,68,68,.5);color:var(--danger);
+    }
+
+    .pill{
+      display:inline-flex;align-items:center;gap:8px;
+      border:1px solid rgba(212,175,55,.25);
+      border-radius:999px;padding:6px 10px;
+      font-size:12px;color:var(--gold);
+      background:rgba(212,175,55,.06)
+    }
+    .pill.ok{border-color:rgba(34,197,94,.35);color:#86efac;background:rgba(34,197,94,.08)}
+    .pill.bad{border-color:rgba(239,68,68,.35);color:#fecaca;background:rgba(239,68,68,.08)}
+    .pill.muted{border-color:rgba(161,161,170,.25);color:var(--muted);background:rgba(161,161,170,.05)}
+    .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace}
+
+    table{width:100%;border-collapse:separate;border-spacing:0 10px}
+    thead th{font-size:12px;color:var(--muted);text-align:left;padding:0 10px}
+    tbody td{
+      padding:10px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+      vertical-align:top;background:rgba(255,255,255,.02)
+    }
+    tbody td:first-child{border-left:1px solid var(--line);border-top-left-radius:14px;border-bottom-left-radius:14px}
+    tbody td:last-child{border-right:1px solid var(--line);border-top-right-radius:14px;border-bottom-right-radius:14px}
+
+    a.link{
+      color:var(--gold);text-decoration:none;border-bottom:1px dashed rgba(212,175,55,.35)
+    }
+    .hint{
+      border:1px dashed rgba(212,175,55,.25);
+      background:rgba(212,175,55,.06);
+      border-radius:14px;padding:10px
+    }
+    .bigstep{
+      border:1px solid rgba(212,175,55,.25);
+      background:rgba(212,175,55,.06);
+      border-radius:16px;padding:12px;
+    }
+    .bigstep h3{margin:0 0 8px 0;font-size:13px}
+    .bigstep .do{font-weight:900;color:var(--gold);margin-bottom:6px}
+    .actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+    @media (max-width:980px){.grid{grid-template-columns:1fr}}
+  </style>
 </head>
-
 <body>
+<header>
+  <h1>Acquisizione Strategica — Seduti</h1>
+  <span class="tiny">Procedura “clicca qui → copia/incolla → salva contatto”</span>
+  <span style="flex:1"></span>
+  <button id="btnExport" class="ghost">Esporta</button>
+  <button id="btnImport" class="ghost">Importa</button>
+  <button id="btnReset" class="danger">Reset</button>
+</header>
 
-<!-- APP CONTAINER -->
-<div class="app">
+<main>
+  <div class="grid">
+    <!-- LEFT: PROCEDURA GUIDATA -->
+    <section class="card">
+      <h2>PROCEDURA (falla in ordine, 30–45 min al giorno)</h2>
 
-  <!-- HEADER FISSO -->
-  <header class="app-header">
-    <button class="day-nav prev">←</button>
+      <div class="hint tiny">
+        Regola: <b>non vendere</b>. Prima commenti/like. Poi (solo dopo) DM.
+      </div>
 
-    <div class="day-info">
-      <div class="day-label">Lunedì</div>
-      <div class="day-date">23 Marzo 2026</div>
-    </div>
+      <div class="hr"></div>
 
-    <button class="day-nav next">→</button>
-  </header>
+      <div class="two">
+        <div>
+          <label>Il tuo settore (1 riga)</label>
+          <input id="niche" placeholder="Es: social per ristoranti" />
+        </div>
+        <div>
+          <label>Piattaforma principale</label>
+          <select id="mainPlatform">
+            <option value="instagram">Instagram</option>
+            <option value="tiktok">TikTok</option>
+            <option value="linkedin">LinkedIn</option>
+            <option value="facebook">Facebook</option>
+            <option value="x">X</option>
+          </select>
+        </div>
+      </div>
 
-  <!-- INFO BAR -->
-  <section class="info-bar">
-    <span>08:00 – 20:00</span>
-    <span>Pausa 13:00 – 14:30</span>
-    <button class="settings-btn">⚙️</button>
-  </section>
+      <div class="two">
+        <div>
+          <label>Parole chiave (1 per riga) — cose che la gente scrive</label>
+          <textarea id="keywords" placeholder="Es:
+non riesco a
+come faccio a
+consigli per
+problema con
+cerco agenzia
+cerco freelance"></textarea>
+        </div>
+        <div>
+          <label>Competitor / pagine (1 per riga) — @nome o URL</label>
+          <textarea id="competitors" placeholder="Es:
+@competitor1
+@competitor2
+https://www.instagram.com/competitor3/"></textarea>
+        </div>
+      </div>
 
-  <!-- CONTENUTO SCROLLABILE -->
-  <main class="agenda">
+      <div class="two">
+        <div>
+          <label>Gruppi / community (1 per riga) — nome o URL</label>
+          <textarea id="groups" placeholder="Es:
+Gruppo Facebook: Marketing Italia
+https://www.linkedin.com/groups/123456/
+Discord: Growth Hacking Italia"></textarea>
+        </div>
+        <div>
+          <label>Quanti contatti vuoi al giorno?</label>
+          <select id="quota">
+            <option value="10">10</option>
+            <option value="20" selected>20</option>
+            <option value="30">30</option>
+          </select>
+        </div>
+      </div>
 
-    <!-- DOMENICA OFF -->
-    <!--
-    <section class="day-off">
-      <h2>Domenica</h2>
-      <p>Nessuna attività programmata</p>
+      <div class="actions" style="margin-top:10px">
+        <button id="btnSave" class="ghost">Salva setup</button>
+        <button id="btnGenerate" class="gold">GENERA LA GIORNATA (clicca)</button>
+      </div>
+
+      <div class="hr"></div>
+
+      <!-- STEP BOXES -->
+      <div class="bigstep" id="step1Box">
+        <div class="do">STEP 1 — CERCA PERSONE (clicca link)</div>
+        <h3>Fai così:</h3>
+        <div class="tiny">1) Clicca un link qui sotto → 2) apri post recenti → 3) trova chi chiede aiuto → 4) salva il contatto.</div>
+        <div class="row" style="margin-top:10px" id="searchLinks"></div>
+      </div>
+
+      <div class="hr"></div>
+
+      <div class="bigstep" id="step2Box">
+        <div class="do">STEP 2 — COMMENTA (copia/incolla)</div>
+        <h3>Fai così:</h3>
+        <div class="tiny">1) Clicca <b>Copia commento</b> → 2) incolla sotto il post della persona → 3) personalizza UNA parola → 4) invia.</div>
+        <div class="actions" style="margin-top:10px">
+          <button id="btnCopyComment" class="gold">COPIA COMMENTO</button>
+          <button id="btnCopyReply" class="ghost">COPIA RISPOSTA IN GRUPPO</button>
+        </div>
+        <label style="margin-top:10px">Testo pronto (solo per vedere)</label>
+        <textarea id="previewComment" class="mono"></textarea>
+      </div>
+
+      <div class="hr"></div>
+
+      <div class="bigstep" id="step3Box">
+        <div class="do">STEP 3 — LIKE “INTELLIGENTE” (1 click)</div>
+        <h3>Fai così:</h3>
+        <div class="tiny">Prima del DM: <b>metti like</b> a 1 post della persona + <b>like</b> al suo commento (se esiste). Poi stop.</div>
+        <div class="row" style="margin-top:10px">
+          <span class="pill">AZIONE: 2 like e via</span>
+          <span class="pill muted">NO spam</span>
+        </div>
+      </div>
+
+      <div class="hr"></div>
+
+      <div class="bigstep" id="step4Box">
+        <div class="do">STEP 4 — DM (solo dopo interazione)</div>
+        <h3>Fai così:</h3>
+        <div class="tiny">1) Solo se la persona ha visto/risposto/like → 2) clicca <b>Copia DM</b> → 3) incolla → 4) invia.</div>
+        <div class="actions" style="margin-top:10px">
+          <button id="btnCopyDM" class="gold">COPIA DM</button>
+          <button id="btnCopyDM2" class="ghost">COPIA DM (super breve)</button>
+        </div>
+        <label style="margin-top:10px">DM pronto (solo per vedere)</label>
+        <textarea id="previewDM" class="mono"></textarea>
+      </div>
+
+      <div class="hr"></div>
+
+      <div class="bigstep">
+        <div class="do">STEP 5 — SALVA CONTATTO (qui dentro)</div>
+        <h3>Fai così:</h3>
+        <div class="tiny">Ogni volta che trovi qualcuno: apri la scheda a destra → scrivi @nome → “Salva”.</div>
+        <div class="row" style="margin-top:10px">
+          <span class="pill ok" id="progressPill">Oggi: 0 / 0 salvati</span>
+          <button id="btnNewDay" class="ghost">Nuovo giorno</button>
+        </div>
+      </div>
     </section>
-    -->
 
-    <!-- TIMELINE ORARIA -->
-    <section class="timeline">
+    <!-- RIGHT: SALVA CONTATTI + LISTA -->
+    <aside class="card">
+      <h2>SALVA CONTATTO (lead)</h2>
 
-      <!-- ORA 08 -->
-      <div class="hour">
-        <div class="hour-label">08:00</div>
+      <label>@nome / nome / azienda</label>
+      <input id="leadName" placeholder="Es: @pizzeriaroma" />
 
-        <div class="block">
-          <div class="block-header">
-            <span class="block-title">Contatta NUOVI</span>
-            <span class="block-icon">💲</span>
-          </div>
-
-          <div class="block-status">
-            <span class="status-dot todo"></span>
-            <span class="status-text">DA FARE</span>
-          </div>
-
-          <div class="block-actions">
-            <button>✔ FATTO</button>
-            <button>⏭ NON FATTO</button>
-          </div>
+      <div class="two">
+        <div>
+          <label>Piattaforma</label>
+          <select id="leadPlatform">
+            <option>Instagram</option><option>TikTok</option><option>LinkedIn</option><option>Facebook</option><option>X</option><option>Altro</option>
+          </select>
+        </div>
+        <div>
+          <label>Stato</label>
+          <select id="leadStatus">
+            <option value="NUOVO">NUOVO (trovato)</option>
+            <option value="COMMENTATO">COMMENTATO</option>
+            <option value="DM_INVIATO">DM INVIATO</option>
+            <option value="RISPOSTA">RISPOSTA</option>
+            <option value="QUALIFICATO">QUALIFICATO</option>
+            <option value="CHIUSO">CHIUSO</option>
+            <option value="SCARTATO">SCARTATO</option>
+          </select>
         </div>
       </div>
 
-      <!-- ORA 09 -->
-      <div class="hour">
-        <div class="hour-label">09:00</div>
-        <div class="block locked">
-          <div class="block-header">
-            <span class="block-title">Qualifica CONTATTATI</span>
-            <span class="block-icon">💲</span>
-          </div>
+      <label>Dove l’hai trovato? (1 riga)</label>
+      <input id="leadWhere" placeholder="Es: commenti sotto @competitor1 / gruppo FB X / ricerca keyword" />
 
-          <div class="block-status">
-            <span class="status-dot locked"></span>
-            <span class="status-text">BLOCCATO</span>
-          </div>
+      <label>Nota (facoltativa)</label>
+      <textarea id="leadNote" placeholder="Es: chiede aiuto su 'non riesco a trovare clienti'"></textarea>
+
+      <div class="actions" style="margin-top:10px">
+        <button id="btnSaveLead" class="gold">SALVA CONTATTO</button>
+        <button id="btnPasteLast" class="ghost">Incolla ultimo testo</button>
+      </div>
+
+      <div class="hr"></div>
+
+      <h2>LISTA CONTATTI</h2>
+
+      <div class="row">
+        <div>
+          <label>Filtro stato</label>
+          <select id="leadFilter">
+            <option value="ALL">Tutti</option>
+            <option value="NUOVO">NUOVO</option>
+            <option value="COMMENTATO">COMMENTATO</option>
+            <option value="DM_INVIATO">DM INVIATO</option>
+            <option value="RISPOSTA">RISPOSTA</option>
+            <option value="QUALIFICATO">QUALIFICATO</option>
+            <option value="CHIUSO">CHIUSO</option>
+            <option value="SCARTATO">SCARTATO</option>
+          </select>
+        </div>
+        <div>
+          <label>Cerca</label>
+          <input id="leadSearch" placeholder="cerca..." />
         </div>
       </div>
 
-      <!-- PAUSA -->
-      <div class="break">
-        <div class="break-title">PAUSA</div>
-        <div class="break-time">13:00 – 14:30</div>
-      </div>
+      <table>
+        <thead>
+          <tr><th>Contatto</th><th>Stato</th><th>Azioni</th></tr>
+        </thead>
+        <tbody id="leadRows"></tbody>
+      </table>
+    </aside>
+  </div>
+</main>
 
-      <!-- ORA 14:30 -->
-      <div class="hour">
-        <div class="hour-label">14:30</div>
-        <div class="block">
-          <div class="block-header">
-            <span class="block-title">Follow-up controllato</span>
-            <span class="block-icon">💲</span>
+<script>
+(() => {
+  const KEY="acq_seduti_v2";
+  const $=(id)=>document.getElementById(id);
+
+  const state = load() ?? {
+    settings:{
+      niche:"",
+      mainPlatform:"instagram",
+      keywords:["non riesco a","come faccio a","consigli per","problema con","cerco agenzia","cerco freelance"],
+      competitors:[],
+      groups:[],
+      quota:20
+    },
+    today:{ date: todayKey(), quota:20, saved:0, lastCopied:"" },
+    leads:[]
+  };
+
+  function todayKey(){ return new Date().toISOString().slice(0,10); }
+  function load(){ try{return JSON.parse(localStorage.getItem(KEY));}catch{return null;} }
+  function save(){ localStorage.setItem(KEY, JSON.stringify(state)); }
+  function uid(){ return Math.random().toString(16).slice(2)+Date.now().toString(16); }
+  function linesToArr(t){ return String(t||"").split("\n").map(x=>x.trim()).filter(Boolean); }
+  function esc(s){ return String(s).replace(/[&<>"']/g,m=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m])); }
+
+  // --------- LINKS (Step 1) ----------
+  function buildLinks(platform, query){
+    const q = encodeURIComponent(query);
+    if(platform==="instagram"){
+      return [
+        {name:"Instagram (keyword)", url:`https://www.instagram.com/explore/search/keyword/?q=${q}`},
+        {name:"Google (IG + keyword)", url:`https://www.google.com/search?q=site%3Ainstagram.com+${q}`},
+      ];
+    }
+    if(platform==="tiktok"){
+      return [
+        {name:"TikTok search", url:`https://www.tiktok.com/search?q=${q}`},
+        {name:"Google (TikTok + keyword)", url:`https://www.google.com/search?q=site%3Atiktok.com+${q}`},
+      ];
+    }
+    if(platform==="linkedin"){
+      return [
+        {name:"LinkedIn contenuti", url:`https://www.linkedin.com/search/results/content/?keywords=${q}`},
+        {name:"LinkedIn persone", url:`https://www.linkedin.com/search/results/people/?keywords=${q}`},
+      ];
+    }
+    if(platform==="facebook"){
+      return [
+        {name:"Facebook (post)", url:`https://www.facebook.com/search/posts?q=${q}`},
+        {name:"Facebook (gruppi)", url:`https://www.facebook.com/search/groups?q=${q}`},
+      ];
+    }
+    // X
+    return [
+      {name:"X (live)", url:`https://x.com/search?q=${q}&src=typed_query&f=live`},
+      {name:"Google (X + keyword)", url:`https://www.google.com/search?q=site%3Ax.com+${q}`},
+    ];
+  }
+
+  function renderSearchLinks(){
+    const box = $("searchLinks");
+    box.innerHTML = "";
+
+    const platform = state.settings.mainPlatform || "instagram";
+    const kws = state.settings.keywords || [];
+    const quota = Number(state.settings.quota || 20);
+
+    // prendo le prime 3 keyword per non fare casino
+    const pick = kws.slice(0,3);
+    const all = [];
+    pick.forEach(k => all.push(...buildLinks(platform, k)));
+
+    // competitor/group quick links
+    const extra = [];
+    (state.settings.competitors||[]).slice(0,2).forEach(c => extra.push({name:`Apri competitor: ${short(c)}`, url: guessUrl(c)}));
+    (state.settings.groups||[]).slice(0,2).forEach(g => extra.push({name:`Apri gruppo: ${short(g)}`, url: guessUrl(g)}));
+
+    const links = [...all, ...extra].slice(0,10);
+
+    links.forEach(l=>{
+      const a=document.createElement("a");
+      a.className="link";
+      a.href=l.url;
+      a.target="_blank";
+      a.rel="noopener";
+      a.textContent="• "+l.name;
+      a.style.marginRight="12px";
+      a.style.display="inline-block";
+      a.style.padding="8px 0";
+      box.appendChild(a);
+    });
+
+    state.today.quota = quota;
+    if(state.today.date !== todayKey()){
+      state.today = { date: todayKey(), quota, saved:0, lastCopied:"" };
+    }
+    save();
+    renderProgress();
+  }
+
+  function guessUrl(text){
+    const t = String(text||"").trim();
+    if(/^https?:\/\//i.test(t)) return t;
+    // se è @qualcosa → apro ricerca google
+    const q = encodeURIComponent(t);
+    return `https://www.google.com/search?q=${q}`;
+  }
+  function short(s){ s=String(s||""); return s.length>24 ? s.slice(0,24)+"…" : s; }
+
+  // --------- COPY TEXTS (Step 2/4) ----------
+  function makeComment(){
+    const niche = state.settings.niche || "il tuo tema";
+    // commento “base” neutro, poi tu cambi 1 parola
+    return `Ciao! Su "${niche}" una cosa che aiuta subito è: 1) chiarire l’obiettivo in 1 frase 2) fare contenuti che rispondono a problemi reali nei commenti. Domanda: qual è il problema #1 che ti blocca adesso?`;
+  }
+  function makeGroupReply(){
+    const niche = state.settings.niche || "il tuo tema";
+    return `Mini-procedura (veloce) per ${niche}:
+- cerca 10 post dove la gente chiede aiuto (keyword)
+- rispondi nei commenti con 1 soluzione concreta
+- fai un post che riassume la soluzione
+Se scrivi il tuo caso in 1 riga, ti dico da dove partire.`;
+  }
+  function makeDM(){
+    const niche = state.settings.niche || "il tuo tema";
+    return `Ciao! Ho visto il tuo post/commento. Io lavoro su ${niche}. In casi simili di solito bastano 2 fix:
+1) inizio (hook) più diretto + una CTA sola
+2) rispondere ai commenti con mini-post/video
+Se ti va: qual è l’obiettivo adesso (più clienti / più follower / più richieste)?`;
+  }
+  function makeDMShort(){
+    const niche = state.settings.niche || "il tuo tema";
+    return `Ciao! Ho visto il tuo post. Io lavoro su ${niche}. Se vuoi ti dico 2 fix veloci: qual è l’obiettivo #1 adesso?`;
+  }
+
+  async function copyToClipboard(text){
+    state.today.lastCopied = text;
+    save();
+    $("previewComment").value = text; // per vedere cosa hai copiato
+    try { await navigator.clipboard.writeText(text); } catch {}
+  }
+  async function copyDM(text){
+    state.today.lastCopied = text;
+    save();
+    $("previewDM").value = text;
+    try { await navigator.clipboard.writeText(text); } catch {}
+  }
+
+  // --------- Leads ----------
+  function saveLead(){
+    const name = $("leadName").value.trim();
+    if(!name) return;
+
+    const lead = {
+      id: uid(),
+      createdAt: new Date().toISOString(),
+      name,
+      platform: $("leadPlatform").value,
+      status: $("leadStatus").value,
+      where: $("leadWhere").value.trim(),
+      note: $("leadNote").value.trim(),
+      lastText: state.today.lastCopied || ""
+    };
+    state.leads.unshift(lead);
+
+    // progress
+    if(state.today.date !== todayKey()){
+      state.today = { date: todayKey(), quota: Number(state.settings.quota||20), saved:0, lastCopied: state.today.lastCopied || "" };
+    }
+    state.today.saved = (state.today.saved||0) + 1;
+
+    $("leadName").value="";
+    $("leadWhere").value="";
+    $("leadNote").value="";
+    save();
+    renderLeads();
+    renderProgress();
+  }
+
+  function renderProgress(){
+    const q = Number(state.today.quota || state.settings.quota || 20);
+    const s = Number(state.today.saved || 0);
+    $("progressPill").textContent = `Oggi: ${s} / ${q} salvati`;
+    $("progressPill").className = "pill " + (s>=q ? "ok" : "muted");
+  }
+
+  function renderLeads(){
+    const tbody = $("leadRows");
+    tbody.innerHTML="";
+
+    const f = $("leadFilter").value;
+    const q = $("leadSearch").value.trim().toLowerCase();
+
+    const list = (state.leads||[]).filter(l=>{
+      const okS = (f==="ALL") || l.status===f;
+      const hay = `${l.name} ${l.platform} ${l.status} ${l.where} ${l.note}`.toLowerCase();
+      const okQ = !q || hay.includes(q);
+      return okS && okQ;
+    });
+
+    list.forEach(l=>{
+      const tr=document.createElement("tr");
+      tr.innerHTML = `
+        <td>
+          <b>${esc(l.name)}</b>
+          <div class="tiny">${esc(l.platform)} • ${new Date(l.createdAt).toLocaleString()}</div>
+          <div class="tiny">${esc(l.where||"")}</div>
+          <div class="tiny mono">${esc((l.note||"").slice(0,80))}${(l.note||"").length>80?"…":""}</div>
+        </td>
+        <td><span class="pill">${esc(l.status)}</span></td>
+        <td>
+          <div class="row" style="gap:8px">
+            <button data-a="copy" data-id="${l.id}" class="ghost">Copia ultimo testo</button>
+            <button data-a="next" data-id="${l.id}" class="gold">Avanza stato</button>
+            <button data-a="del" data-id="${l.id}" class="danger">X</button>
           </div>
-        </div>
-      </div>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
 
-      <!-- ... altri blocchi ... -->
+    tbody.querySelectorAll("button[data-a]").forEach(btn=>{
+      btn.onclick = async ()=>{
+        const id = btn.dataset.id;
+        const a = btn.dataset.a;
+        const lead = state.leads.find(x=>x.id===id);
+        if(!lead) return;
 
-    </section>
-  </main>
+        if(a==="copy"){
+          const txt = lead.lastText || "";
+          state.today.lastCopied = txt;
+          save();
+          $("previewComment").value = txt;
+          $("previewDM").value = txt;
+          try { await navigator.clipboard.writeText(txt); } catch {}
+        }
 
-  <!-- PULSANTE WHATSAPP -->
-  <button class="fab-whatsapp">
-    🟢 Chiama Agenzia
-  </button>
+        if(a==="next"){
+          const order=["NUOVO","COMMENTATO","DM_INVIATO","RISPOSTA","QUALIFICATO","CHIUSO"];
+          const i=order.indexOf(lead.status);
+          lead.status = order[Math.min(order.length-1, Math.max(0,i+1))] || lead.status;
+          save(); renderLeads();
+        }
 
-  <!-- FOOTER STATUS -->
-  <footer class="status-bar">
-    <span class="status-message">
-      Blocco 1 completato
-    </span>
-    <button class="sync-btn">🔄 Sync</button>
-  </footer>
+        if(a==="del"){
+          state.leads = state.leads.filter(x=>x.id!==id);
+          save(); renderLeads();
+        }
+      };
+    });
+  }
 
-</div>
+  // --------- Setup / Generate day ----------
+  function renderSettings(){
+    $("niche").value = state.settings.niche || "";
+    $("mainPlatform").value = state.settings.mainPlatform || "instagram";
+    $("keywords").value = (state.settings.keywords||[]).join("\n");
+    $("competitors").value = (state.settings.competitors||[]).join("\n");
+    $("groups").value = (state.settings.groups||[]).join("\n");
+    $("quota").value = String(state.settings.quota || 20);
 
+    $("previewComment").value = makeComment();
+    $("previewDM").value = makeDM();
+  }
+
+  function saveSettings(){
+    state.settings.niche = $("niche").value.trim();
+    state.settings.mainPlatform = $("mainPlatform").value;
+    state.settings.keywords = linesToArr($("keywords").value);
+    state.settings.competitors = linesToArr($("competitors").value);
+    state.settings.groups = linesToArr($("groups").value);
+    state.settings.quota = Number($("quota").value || 20);
+    save();
+  }
+
+  function generateDay(){
+    saveSettings();
+    // reset day if changed
+    const tk = todayKey();
+    if(state.today.date !== tk){
+      state.today = { date: tk, quota: Number(state.settings.quota||20), saved:0, lastCopied: state.today.lastCopied || "" };
+    } else {
+      state.today.quota = Number(state.settings.quota||20);
+    }
+    save();
+    renderSearchLinks();
+    $("previewComment").value = makeComment();
+    $("previewDM").value = makeDM();
+    renderProgress();
+  }
+
+  function newDay(){
+    state.today = { date: todayKey(), quota: Number(state.settings.quota||20), saved:0, lastCopied:"" };
+    save();
+    renderProgress();
+  }
+
+  // --------- Export/Import/Reset ----------
+  function exportJson(){
+    const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement("a");
+    a.href=url; a.download="acquisizione-seduti.json"; a.click();
+    URL.revokeObjectURL(url);
+  }
+  function importJson(){
+    const inp=document.createElement("input");
+    inp.type="file"; inp.accept="application/json";
+    inp.onchange=()=>{
+      const f=inp.files?.[0]; if(!f) return;
+      const r=new FileReader();
+      r.onload=()=>{
+        try{
+          const obj=JSON.parse(String(r.result||""));
+          if(!obj) return;
+          // merge minimale
+          state.settings = obj.settings || state.settings;
+          state.today = obj.today || state.today;
+          state.leads = obj.leads || state.leads;
+          save();
+          init();
+        }catch{}
+      };
+      r.readAsText(f);
+    };
+    inp.click();
+  }
+  function resetAll(){
+    localStorage.removeItem(KEY);
+    location.reload();
+  }
+
+  // --------- Events ----------
+  $("btnSave").onclick = ()=>{ saveSettings(); };
+  $("btnGenerate").onclick = generateDay;
+
+  $("btnCopyComment").onclick = ()=>copyToClipboard(makeComment());
+  $("btnCopyReply").onclick = ()=>copyToClipboard(makeGroupReply());
+
+  $("btnCopyDM").onclick = ()=>copyDM(makeDM());
+  $("btnCopyDM2").onclick = ()=>copyDM(makeDMShort());
+
+  $("btnSaveLead").onclick = saveLead;
+  $("btnPasteLast").onclick = ()=>{
+    $("leadNote").value = (state.today.lastCopied || "");
+  };
+
+  $("leadFilter").onchange = renderLeads;
+  $("leadSearch").oninput = renderLeads;
+
+  $("btnNewDay").onclick = newDay;
+
+  $("btnExport").onclick = exportJson;
+  $("btnImport").onclick = importJson;
+  $("btnReset").onclick = resetAll;
+
+  // --------- Init ----------
+  function init(){
+    // day rollover
+    if(state.today.date !== todayKey()){
+      state.today = { date: todayKey(), quota: Number(state.settings.quota||20), saved:0, lastCopied: state.today.lastCopied || "" };
+      save();
+    }
+    renderSettings();
+    renderSearchLinks();
+    renderLeads();
+    renderProgress();
+  }
+  init();
+})();
+</script>
 </body>
 </html>
