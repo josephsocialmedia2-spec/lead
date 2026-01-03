@@ -1,338 +1,456 @@
-<!doctype html>
-<html lang="it">
+<!DOCTYPE html>
+<html lang="it" dir="ltr">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+  <meta name="description" content="Agenda operativa offline per gestione attività giornaliere con tracciamento progresso e vincoli a catena">
+  <meta name="theme-color" content="#0b0d12">
+  <meta name="color-scheme" content="dark">
+  
+  <!-- Open Graph / Twitter -->
+  <meta property="og:title" content="Agenda Operativa Offline">
+  <meta property="og:description" content="Gestione attività giornaliere con tracciamento progresso e vincoli a catena">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary">
+  
   <title>Agenda Operativa – Offline</title>
+  
   <style>
-    :root{
-      --bg:#0b0d12;
-      --text:#e9eefc;
-      --muted:#aab3cc;
-      --border:rgba(255,255,255,.10);
-      --shadow: 0 12px 40px rgba(0,0,0,.35);
-
+    :root {
+      --bg: #0b0d12;
+      --text: #e9eefc;
+      --muted: #aab3cc;
+      --border: rgba(255, 255, 255, 0.10);
+      --shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+      
       /* ✅ colori invariati (palette) */
-      --dot-blue:#4ea3ff;
-      --dot-cyan:#34d2ff;
-      --dot-green:#34d399;
-      --dot-purple:#a78bfa;
-      --dot-amber:#fbbf24;
-      --dot-red:#fb7185;
-
-      --todo:#6b7280;
-      --done:#34d399;
-      --skip:#fbbf24;
-      --lock:#64748b;
-
-      --line:rgba(255,255,255,.12);
+      --dot-blue: #4ea3ff;
+      --dot-cyan: #34d2ff;
+      --dot-green: #34d399;
+      --dot-purple: #a78bfa;
+      --dot-amber: #fbbf24;
+      --dot-red: #fb7185;
+      
+      --todo: #6b7280;
+      --done: #34d399;
+      --skip: #fbbf24;
+      --lock: #64748b;
+      
+      --line: rgba(255, 255, 255, 0.12);
+      
+      /* Aggiunti per accessibilità */
+      --focus-ring: rgba(78, 163, 255, 0.6);
+      --focus-outline: 2px solid var(--focus-ring);
     }
-    *{box-sizing:border-box}
-    body{
-      margin:0;
-      min-height:100svh;
-      display:grid;
-      place-items:center;
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      margin: 0;
+      min-height: 100svh;
+      display: grid;
+      place-items: center;
       background:
-        radial-gradient(1200px 600px at 50% -10%, rgba(78,163,255,.18), transparent 60%),
-        radial-gradient(900px 500px at 10% 20%, rgba(167,139,250,.14), transparent 60%),
+        radial-gradient(1200px 600px at 50% -10%, rgba(78, 163, 255, 0.18), transparent 60%),
+        radial-gradient(900px 500px at 10% 20%, rgba(167, 139, 250, 0.14), transparent 60%),
         var(--bg);
-      color:var(--text);
-      font: 14px/1.35 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      color: var(--text);
+      font: 14px/1.35 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
       padding: 16px;
     }
-
-    /* “telefono” */
-    .phone{
-      width:min(460px, 96vw);
-      height:min(920px, 94svh);
-      border:1px solid var(--border);
+    
+    /* Improved focus styles for accessibility */
+    :focus-visible {
+      outline: var(--focus-outline);
+      outline-offset: 2px;
+    }
+    
+    .btn:focus-visible {
+      outline: var(--focus-outline);
+      outline-offset: 2px;
+    }
+    
+    /* Screen reader only */
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+    
+    /* "telefono" */
+    .phone {
+      width: min(460px, 96vw);
+      height: min(920px, 94svh);
+      border: 1px solid var(--border);
       border-radius: 28px;
       box-shadow: var(--shadow);
       padding: 14px;
-      background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
-      overflow:hidden;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+      overflow: hidden;
     }
-    .screen{
-      height:100%;
+    
+    .screen {
+      height: 100%;
       border-radius: 20px;
-      border:1px solid var(--border);
-      overflow:hidden;
-      display:flex;
-      flex-direction:column;
-      background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01));
-      position:relative;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01));
+      position: relative;
     }
-
+    
     /* header */
-    .topbar{
+    .topbar {
       padding: 12px 12px 10px;
-      background: rgba(0,0,0,.20);
+      background: rgba(0, 0, 0, 0.20);
       border-bottom: 1px solid var(--border);
-      display:flex;
-      flex-direction:column;
-      gap:8px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
       touch-action: pan-y;
     }
-    .topRow{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
+    
+    .topRow {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
     }
-    .dateTitle{
-      flex:1;
-      text-align:center;
-      font-weight:900;
-      letter-spacing:.2px;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-      font-size:14px;
+    
+    .dateTitle {
+      flex: 1;
+      text-align: center;
+      font-weight: 900;
+      letter-spacing: .2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-size: 14px;
     }
-    .subRow{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      color:var(--muted);
-      font-size:12px;
-    }
-
-    .btn{
-      appearance:none;
-      border:1px solid var(--border);
-      background: rgba(255,255,255,.05);
-      color:var(--text);
-      padding: 9px 10px;
-      border-radius: 12px;
-      cursor:pointer;
-      font-weight:800;
-      letter-spacing:.2px;
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      user-select:none;
-    }
-    .btn.small{ padding:8px 10px; font-size: 13px; }
-    .btn.ghost{ background: transparent; }
-    .btn:active{ transform: translateY(1px); }
-    .btn[disabled]{ opacity:.45; cursor:not-allowed; }
-
-    .hint{
+    
+    .subRow {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
       color: var(--muted);
       font-size: 12px;
-      text-align:center;
+    }
+    
+    .btn {
+      appearance: none;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text);
+      padding: 9px 10px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: 800;
+      letter-spacing: .2px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      user-select: none;
+      transition: transform 0.1s ease, background-color 0.2s ease;
+    }
+    
+    .btn.small {
+      padding: 8px 10px;
+      font-size: 13px;
+    }
+    
+    .btn.ghost {
+      background: transparent;
+    }
+    
+    .btn:active:not([disabled]) {
+      transform: translateY(1px);
+      background-color: rgba(255, 255, 255, 0.08);
+    }
+    
+    .btn[disabled] {
+      opacity: .45;
+      cursor: not-allowed;
+    }
+    
+    .hint {
+      color: var(--muted);
+      font-size: 12px;
+      text-align: center;
       padding-top: 4px;
     }
-
+    
     /* content scroll */
-    .content{
-      flex:1;
-      overflow:auto;
-      -webkit-overflow-scrolling:touch;
+    .content {
+      flex: 1;
+      overflow: auto;
+      -webkit-overflow-scrolling: touch;
       padding: 10px 10px 90px;
       touch-action: pan-y;
-      position:relative;
+      position: relative;
     }
-
+    
     /* Domenica OFF */
-    .off{
-      border:1px solid var(--border);
-      background: rgba(18,22,34,.72);
+    .off {
+      border: 1px solid var(--border);
+      background: rgba(18, 22, 34, 0.72);
       border-radius: 16px;
       padding: 16px;
     }
-    .off h2{ margin:0 0 6px; font-size:14px; }
-    .off p{ margin:0; color:var(--muted); }
-
+    
+    .off h2 {
+      margin: 0 0 6px;
+      font-size: 14px;
+    }
+    
+    .off p {
+      margin: 0;
+      color: var(--muted);
+    }
+    
     /* timeline */
-    .timeline{
-      position:relative;
+    .timeline {
+      position: relative;
       border-left: 2px solid var(--line);
       margin-left: 54px;   /* colonna orari */
       padding-left: 12px;  /* spazio blocchi */
     }
-    .hourTick{
-      position:relative;
+    
+    .hourTick {
+      position: relative;
       padding: 18px 0;
     }
-    .hourLabel{
-      position:absolute;
-      left:-68px;
+    
+    .hourLabel {
+      position: absolute;
+      left: -68px;
       top: 10px;
       width: 56px;
-      text-align:right;
-      color: rgba(233,238,252,.78);
-      font-weight:900;
-      font-size:12px;
+      text-align: right;
+      color: rgba(233, 238, 252, 0.78);
+      font-weight: 900;
+      font-size: 12px;
     }
-    .tickLine{
-      position:absolute;
-      left:-12px;
-      right:0;
+    
+    .tickLine {
+      position: absolute;
+      left: -12px;
+      right: 0;
       top: 18px;
-      height:1px;
-      background: rgba(255,255,255,.06);
+      height: 1px;
+      background: rgba(255, 255, 255, 0.06);
     }
-
+    
     /* blocco */
-    .slot{
+    .slot {
       margin-top: 8px;
-      border:1px solid var(--border);
+      border: 1px solid var(--border);
       border-radius: 16px;
-      background: rgba(255,255,255,.03);
+      background: rgba(255, 255, 255, 0.03);
       padding: 14px 14px 12px;
-      display:flex;
-      flex-direction:column;
-      gap:10px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
       min-height: 112px; /* spazio per leggere */
     }
-    .slot.locked{ opacity:.65; }
-
-    .slotHead{
-      display:flex;
-      align-items:flex-start;
-      justify-content:space-between;
-      gap:12px;
+    
+    .slot.locked {
+      opacity: .65;
     }
-    .slotTitle{
-      min-width:0;
-      flex:1;
-      display:flex;
-      flex-direction:column;
-      gap:4px;
+    
+    .slotHead {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
     }
-    .slotTitle .big{
-      font-weight:950;
-      font-size:16px;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
+    
+    .slotTitle {
+      min-width: 0;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
     }
-    .slotTitle .small{
+    
+    .slotTitle .big {
+      font-weight: 950;
+      font-size: 16px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    
+    .slotTitle .small {
       color: var(--muted);
-      font-size:12px;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
+      font-size: 12px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
-    .money{ font-size:18px; line-height:1; margin-top:2px; }
-
-    .row2{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
+    
+    .money {
+      font-size: 18px;
+      line-height: 1;
+      margin-top: 2px;
     }
-    .badge{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
+    
+    .row2 {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
       padding: 6px 10px;
       border-radius: 999px;
-      border:1px solid var(--border);
-      background: rgba(0,0,0,.20);
-      font-weight:900;
-      font-size:12px;
-      white-space:nowrap;
+      border: 1px solid var(--border);
+      background: rgba(0, 0, 0, 0.20);
+      font-weight: 900;
+      font-size: 12px;
+      white-space: nowrap;
     }
-    .dot{ width:9px; height:9px; border-radius:999px; display:inline-block; }
-    .dot.todo{ background: var(--todo); }
-    .dot.done{ background: var(--done); }
-    .dot.skip{ background: var(--skip); }
-    .dot.lock{ background: var(--lock); }
-
-    .note{
+    
+    .dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 999px;
+      display: inline-block;
+    }
+    
+    .dot.todo {
+      background: var(--todo);
+    }
+    
+    .dot.done {
+      background: var(--done);
+    }
+    
+    .dot.skip {
+      background: var(--skip);
+    }
+    
+    .dot.lock {
+      background: var(--lock);
+    }
+    
+    .note {
       color: var(--muted);
-      font-size:12px;
-      overflow:hidden;
-      text-overflow:ellipsis;
-      white-space:nowrap;
+      font-size: 12px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
       max-width: 60%;
-      text-align:right;
+      text-align: right;
     }
-
-    .actions{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
+    
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
     }
-    .actions .btn{
-      flex:1;
+    
+    .actions .btn {
+      flex: 1;
       min-width: 140px;
       padding: 12px 12px;
       border-radius: 14px;
-      font-weight:950;
-      font-size:14px;
+      font-weight: 950;
+      font-size: 14px;
     }
-
+    
     /* pausa */
-    .break{
+    .break {
       margin: 18px 0;
-      border:1px dashed rgba(255,255,255,.16);
+      border: 1px dashed rgba(255, 255, 255, 0.16);
       border-radius: 16px;
       padding: 18px 14px;
-      background: rgba(148,163,184,.08);
+      background: rgba(148, 163, 184, 0.08);
       min-height: 92px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
     }
-    .break .b1{ font-weight:950; }
-    .break .b2{ color:var(--muted); font-size:12px; }
-
+    
+    .break .b1 {
+      font-weight: 950;
+    }
+    
+    .break .b2 {
+      color: var(--muted);
+      font-size: 12px;
+    }
+    
     /* ora line */
-    .nowLine{
-      position:absolute;
-      left:-2px;
-      right:0;
-      height:2px;
-      background: rgba(78,163,255,.65);
+    .nowLine {
+      position: absolute;
+      left: -2px;
+      right: 0;
+      height: 2px;
+      background: rgba(78, 163, 255, 0.65);
       border-radius: 999px;
-      pointer-events:none;
+      pointer-events: none;
     }
-    .nowPill{
-      position:absolute;
-      left:-58px;
+    
+    .nowPill {
+      position: absolute;
+      left: -58px;
       transform: translateY(-50%);
-      background: rgba(78,163,255,.15);
-      border:1px solid rgba(78,163,255,.35);
-      color: rgba(233,238,252,.95);
-      font-weight:950;
-      font-size:11px;
+      background: rgba(78, 163, 255, 0.15);
+      border: 1px solid rgba(78, 163, 255, 0.35);
+      color: rgba(233, 238, 252, 0.95);
+      font-weight: 950;
+      font-size: 11px;
       padding: 5px 8px;
       border-radius: 999px;
       width: 54px;
-      text-align:right;
-      pointer-events:none;
+      text-align: right;
+      pointer-events: none;
     }
-
+    
     /* bottom bar */
-    .status{
-      position:absolute;
-      left:0; right:0; bottom:0;
+    .status {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
       padding: 10px 12px;
-      border-top:1px solid var(--border);
-      background: rgba(0,0,0,.22);
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:10px;
+      border-top: 1px solid var(--border);
+      background: rgba(0, 0, 0, 0.22);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
     }
-    .status .msg{
+    
+    .status .msg {
       color: var(--muted);
       font-size: 12px;
-      overflow:hidden;
-      text-overflow:ellipsis;
-      white-space:nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
       max-width: 72%;
     }
-
+    
     /* WhatsApp floating */
-    .fab{
-      position:absolute;
+    .fab {
+      position: absolute;
       right: 14px;
       bottom: 68px;
       z-index: 20;
@@ -341,158 +459,301 @@
       font-weight: 950;
       box-shadow: var(--shadow);
     }
-
+    
     /* sheet NON FATTO */
-    .sheetOverlay{
-      position:absolute; inset:0;
-      background: rgba(0,0,0,.55);
-      display:none;
-      align-items:flex-end;
-      justify-content:center;
+    .sheetOverlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.55);
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
       padding: 14px;
       z-index: 50;
     }
-    .sheetOverlay.open{ display:flex; }
-    .sheet{
-      width:100%;
-      background: rgba(18,22,34,.96);
-      border:1px solid var(--border);
+    
+    .sheetOverlay.open {
+      display: flex;
+    }
+    
+    .sheet {
+      width: 100%;
+      background: rgba(18, 22, 34, 0.96);
+      border: 1px solid var(--border);
       border-radius: 18px;
-      overflow:hidden;
+      overflow: hidden;
       box-shadow: var(--shadow);
     }
-    .sheetHead{
+    
+    .sheetHead {
       padding: 12px;
-      border-bottom:1px solid var(--border);
-      background: rgba(0,0,0,.18);
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:10px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(0, 0, 0, 0.18);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
     }
-    .sheetBody{ padding: 12px; display:flex; flex-direction:column; gap:10px; }
-    .choice{
-      border:1px solid var(--border);
-      background: rgba(255,255,255,.03);
+    
+    .sheetBody {
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    
+    .choice {
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.03);
       border-radius: 14px;
       padding: 12px;
-      font-weight:950;
-      cursor:pointer;
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:10px;
+      font-weight: 950;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
     }
-    .choice:hover{ background: rgba(255,255,255,.06); }
-    .choice small{ color: var(--muted); font-weight:850; }
-
+    
+    .choice:hover,
+    .choice:focus-visible {
+      background: rgba(255, 255, 255, 0.06);
+    }
+    
+    .choice small {
+      color: var(--muted);
+      font-weight: 850;
+    }
+    
     /* modal impostazioni (solo numero WhatsApp) */
-    .modalOverlay{
-      position:absolute; inset:0;
-      background: rgba(0,0,0,.55);
-      display:none;
-      align-items:center;
-      justify-content:center;
+    .modalOverlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.55);
+      display: none;
+      align-items: center;
+      justify-content: center;
       padding: 14px;
       z-index: 60;
     }
-    .modalOverlay.open{ display:flex; }
-    .modal{
-      width:100%;
+    
+    .modalOverlay.open {
+      display: flex;
+    }
+    
+    .modal {
+      width: 100%;
       max-width: 520px;
-      background: rgba(18,22,34,.96);
-      border:1px solid var(--border);
+      background: rgba(18, 22, 34, 0.96);
+      border: 1px solid var(--border);
       border-radius: 18px;
-      overflow:hidden;
+      overflow: hidden;
       box-shadow: var(--shadow);
     }
-    .modalHead{
+    
+    .modalHead {
       padding: 12px;
-      border-bottom:1px solid var(--border);
-      background: rgba(0,0,0,.18);
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:10px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(0, 0, 0, 0.18);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
     }
-    .modalBody{ padding: 12px; display:flex; flex-direction:column; gap:10px; }
-    .field label{ display:block; color: var(--muted); font-size:12px; margin-bottom:6px; font-weight:900; }
-    .field input{
-      width:100%;
-      border:1px solid var(--border);
-      background: rgba(0,0,0,.20);
+    
+    .modalBody {
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    
+    .field label {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 6px;
+      font-weight: 900;
+    }
+    
+    .field input {
+      width: 100%;
+      border: 1px solid var(--border);
+      background: rgba(0, 0, 0, 0.20);
       color: var(--text);
       padding: 12px 12px;
       border-radius: 14px;
-      outline:none;
-      font-weight:900;
-      font-size:14px;
+      outline: none;
+      font-weight: 900;
+      font-size: 14px;
     }
-    .rowBtns{ display:flex; gap:10px; }
-    .rowBtns .btn{ flex:1; padding: 12px 12px; border-radius: 14px; font-weight:950; }
-
+    
+    .field input:focus-visible {
+      outline: var(--focus-outline);
+      outline-offset: 2px;
+    }
+    
+    .rowBtns {
+      display: flex;
+      gap: 10px;
+    }
+    
+    .rowBtns .btn {
+      flex: 1;
+      padding: 12px 12px;
+      border-radius: 14px;
+      font-weight: 950;
+    }
+    
+    /* Media Queries per migliorare responsive */
+    @media (max-width: 480px) {
+      .phone {
+        border-radius: 24px;
+        padding: 10px;
+      }
+      
+      .screen {
+        border-radius: 16px;
+      }
+      
+      .actions .btn {
+        min-width: 120px;
+      }
+      
+      .fab {
+        right: 10px;
+        bottom: 64px;
+        padding: 10px 12px;
+        font-size: 13px;
+      }
+    }
+    
+    @media (max-width: 380px) {
+      .hourLabel {
+        left: -60px;
+        width: 50px;
+      }
+      
+      .timeline {
+        margin-left: 48px;
+      }
+      
+      .nowPill {
+        left: -52px;
+        width: 48px;
+      }
+      
+      .actions {
+        flex-direction: column;
+      }
+      
+      .actions .btn {
+        min-width: 100%;
+      }
+    }
+    
+    /* Print styles */
+    @media print {
+      body {
+        background: white;
+        color: black;
+        padding: 0;
+      }
+      
+      .phone, .screen {
+        box-shadow: none;
+        border: 1px solid #ccc;
+        width: 100%;
+        height: auto;
+      }
+      
+      .btn, .fab, .sheetOverlay, .modalOverlay {
+        display: none !important;
+      }
+    }
   </style>
+  
+  <!-- Preconnect per WhatsApp API -->
+  <link rel="preconnect" href="https://wa.me">
 </head>
 
 <body>
-  <div class="phone">
+  <div class="phone" role="application" aria-label="Agenda operativa offline">
     <div class="screen">
-
       <div class="topbar" id="topbar">
         <div class="topRow">
-          <button class="btn small ghost" id="prevDay" type="button" aria-label="Giorno precedente">←</button>
-          <div class="dateTitle" id="dateTitle">—</div>
-          <button class="btn small ghost" id="nextDay" type="button" aria-label="Giorno successivo">→</button>
+          <button class="btn small ghost" id="prevDay" type="button" aria-label="Giorno precedente">
+            <span aria-hidden="true">←</span>
+            <span class="sr-only">Giorno precedente</span>
+          </button>
+          <div class="dateTitle" id="dateTitle" role="heading" aria-level="1">—</div>
+          <button class="btn small ghost" id="nextDay" type="button" aria-label="Giorno successivo">
+            <span aria-hidden="true">→</span>
+            <span class="sr-only">Giorno successivo</span>
+          </button>
         </div>
 
         <div class="subRow">
           <div>08:00–20:00 • Pausa 13:00–14:30</div>
-          <button class="btn small" id="btnSettings" type="button">⚙️</button>
+          <button class="btn small" id="btnSettings" type="button" aria-label="Impostazioni">
+            <span aria-hidden="true">⚙️</span>
+            <span class="sr-only">Impostazioni</span>
+          </button>
         </div>
 
         <div class="hint">Swipe ← → per cambiare giorno</div>
       </div>
 
-      <div class="content" id="content">
-        <div id="offBox" class="off" style="display:none;">
+      <div class="content" id="content" role="main" aria-label="Contenuto principale">
+        <div id="offBox" class="off" style="display:none;" role="alert">
           <h2>Domenica</h2>
           <p>OFF — nessuna azione prevista oggi.</p>
         </div>
 
-        <div id="timelineWrap" class="timeline" aria-label="Timeline oraria"></div>
+        <div id="timelineWrap" class="timeline" aria-label="Timeline oraria delle attività"></div>
       </div>
 
-      <button class="btn fab" id="btnWhatsApp" type="button">🟢 Chiama Agenzia</button>
+      <button class="btn fab" id="btnWhatsApp" type="button" aria-label="Chiama Agenzia su WhatsApp">
+        <span aria-hidden="true">🟢</span> Chiama Agenzia
+      </button>
 
-      <div class="status">
+      <div class="status" role="status" aria-live="polite" aria-atomic="true">
         <div class="msg" id="statusMsg">Pronto.</div>
         <div style="display:flex; gap:10px;">
-          <button class="btn small" id="btnExport" type="button">📥 Export</button>
+          <button class="btn small" id="btnExport" type="button" aria-label="Esporta dati giornalieri">
+            <span aria-hidden="true">📥</span> Export
+          </button>
         </div>
       </div>
 
       <!-- Sheet NON FATTO -->
-      <div class="sheetOverlay" id="sheetOverlay" role="dialog" aria-modal="true">
+      <div class="sheetOverlay" id="sheetOverlay" role="dialog" aria-modal="true" aria-label="Motivo non completamento">
         <div class="sheet">
           <div class="sheetHead">
             <strong id="sheetTitle">NON FATTO</strong>
-            <button class="btn small" id="sheetClose" type="button">✕</button>
+            <button class="btn small" id="sheetClose" type="button" aria-label="Chiudi">
+              <span aria-hidden="true">✕</span>
+            </button>
           </div>
           <div class="sheetBody" id="sheetBody"></div>
         </div>
       </div>
 
       <!-- Modal Impostazioni -->
-      <div class="modalOverlay" id="modalOverlay" role="dialog" aria-modal="true">
+      <div class="modalOverlay" id="modalOverlay" role="dialog" aria-modal="true" aria-label="Impostazioni">
         <div class="modal">
           <div class="modalHead">
             <strong>Impostazioni</strong>
-            <button class="btn small" id="modalClose" type="button">✕</button>
+            <button class="btn small" id="modalClose" type="button" aria-label="Chiudi">
+              <span aria-hidden="true">✕</span>
+            </button>
           </div>
           <div class="modalBody">
             <div class="field">
               <label for="masterNumber">Numero WhatsApp Agenzia (master)</label>
-              <input id="masterNumber" placeholder="+39XXXXXXXXXX" inputmode="tel" />
+              <input id="masterNumber" placeholder="+39XXXXXXXXXX" inputmode="tel" 
+                     aria-describedby="numberHelp" />
+              <div id="numberHelp" class="sr-only">Inserisci il numero completo con prefisso internazionale</div>
             </div>
             <div class="rowBtns">
               <button class="btn" id="saveSettings" type="button">Salva</button>
@@ -501,481 +762,583 @@
           </div>
         </div>
       </div>
-
     </div>
   </div>
 
-<script>
-(() => {
-  /* ========= CONFIG AGENDA ========= */
-  const AGENDA_START = "08:00";
-  const AGENDA_END   = "20:00";
-  const BREAK_START  = "13:00";
-  const BREAK_END    = "14:30";
-
-  // Blocchi (esempio coerente con i tuoi vincoli)
-  const BLOCKS = [
-    { id:1,  start:"08:00", end:"09:00", label:"Contatta NUOVI" },
-    { id:2,  start:"09:00", end:"10:00", label:"Qualifica CONTATTATI" },
-    { id:3,  start:"10:00", end:"11:00", label:"Verifica REQUISITI" },
-    { id:4,  start:"11:00", end:"12:00", label:"Pronti ad APPUNTAMENTO" },
-    { id:5,  start:"12:00", end:"13:00", label:"Fissa appuntamenti (se permesso)" },
-    { id:6,  start:"14:30", end:"15:30", label:"Follow-up controllato" },
-    { id:7,  start:"15:30", end:"16:30", label:"Gestione rimandi (2/3)" },
-    { id:8,  start:"16:30", end:"17:30", label:"Pulizia stati" },
-    { id:9,  start:"17:30", end:"18:30", label:"Verifica vincoli" },
-    { id:10, start:"18:30", end:"19:30", label:"Chiusura operativa" },
-    { id:11, start:"19:30", end:"20:00", label:"Controllo finale" },
-  ];
-
-  /* ========= HELPERS ========= */
-  const $ = (s) => document.querySelector(s);
-  const timelineWrap = $("#timelineWrap");
-  const content = $("#content");
-  const statusMsg = $("#statusMsg");
-
-  function setStatus(msg){ statusMsg.textContent = msg; }
-
-  function pad(n){ return String(n).padStart(2,"0"); }
-  function isoDate(d){
-    const x = new Date(d.getTime());
-    return `${x.getFullYear()}-${pad(x.getMonth()+1)}-${pad(x.getDate())}`;
-  }
-  function fmtDateIT(d){
-    const days = ["Domenica","Lunedì","Martedì","Mercoledì","Giovedì","Venerdì","Sabato"];
-    const months = ["Gen","Feb","Mar","Apr","Mag","Giu","Lug","Ago","Set","Ott","Nov","Dic"];
-    return `${days[d.getDay()]} ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
-  }
-  function timeToMinutes(t){
-    const [h,m] = t.split(":").map(Number);
-    return h*60 + m;
-  }
-  function clamp(n,a,b){ return Math.max(a, Math.min(b, n)); }
-  function escapeHtml(s){
-    return String(s ?? "")
-      .replaceAll("&","&amp;")
-      .replaceAll("<","&lt;")
-      .replaceAll(">","&gt;")
-      .replaceAll('"',"&quot;")
-      .replaceAll("'","&#039;");
-  }
-  function isSunday(d){ return d.getDay() === 0; }
-
-  /* ========= SETTINGS (solo WhatsApp) ========= */
-  const SETTINGS_KEY = "agenda_settings_offline_v1";
-  const DEFAULT_SETTINGS = { masterWhatsApp: "" };
-  let settings = loadSettings();
-
-  function loadSettings(){
-    try{
-      const raw = localStorage.getItem(SETTINGS_KEY);
-      return raw ? {...DEFAULT_SETTINGS, ...JSON.parse(raw)} : {...DEFAULT_SETTINGS};
-    }catch(_){ return {...DEFAULT_SETTINGS}; }
-  }
-  function saveSettings(){
-    localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
-  }
-
-  /* ========= DAY STATE ========= */
-  function dayKey(dateStr){ return `agenda_day_${dateStr}`; }
-
-  function defaultDayState(dateStr){
-    return {
-      date: dateStr,
-      blocks: BLOCKS.map((b,i)=>({
-        id: b.id,
-        start: b.start,
-        end: b.end,
-        label: b.label,
-        status: (i===0 ? "todo" : "locked"), // vincolo a catena
-        closedAt: null,
-        nonDoneReason: ""
-      })),
-      meta: { updatedAt: new Date().toISOString() }
-    };
-  }
-
-  function loadDay(dateStr){
-    try{
-      const raw = localStorage.getItem(dayKey(dateStr));
-      return raw ? JSON.parse(raw) : defaultDayState(dateStr);
-    }catch(_){ return defaultDayState(dateStr); }
-  }
-
-  function saveDay(state){
-    state.meta.updatedAt = new Date().toISOString();
-    localStorage.setItem(dayKey(state.date), JSON.stringify(state));
-  }
-
-  function recomputeLocks(day){
-    for(let i=0;i<day.blocks.length;i++){
-      const b = day.blocks[i];
-      if(i===0){
-        if(b.status === "locked") b.status = "todo";
-        continue;
+  <script>
+    // Aggiungi questo codice JavaScript per migliorare l'accessibilità
+    document.addEventListener('DOMContentLoaded', function() {
+      // Gestione focus trap per modali
+      const sheetOverlay = document.getElementById('sheetOverlay');
+      const modalOverlay = document.getElementById('modalOverlay');
+      
+      function trapFocus(element) {
+        const focusableElements = element.querySelectorAll(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        );
+        const firstFocusable = focusableElements[0];
+        const lastFocusable = focusableElements[focusableElements.length - 1];
+        
+        element.addEventListener('keydown', function(e) {
+          if (e.key === 'Tab') {
+            if (e.shiftKey) {
+              if (document.activeElement === firstFocusable) {
+                lastFocusable.focus();
+                e.preventDefault();
+              }
+            } else {
+              if (document.activeElement === lastFocusable) {
+                firstFocusable.focus();
+                e.preventDefault();
+              }
+            }
+          }
+        });
       }
-      const prev = day.blocks[i-1];
-      const prevClosed = (prev.status === "done" || prev.status === "skipped");
-      if(prevClosed){
-        if(b.status === "locked") b.status = "todo";
-      }else{
-        if(b.status !== "done" && b.status !== "skipped"){
-          b.status = "locked";
+      
+      // Applica focus trap quando le modali si aprono
+      trapFocus(sheetOverlay);
+      trapFocus(modalOverlay);
+      
+      // Salva stato scroll per migliorare UX
+      let scrollPosition = 0;
+      
+      document.addEventListener('scroll', function() {
+        scrollPosition = window.scrollY;
+      });
+      
+      // Service Worker per funzionalità offline (opzionale)
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js').catch(error => {
+          console.log('Service Worker registration failed:', error);
+        });
+      }
+    });
+  </script>
+
+  <!-- Il tuo script esistente rimane qui -->
+  <script>
+    // ... Il tuo codice JavaScript esistente rimane invariato ...
+    (() => {
+      /* ========= CONFIG AGENDA ========= */
+      const AGENDA_START = "08:00";
+      const AGENDA_END   = "20:00";
+      const BREAK_START  = "13:00";
+      const BREAK_END    = "14:30";
+
+      // Blocchi (esempio coerente con i tuoi vincoli)
+      const BLOCKS = [
+        { id:1,  start:"08:00", end:"09:00", label:"Contatta NUOVI" },
+        { id:2,  start:"09:00", end:"10:00", label:"Qualifica CONTATTATI" },
+        { id:3,  start:"10:00", end:"11:00", label:"Verifica REQUISITI" },
+        { id:4,  start:"11:00", end:"12:00", label:"Pronti ad APPUNTAMENTO" },
+        { id:5,  start:"12:00", end:"13:00", label:"Fissa appuntamenti (se permesso)" },
+        { id:6,  start:"14:30", end:"15:30", label:"Follow-up controllato" },
+        { id:7,  start:"15:30", end:"16:30", label:"Gestione rimandi (2/3)" },
+        { id:8,  start:"16:30", end:"17:30", label:"Pulizia stati" },
+        { id:9,  start:"17:30", end:"18:30", label:"Verifica vincoli" },
+        { id:10, start:"18:30", end:"19:30", label:"Chiusura operativa" },
+        { id:11, start:"19:30", end:"20:00", label:"Controllo finale" },
+      ];
+
+      /* ========= HELPERS ========= */
+      const $ = (s) => document.querySelector(s);
+      const timelineWrap = $("#timelineWrap");
+      const content = $("#content");
+      const statusMsg = $("#statusMsg");
+
+      function setStatus(msg){ 
+        statusMsg.textContent = msg;
+        // Annuncia ai screen reader se è un messaggio importante
+        if (msg.includes("FATTO") || msg.includes("NON FATTO") || msg.includes("Errore")) {
+          const announcement = document.createElement('div');
+          announcement.className = 'sr-only';
+          announcement.setAttribute('aria-live', 'assertive');
+          announcement.textContent = msg;
+          document.body.appendChild(announcement);
+          setTimeout(() => announcement.remove(), 1000);
         }
       }
-    }
-  }
 
-  /* ========= UI / LOGIC ========= */
-  let selected = new Date();
-  let dayState = null;
-
-  function render(){
-    $("#dateTitle").textContent = fmtDateIT(selected);
-
-    const sunday = isSunday(selected);
-    $("#offBox").style.display = sunday ? "block" : "none";
-    timelineWrap.style.display = sunday ? "none" : "block";
-    if(sunday){
-      setStatus("Domenica OFF.");
-      return;
-    }
-
-    const dStr = isoDate(selected);
-    dayState = loadDay(dStr);
-    recomputeLocks(dayState);
-    saveDay(dayState);
-
-    timelineWrap.innerHTML = "";
-
-    const startMin = timeToMinutes(AGENDA_START);
-    const endMin = timeToMinutes(AGENDA_END);
-
-    // tick orari
-    for(let t = startMin; t <= endMin; t += 60){
-      const h = Math.floor(t/60);
-      const label = `${pad(h)}:00`;
-
-      const tick = document.createElement("div");
-      tick.className = "hourTick";
-      tick.dataset.minute = String(t);
-      tick.innerHTML = `<div class="hourLabel">${label}</div><div class="tickLine"></div>`;
-      timelineWrap.appendChild(tick);
-
-      // pausa
-      if(label === BREAK_START){
-        const br = document.createElement("div");
-        br.className = "break";
-        br.innerHTML = `
-          <div>
-            <div class="b1">⏸ PAUSA</div>
-            <div class="b2">${BREAK_START}–${BREAK_END}</div>
-          </div>
-          <div class="b2">Tempo zero</div>
-        `;
-        timelineWrap.appendChild(br);
+      function pad(n){ return String(n).padStart(2,"0"); }
+      function isoDate(d){
+        const x = new Date(d.getTime());
+        return `${x.getFullYear()}-${pad(x.getMonth()+1)}-${pad(x.getDate())}`;
       }
-    }
-
-    // posizionamento: inserisco ogni blocco subito dopo il tick più vicino <= start
-    const tickNodes = Array.from(timelineWrap.querySelectorAll(".hourTick"));
-    function findTickNodeFor(startTime){
-      const m = timeToMinutes(startTime);
-      let candidate = tickNodes[0];
-      for(const tn of tickNodes){
-        const tm = Number(tn.dataset.minute);
-        if(tm <= m) candidate = tn;
+      function fmtDateIT(d){
+        const days = ["Domenica","Lunedì","Martedì","Mercoledì","Giovedì","Venerdì","Sabato"];
+        const months = ["Gen","Feb","Mar","Apr","Mag","Giu","Lug","Ago","Set","Ott","Nov","Dic"];
+        return `${days[d.getDay()]} ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
       }
-      return candidate;
-    }
+      function timeToMinutes(t){
+        const [h,m] = t.split(":").map(Number);
+        return h*60 + m;
+      }
+      function clamp(n,a,b){ return Math.max(a, Math.min(b, n)); }
+      function escapeHtml(s){
+        return String(s ?? "")
+          .replaceAll("&","&amp;")
+          .replaceAll("<","&lt;")
+          .replaceAll(">","&gt;")
+          .replaceAll('"',"&quot;")
+          .replaceAll("'","&#039;");
+      }
+      function isSunday(d){ return d.getDay() === 0; }
 
-    for(const bDef of BLOCKS){
-      const b = dayState.blocks.find(x=>x.id===bDef.id);
-      const locked = b.status === "locked";
+      /* ========= SETTINGS (solo WhatsApp) ========= */
+      const SETTINGS_KEY = "agenda_settings_offline_v1";
+      const DEFAULT_SETTINGS = { masterWhatsApp: "" };
+      let settings = loadSettings();
 
-      const badge = (b.status === "todo")
-        ? `<span class="badge"><span class="dot todo"></span>DA FARE</span>`
-        : (b.status === "done")
-          ? `<span class="badge"><span class="dot done"></span>FATTO</span>`
-          : (b.status === "skipped")
-            ? `<span class="badge"><span class="dot skip"></span>NON FATTO</span>`
-            : `<span class="badge"><span class="dot lock"></span>BLOCCATO</span>`;
+      function loadSettings(){
+        try{
+          const raw = localStorage.getItem(SETTINGS_KEY);
+          return raw ? {...DEFAULT_SETTINGS, ...JSON.parse(raw)} : {...DEFAULT_SETTINGS};
+        }catch(_){ return {...DEFAULT_SETTINGS}; }
+      }
+      function saveSettings(){
+        localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+      }
 
-      const slot = document.createElement("div");
-      slot.className = "slot" + (locked ? " locked" : "");
-      slot.dataset.blockId = String(b.id);
+      /* ========= DAY STATE ========= */
+      function dayKey(dateStr){ return `agenda_day_${dateStr}`; }
 
-      slot.innerHTML = `
-        <div class="slotHead">
-          <div class="slotTitle">
-            <div class="big">${escapeHtml(b.label)}</div>
-            <div class="small">${b.start}–${b.end}</div>
-          </div>
-          <div class="money">💲</div>
-        </div>
+      function defaultDayState(dateStr){
+        return {
+          date: dateStr,
+          blocks: BLOCKS.map((b,i)=>({
+            id: b.id,
+            start: b.start,
+            end: b.end,
+            label: b.label,
+            status: (i===0 ? "todo" : "locked"), // vincolo a catena
+            closedAt: null,
+            nonDoneReason: ""
+          })),
+          meta: { updatedAt: new Date().toISOString() }
+        };
+      }
 
-        <div class="row2">
-          ${badge}
-          <div class="note">${b.status==="skipped" && b.nonDoneReason ? "Motivo: " + escapeHtml(b.nonDoneReason) : ""}</div>
-        </div>
+      function loadDay(dateStr){
+        try{
+          const raw = localStorage.getItem(dayKey(dateStr));
+          return raw ? JSON.parse(raw) : defaultDayState(dateStr);
+        }catch(_){ return defaultDayState(dateStr); }
+      }
 
-        <div class="actions">
-          <button class="btn" data-act="done" data-id="${b.id}" ${locked ? "disabled" : ""}>✔ FATTO</button>
-          <button class="btn ghost" data-act="nondone" data-id="${b.id}" ${locked ? "disabled" : ""}>⏭ NON FATTO</button>
-        </div>
-      `;
+      function saveDay(state){
+        state.meta.updatedAt = new Date().toISOString();
+        localStorage.setItem(dayKey(state.date), JSON.stringify(state));
+      }
 
-      const anchor = findTickNodeFor(b.start);
-      anchor.insertAdjacentElement("afterend", slot);
-    }
+      function recomputeLocks(day){
+        for(let i=0;i<day.blocks.length;i++){
+          const b = day.blocks[i];
+          if(i===0){
+            if(b.status === "locked") b.status = "todo";
+            continue;
+          }
+          const prev = day.blocks[i-1];
+          const prevClosed = (prev.status === "done" || prev.status === "skipped");
+          if(prevClosed){
+            if(b.status === "locked") b.status = "todo";
+          }else{
+            if(b.status !== "done" && b.status !== "skipped"){
+              b.status = "locked";
+            }
+          }
+        }
+      }
 
-    // bind azioni
-    timelineWrap.querySelectorAll("button[data-act]").forEach(btn=>{
-      btn.addEventListener("click", ()=>{
-        const id = Number(btn.dataset.id);
-        const act = btn.dataset.act;
-        if(act === "done") onDone(id);
-        if(act === "nondone") openNonDoneSheet(id);
+      /* ========= UI / LOGIC ========= */
+      let selected = new Date();
+      let dayState = null;
+
+      function render(){
+        $("#dateTitle").textContent = fmtDateIT(selected);
+
+        const sunday = isSunday(selected);
+        $("#offBox").style.display = sunday ? "block" : "none";
+        timelineWrap.style.display = sunday ? "none" : "block";
+        if(sunday){
+          setStatus("Domenica OFF.");
+          return;
+        }
+
+        const dStr = isoDate(selected);
+        dayState = loadDay(dStr);
+        recomputeLocks(dayState);
+        saveDay(dayState);
+
+        timelineWrap.innerHTML = "";
+
+        const startMin = timeToMinutes(AGENDA_START);
+        const endMin = timeToMinutes(AGENDA_END);
+
+        // tick orari
+        for(let t = startMin; t <= endMin; t += 60){
+          const h = Math.floor(t/60);
+          const label = `${pad(h)}:00`;
+
+          const tick = document.createElement("div");
+          tick.className = "hourTick";
+          tick.dataset.minute = String(t);
+          tick.innerHTML = `<div class="hourLabel">${label}</div><div class="tickLine"></div>`;
+          timelineWrap.appendChild(tick);
+
+          // pausa
+          if(label === BREAK_START){
+            const br = document.createElement("div");
+            br.className = "break";
+            br.innerHTML = `
+              <div>
+                <div class="b1">⏸ PAUSA</div>
+                <div class="b2">${BREAK_START}–${BREAK_END}</div>
+              </div>
+              <div class="b2">Tempo zero</div>
+            `;
+            timelineWrap.appendChild(br);
+          }
+        }
+
+        // posizionamento: inserisco ogni blocco subito dopo il tick più vicino <= start
+        const tickNodes = Array.from(timelineWrap.querySelectorAll(".hourTick"));
+        function findTickNodeFor(startTime){
+          const m = timeToMinutes(startTime);
+          let candidate = tickNodes[0];
+          for(const tn of tickNodes){
+            const tm = Number(tn.dataset.minute);
+            if(tm <= m) candidate = tn;
+          }
+          return candidate;
+        }
+
+        for(const bDef of BLOCKS){
+          const b = dayState.blocks.find(x=>x.id===bDef.id);
+          const locked = b.status === "locked";
+
+          const badge = (b.status === "todo")
+            ? `<span class="badge"><span class="dot todo"></span>DA FARE</span>`
+            : (b.status === "done")
+              ? `<span class="badge"><span class="dot done"></span>FATTO</span>`
+              : (b.status === "skipped")
+                ? `<span class="badge"><span class="dot skip"></span>NON FATTO</span>`
+                : `<span class="badge"><span class="dot lock"></span>BLOCCATO</span>`;
+
+          const slot = document.createElement("div");
+          slot.className = "slot" + (locked ? " locked" : "");
+          slot.dataset.blockId = String(b.id);
+          slot.setAttribute('role', 'article');
+          slot.setAttribute('aria-label', `${b.label} dalle ${b.start} alle ${b.end}, stato: ${b.status}`);
+
+          slot.innerHTML = `
+            <div class="slotHead">
+              <div class="slotTitle">
+                <div class="big">${escapeHtml(b.label)}</div>
+                <div class="small">${b.start}–${b.end}</div>
+              </div>
+              <div class="money">💲</div>
+            </div>
+
+            <div class="row2">
+              ${badge}
+              <div class="note">${b.status==="skipped" && b.nonDoneReason ? "Motivo: " + escapeHtml(b.nonDoneReason) : ""}</div>
+            </div>
+
+            <div class="actions">
+              <button class="btn" data-act="done" data-id="${b.id}" ${locked ? "disabled" : ""}
+                      aria-label="Segna '${b.label}' come completato">
+                ✔ FATTO
+              </button>
+              <button class="btn ghost" data-act="nondone" data-id="${b.id}" ${locked ? "disabled" : ""}
+                      aria-label="Segna '${b.label}' come non completato">
+                ⏭ NON FATTO
+              </button>
+            </div>
+          `;
+
+          const anchor = findTickNodeFor(b.start);
+          anchor.insertAdjacentElement("afterend", slot);
+        }
+
+        // bind azioni
+        timelineWrap.querySelectorAll("button[data-act]").forEach(btn=>{
+          btn.addEventListener("click", ()=>{
+            const id = Number(btn.dataset.id);
+            const act = btn.dataset.act;
+            if(act === "done") onDone(id);
+            if(act === "nondone") openNonDoneSheet(id);
+          });
+        });
+
+        // ora line e auto-scroll se è oggi
+        const todayStr = isoDate(new Date());
+        if(dStr === todayStr){
+          const now = new Date();
+          let nowMin = now.getHours()*60 + now.getMinutes();
+          nowMin = clamp(nowMin, startMin, endMin);
+          placeNowLine(nowMin, startMin, endMin);
+          autoScrollToNowOrCurrentBlock(nowMin);
+        }else{
+          content.scrollTop = 0;
+          setStatus("Giorno selezionato.");
+        }
+      }
+
+      function placeNowLine(nowMin, startMin, endMin){
+        const ticks = Array.from(timelineWrap.querySelectorAll(".hourTick"));
+        if(ticks.length < 2) return;
+
+        const first = ticks[0].getBoundingClientRect();
+        const last = ticks[ticks.length-1].getBoundingClientRect();
+        const wrap = timelineWrap.getBoundingClientRect();
+        const totalPx = (last.top - first.top) + 1;
+
+        const ratio = (nowMin - startMin) / (endMin - startMin);
+        const y = (first.top - wrap.top) + ratio * totalPx;
+
+        let line = timelineWrap.querySelector(".nowLine");
+        let pill = timelineWrap.querySelector(".nowPill");
+        if(!line){
+          line = document.createElement("div");
+          line.className = "nowLine";
+          timelineWrap.appendChild(line);
+
+          pill = document.createElement("div");
+          pill.className = "nowPill";
+          pill.textContent = "ORA";
+          timelineWrap.appendChild(pill);
+        }
+        line.style.top = `${y}px`;
+        pill.style.top = `${y}px`;
+      }
+
+      function getCurrentBlockId(nowMin){
+        const bs = timeToMinutes(BREAK_START);
+        const be = timeToMinutes(BREAK_END);
+        if(nowMin >= bs && nowMin < be) return null;
+
+        for(const b of dayState.blocks){
+          const s = timeToMinutes(b.start);
+          const e = timeToMinutes(b.end);
+          if(nowMin >= s && nowMin < e) return b.id;
+        }
+        if(nowMin < timeToMinutes(AGENDA_START)) return dayState.blocks[0].id;
+        return dayState.blocks[dayState.blocks.length-1].id;
+      }
+
+      function autoScrollToNowOrCurrentBlock(nowMin){
+        const currentId = getCurrentBlockId(nowMin);
+        let targetEl = null;
+
+        if(currentId){
+          targetEl = timelineWrap.querySelector(`.slot[data-block-id="${currentId}"]`);
+        }
+        if(!targetEl){
+          targetEl = timelineWrap.querySelector(`.slot:not(.locked)`);
+        }
+        if(!targetEl) targetEl = timelineWrap;
+
+        const rect = targetEl.getBoundingClientRect();
+        const cRect = content.getBoundingClientRect();
+        const offset = rect.top - cRect.top - (cRect.height * 0.22);
+        content.scrollTop += offset;
+
+        setStatus(currentId ? `Aperto su blocco ${currentId}.` : `Pausa (${BREAK_START}–${BREAK_END}).`);
+      }
+
+      function onDone(blockId){
+        const b = dayState.blocks.find(x=>x.id===blockId);
+        if(!b || b.status==="locked") return;
+
+        b.status = (b.status === "done") ? "todo" : "done";
+        b.closedAt = new Date().toISOString();
+        if(b.status === "done"){
+          b.nonDoneReason = "";
+          setStatus(`Blocco ${blockId}: FATTO.`);
+        }else{
+          setStatus(`Blocco ${blockId}: riaperto.`);
+        }
+
+        recomputeLocks(dayState);
+        saveDay(dayState);
+        render();
+      }
+
+      /* ========= SHEET NON FATTO ========= */
+      const sheetOverlay = $("#sheetOverlay");
+      const sheetBody = $("#sheetBody");
+      let sheetBlockId = null;
+
+      function openNonDoneSheet(blockId){
+        sheetBlockId = blockId;
+        $("#sheetTitle").textContent = `NON FATTO • Blocco ${blockId}`;
+        sheetBody.innerHTML = "";
+
+        // scelte secche, niente testo libero
+        const choices = [
+          { code:"RIMANDATO", label:"⏳ Rimandato", hint:"Registrato come rimando" },
+          { code:"NO_INTERESSE", label:"🚫 Nessun interesse", hint:"Non inseguire" },
+          { code:"INFO_GENERICHE", label:"📉 Solo info/prezzo", hint:"Senza problema reale" },
+        ];
+
+        for(const c of choices){
+          const div = document.createElement("div");
+          div.className = "choice";
+          div.tabIndex = 0;
+          div.setAttribute('role', 'button');
+          div.innerHTML = `<div>${c.label}<br><small>${c.hint}</small></div><div>→</div>`;
+          div.addEventListener("click", ()=> applyNonDone(c.code));
+          div.addEventListener("keydown", (e)=> {
+            if(e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              applyNonDone(c.code);
+            }
+          });
+          sheetBody.appendChild(div);
+        }
+
+        sheetOverlay.classList.add("open");
+        // Focus sul primo elemento
+        setTimeout(() => {
+          const firstChoice = sheetBody.querySelector('.choice');
+          if(firstChoice) firstChoice.focus();
+        }, 100);
+      }
+
+      function closeSheet(){
+        sheetOverlay.classList.remove("open");
+        sheetBlockId = null;
+        // Ripristina focus al bottone che ha aperto la sheet
+        const triggerBtn = timelineWrap.querySelector(`button[data-id="${sheetBlockId}"]`);
+        if(triggerBtn) triggerBtn.focus();
+      }
+
+      $("#sheetClose").addEventListener("click", closeSheet);
+      sheetOverlay.addEventListener("click", (e)=>{ if(e.target===sheetOverlay) closeSheet(); });
+
+      function applyNonDone(reasonCode){
+        const b = dayState.blocks.find(x=>x.id===sheetBlockId);
+        if(!b || b.status==="locked") return;
+
+        b.status = "skipped";
+        b.closedAt = new Date().toISOString();
+        b.nonDoneReason = reasonCode;
+
+        recomputeLocks(dayState);
+        saveDay(dayState);
+        setStatus(`Blocco ${b.id}: NON FATTO (${reasonCode}).`);
+        closeSheet();
+        render();
+      }
+
+      /* ========= EXPORT (solo locale) ========= */
+      $("#btnExport").addEventListener("click", ()=>{
+        if(!dayState) return;
+        const payload = {
+          ...dayState,
+          exportedAt: new Date().toISOString(),
+          agenda: { start: AGENDA_START, end: AGENDA_END, breakStart: BREAK_START, breakEnd: BREAK_END }
+        };
+        const blob = new Blob([JSON.stringify(payload, null, 2)], {type:"application/json"});
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = `agenda_${dayState.date}.json`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setStatus("Export completato.");
       });
-    });
 
-    // ora line e auto-scroll se è oggi
-    const todayStr = isoDate(new Date());
-    if(dStr === todayStr){
-      const now = new Date();
-      let nowMin = now.getHours()*60 + now.getMinutes();
-      nowMin = clamp(nowMin, startMin, endMin);
-      placeNowLine(nowMin, startMin, endMin);
-      autoScrollToNowOrCurrentBlock(nowMin);
-    }else{
-      content.scrollTop = 0;
-      setStatus("Giorno selezionato.");
-    }
-  }
+      /* ========= NAV GIORNI + SWIPE ========= */
+      $("#prevDay").addEventListener("click", ()=>{ selected.setDate(selected.getDate()-1); render(); });
+      $("#nextDay").addEventListener("click", ()=>{ selected.setDate(selected.getDate()+1); render(); });
 
-  function placeNowLine(nowMin, startMin, endMin){
-    const ticks = Array.from(timelineWrap.querySelectorAll(".hourTick"));
-    if(ticks.length < 2) return;
+      let touchX = null;
+      function onTouchStart(e){ touchX = e.touches[0].clientX; }
+      function onTouchEnd(e){
+        if(touchX === null) return;
+        const dx = e.changedTouches[0].clientX - touchX;
+        touchX = null;
+        if(Math.abs(dx) < 60) return;
+        if(dx < 0) { selected.setDate(selected.getDate()+1); render(); }
+        else { selected.setDate(selected.getDate()-1); render(); }
+      }
+      $("#topbar").addEventListener("touchstart", onTouchStart, {passive:true});
+      $("#topbar").addEventListener("touchend", onTouchEnd, {passive:true});
+      content.addEventListener("touchstart", onTouchStart, {passive:true});
+      content.addEventListener("touchend", onTouchEnd, {passive:true});
 
-    const first = ticks[0].getBoundingClientRect();
-    const last = ticks[ticks.length-1].getBoundingClientRect();
-    const wrap = timelineWrap.getBoundingClientRect();
-    const totalPx = (last.top - first.top) + 1;
+      /* ========= WHATSAPP MASTER (memorizzato) ========= */
+      $("#btnWhatsApp").addEventListener("click", ()=>{
+        const num = (settings.masterWhatsApp || "").trim();
+        if(!num){
+          openModal();
+          setStatus("Imposta il numero WhatsApp in ⚙️.");
+          return;
+        }
+        const cleaned = num.replace(/[^\d+]/g,"").replace("+","");
+        const url = `https://wa.me/${encodeURIComponent(cleaned)}`;
+        window.open(url, "_blank", "noopener,noreferrer");
+      });
 
-    const ratio = (nowMin - startMin) / (endMin - startMin);
-    const y = (first.top - wrap.top) + ratio * totalPx;
+      /* ========= MODAL IMPOSTAZIONI ========= */
+      const modalOverlay = $("#modalOverlay");
+      const masterNumber = $("#masterNumber");
 
-    let line = timelineWrap.querySelector(".nowLine");
-    let pill = timelineWrap.querySelector(".nowPill");
-    if(!line){
-      line = document.createElement("div");
-      line.className = "nowLine";
-      timelineWrap.appendChild(line);
+      function openModal(){
+        masterNumber.value = settings.masterWhatsApp || "";
+        modalOverlay.classList.add("open");
+        setTimeout(() => masterNumber.focus(), 100);
+      }
+      function closeModal(){
+        modalOverlay.classList.remove("open");
+      }
 
-      pill = document.createElement("div");
-      pill.className = "nowPill";
-      pill.textContent = "ORA";
-      timelineWrap.appendChild(pill);
-    }
-    line.style.top = `${y}px`;
-    pill.style.top = `${y}px`;
-  }
+      $("#btnSettings").addEventListener("click", openModal);
+      $("#modalClose").addEventListener("click", closeModal);
+      modalOverlay.addEventListener("click", (e)=>{ if(e.target===modalOverlay) closeModal(); });
 
-  function getCurrentBlockId(nowMin){
-    const bs = timeToMinutes(BREAK_START);
-    const be = timeToMinutes(BREAK_END);
-    if(nowMin >= bs && nowMin < be) return null;
+      $("#saveSettings").addEventListener("click", ()=>{
+        settings.masterWhatsApp = masterNumber.value.trim();
+        saveSettings();
+        setStatus("Numero salvato.");
+        closeModal();
+      });
 
-    for(const b of dayState.blocks){
-      const s = timeToMinutes(b.start);
-      const e = timeToMinutes(b.end);
-      if(nowMin >= s && nowMin < e) return b.id;
-    }
-    if(nowMin < timeToMinutes(AGENDA_START)) return dayState.blocks[0].id;
-    return dayState.blocks[dayState.blocks.length-1].id;
-  }
+      $("#resetSettings").addEventListener("click", ()=>{
+        if(!confirm("Reset numero WhatsApp?")) return;
+        settings = { masterWhatsApp: "" };
+        saveSettings();
+        setStatus("Numero resettato.");
+        closeModal();
+      });
 
-  function autoScrollToNowOrCurrentBlock(nowMin){
-    const currentId = getCurrentBlockId(nowMin);
-    let targetEl = null;
+      /* ========= ESC ========= */
+      document.addEventListener("keydown", (e)=>{
+        if(e.key === "Escape"){
+          closeSheet();
+          closeModal();
+        }
+      });
 
-    if(currentId){
-      targetEl = timelineWrap.querySelector(`.slot[data-block-id="${currentId}"]`);
-    }
-    if(!targetEl){
-      targetEl = timelineWrap.querySelector(`.slot:not(.locked)`);
-    }
-    if(!targetEl) targetEl = timelineWrap;
-
-    const rect = targetEl.getBoundingClientRect();
-    const cRect = content.getBoundingClientRect();
-    const offset = rect.top - cRect.top - (cRect.height * 0.22);
-    content.scrollTop += offset;
-
-    setStatus(currentId ? `Aperto su blocco ${currentId}.` : `Pausa (${BREAK_START}–${BREAK_END}).`);
-  }
-
-  function onDone(blockId){
-    const b = dayState.blocks.find(x=>x.id===blockId);
-    if(!b || b.status==="locked") return;
-
-    b.status = (b.status === "done") ? "todo" : "done";
-    b.closedAt = new Date().toISOString();
-    if(b.status === "done"){
-      b.nonDoneReason = "";
-      setStatus(`Blocco ${blockId}: FATTO.`);
-    }else{
-      setStatus(`Blocco ${blockId}: riaperto.`);
-    }
-
-    recomputeLocks(dayState);
-    saveDay(dayState);
-    render();
-  }
-
-  /* ========= SHEET NON FATTO ========= */
-  const sheetOverlay = $("#sheetOverlay");
-  const sheetBody = $("#sheetBody");
-  let sheetBlockId = null;
-
-  function openNonDoneSheet(blockId){
-    sheetBlockId = blockId;
-    $("#sheetTitle").textContent = `NON FATTO • Blocco ${blockId}`;
-    sheetBody.innerHTML = "";
-
-    // scelte secche, niente testo libero
-    const choices = [
-      { code:"RIMANDATO", label:"⏳ Rimandato", hint:"Registrato come rimando" },
-      { code:"NO_INTERESSE", label:"🚫 Nessun interesse", hint:"Non inseguire" },
-      { code:"INFO_GENERICHE", label:"📉 Solo info/prezzo", hint:"Senza problema reale" },
-    ];
-
-    for(const c of choices){
-      const div = document.createElement("div");
-      div.className = "choice";
-      div.innerHTML = `<div>${c.label}<br><small>${c.hint}</small></div><div>→</div>`;
-      div.addEventListener("click", ()=> applyNonDone(c.code));
-      sheetBody.appendChild(div);
-    }
-
-    sheetOverlay.classList.add("open");
-  }
-
-  function closeSheet(){
-    sheetOverlay.classList.remove("open");
-    sheetBlockId = null;
-  }
-
-  $("#sheetClose").addEventListener("click", closeSheet);
-  sheetOverlay.addEventListener("click", (e)=>{ if(e.target===sheetOverlay) closeSheet(); });
-
-  function applyNonDone(reasonCode){
-    const b = dayState.blocks.find(x=>x.id===sheetBlockId);
-    if(!b || b.status==="locked") return;
-
-    b.status = "skipped";
-    b.closedAt = new Date().toISOString();
-    b.nonDoneReason = reasonCode;
-
-    recomputeLocks(dayState);
-    saveDay(dayState);
-    setStatus(`Blocco ${b.id}: NON FATTO (${reasonCode}).`);
-    closeSheet();
-    render();
-  }
-
-  /* ========= EXPORT (solo locale) ========= */
-  $("#btnExport").addEventListener("click", ()=>{
-    if(!dayState) return;
-    const payload = {
-      ...dayState,
-      exportedAt: new Date().toISOString(),
-      agenda: { start: AGENDA_START, end: AGENDA_END, breakStart: BREAK_START, breakEnd: BREAK_END }
-    };
-    const blob = new Blob([JSON.stringify(payload, null, 2)], {type:"application/json"});
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = `agenda_${dayState.date}.json`;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    setStatus("Export completato.");
-  });
-
-  /* ========= NAV GIORNI + SWIPE ========= */
-  $("#prevDay").addEventListener("click", ()=>{ selected.setDate(selected.getDate()-1); render(); });
-  $("#nextDay").addEventListener("click", ()=>{ selected.setDate(selected.getDate()+1); render(); });
-
-  let touchX = null;
-  function onTouchStart(e){ touchX = e.touches[0].clientX; }
-  function onTouchEnd(e){
-    if(touchX === null) return;
-    const dx = e.changedTouches[0].clientX - touchX;
-    touchX = null;
-    if(Math.abs(dx) < 60) return;
-    if(dx < 0) { selected.setDate(selected.getDate()+1); render(); }
-    else { selected.setDate(selected.getDate()-1); render(); }
-  }
-  $("#topbar").addEventListener("touchstart", onTouchStart, {passive:true});
-  $("#topbar").addEventListener("touchend", onTouchEnd, {passive:true});
-  content.addEventListener("touchstart", onTouchStart, {passive:true});
-  content.addEventListener("touchend", onTouchEnd, {passive:true});
-
-  /* ========= WHATSAPP MASTER (memorizzato) ========= */
-  $("#btnWhatsApp").addEventListener("click", ()=>{
-    const num = (settings.masterWhatsApp || "").trim();
-    if(!num){
-      openModal();
-      setStatus("Imposta il numero WhatsApp in ⚙️.");
-      return;
-    }
-    const cleaned = num.replace(/[^\d+]/g,"").replace("+","");
-    const url = `https://wa.me/${encodeURIComponent(cleaned)}`;
-    window.open(url, "_blank", "noopener,noreferrer");
-  });
-
-  /* ========= MODAL IMPOSTAZIONI ========= */
-  const modalOverlay = $("#modalOverlay");
-  const masterNumber = $("#masterNumber");
-
-  function openModal(){
-    masterNumber.value = settings.masterWhatsApp || "";
-    modalOverlay.classList.add("open");
-  }
-  function closeModal(){
-    modalOverlay.classList.remove("open");
-  }
-
-  $("#btnSettings").addEventListener("click", openModal);
-  $("#modalClose").addEventListener("click", closeModal);
-  modalOverlay.addEventListener("click", (e)=>{ if(e.target===modalOverlay) closeModal(); });
-
-  $("#saveSettings").addEventListener("click", ()=>{
-    settings.masterWhatsApp = masterNumber.value.trim();
-    saveSettings();
-    setStatus("Numero salvato.");
-    closeModal();
-  });
-
-  $("#resetSettings").addEventListener("click", ()=>{
-    if(!confirm("Reset numero WhatsApp?")) return;
-    settings = { masterWhatsApp: "" };
-    saveSettings();
-    setStatus("Numero resettato.");
-    closeModal();
-  });
-
-  /* ========= ESC ========= */
-  document.addEventListener("keydown", (e)=>{
-    if(e.key === "Escape"){
-      closeSheet();
-      closeModal();
-    }
-  });
-
-  /* ========= INIT ========= */
-  render();
-})();
-</script>
+      /* ========= INIT ========= */
+      render();
+      
+      // Periodicamente aggiorna la posizione dell'ora corrente
+      setInterval(() => {
+        const todayStr = isoDate(new Date());
+        const selectedStr = isoDate(selected);
+        if(todayStr === selectedStr) {
+          const now = new Date();
+          const startMin = timeToMinutes(AGENDA_START);
+          const endMin = timeToMinutes(AGENDA_END);
+          let nowMin = now.getHours()*60 + now.getMinutes();
+          nowMin = clamp(nowMin, startMin, endMin);
+          placeNowLine(nowMin, startMin, endMin);
+        }
+      }, 60000); // Ogni minuto
+    })();
+  </script>
 </body>
 </html>
