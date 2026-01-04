@@ -1,1344 +1,1009 @@
-<!DOCTYPE html>
-<html lang="it" dir="ltr">
+<!doctype html>
+<html lang="it">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
-  <meta name="description" content="Agenda operativa offline per gestione attività giornaliere con tracciamento progresso e vincoli a catena">
-  <meta name="theme-color" content="#0b0d12">
-  <meta name="color-scheme" content="dark">
-  
-  <!-- Open Graph / Twitter -->
-  <meta property="og:title" content="Agenda Operativa Offline">
-  <meta property="og:description" content="Gestione attività giornaliere con tracciamento progresso e vincoli a catena">
-  <meta property="og:type" content="website">
-  <meta name="twitter:card" content="summary">
-  
-  <title>Agenda Operativa – Offline</title>
-  
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Calendario Settimanale – Rotazione 4 Slot</title>
   <style>
-    :root {
-      --bg: #0b0d12;
-      --text: #e9eefc;
-      --muted: #aab3cc;
-      --border: rgba(255, 255, 255, 0.10);
-      --shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
-      
-      /* ✅ colori invariati (palette) */
-      --dot-blue: #4ea3ff;
-      --dot-cyan: #34d2ff;
-      --dot-green: #34d399;
-      --dot-purple: #a78bfa;
-      --dot-amber: #fbbf24;
-      --dot-red: #fb7185;
-      
-      --todo: #6b7280;
-      --done: #34d399;
-      --skip: #fbbf24;
-      --lock: #64748b;
-      
-      --line: rgba(255, 255, 255, 0.12);
-      
-      /* Aggiunti per accessibilità */
-      --focus-ring: rgba(78, 163, 255, 0.6);
-      --focus-outline: 2px solid var(--focus-ring);
+    :root{
+      --bg:#0b0f17;
+      --card:#121a27;
+      --card2:#0f1622;
+      --text:#e9eef7;
+      --muted:#a9b3c7;
+      --line:rgba(255,255,255,.08);
+      --accent:#6aa8ff;
+      --good:#24d17e;
+      --bad:#ff4d4d;
+      --warn:#ffcc66;
+      --shadow: 0 10px 24px rgba(0,0,0,.35);
+      --radius: 16px;
+      --radius2: 12px;
+      --focus: 0 0 0 3px rgba(106,168,255,.35);
+      font-synthesis-weight: none;
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
     }
-    
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      background: radial-gradient(1200px 700px at 20% 0%, rgba(106,168,255,.18), transparent 60%),
+                  radial-gradient(900px 500px at 100% 0%, rgba(36,209,126,.10), transparent 55%),
+                  var(--bg);
+      color:var(--text);
+      font: 14px/1.35 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
     }
-    
-    body {
-      margin: 0;
-      min-height: 100svh;
+
+    a{color:inherit}
+    .wrap{
+      max-width: 1200px;
+      margin: 22px auto 40px;
+      padding: 0 14px;
       display: grid;
-      place-items: center;
-      background:
-        radial-gradient(1200px 600px at 50% -10%, rgba(78, 163, 255, 0.18), transparent 60%),
-        radial-gradient(900px 500px at 10% 20%, rgba(167, 139, 250, 0.14), transparent 60%),
-        var(--bg);
-      color: var(--text);
-      font: 14px/1.35 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      padding: 16px;
+      gap: 14px;
+      grid-template-columns: 1.4fr .9fr;
     }
-    
-    /* Improved focus styles for accessibility */
-    :focus-visible {
-      outline: var(--focus-outline);
-      outline-offset: 2px;
-    }
-    
-    .btn:focus-visible {
-      outline: var(--focus-outline);
-      outline-offset: 2px;
-    }
-    
-    /* Screen reader only */
-    .sr-only {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      padding: 0;
-      margin: -1px;
-      overflow: hidden;
-      clip: rect(0, 0, 0, 0);
-      white-space: nowrap;
-      border: 0;
-    }
-    
-    /* "telefono" */
-    .phone {
-      width: min(460px, 96vw);
-      height: min(920px, 94svh);
-      border: 1px solid var(--border);
-      border-radius: 28px;
+
+    header{
+      grid-column: 1 / -1;
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
       box-shadow: var(--shadow);
-      padding: 14px;
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
-      overflow: hidden;
+      padding: 16px;
+      display: grid;
+      gap: 12px;
     }
-    
-    .screen {
-      height: 100%;
-      border-radius: 20px;
-      border: 1px solid var(--border);
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01));
-      position: relative;
+
+    .toprow{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px 12px;
+      align-items:center;
+      justify-content:space-between;
     }
-    
-    /* header */
-    .topbar {
-      padding: 12px 12px 10px;
-      background: rgba(0, 0, 0, 0.20);
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      touch-action: pan-y;
+
+    .brand{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      min-width: 260px;
     }
-    
-    .topRow {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
+    .badge{
+      width:36px;height:36px;border-radius:12px;
+      background: linear-gradient(135deg, rgba(106,168,255,.9), rgba(36,209,126,.8));
+      box-shadow: 0 10px 20px rgba(0,0,0,.25);
     }
-    
-    .dateTitle {
-      flex: 1;
-      text-align: center;
-      font-weight: 900;
-      letter-spacing: .2px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      font-size: 14px;
+    h1{
+      margin:0;
+      font-size: 18px;
+      letter-spacing:.2px;
     }
-    
-    .subRow {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      color: var(--muted);
-      font-size: 12px;
-    }
-    
-    .btn {
-      appearance: none;
-      border: 1px solid var(--border);
-      background: rgba(255, 255, 255, 0.05);
-      color: var(--text);
-      padding: 9px 10px;
-      border-radius: 12px;
-      cursor: pointer;
-      font-weight: 800;
-      letter-spacing: .2px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      user-select: none;
-      transition: transform 0.1s ease, background-color 0.2s ease;
-    }
-    
-    .btn.small {
-      padding: 8px 10px;
+    .sub{
+      margin:0;
+      color:var(--muted);
       font-size: 13px;
     }
-    
-    .btn.ghost {
-      background: transparent;
+
+    .controls{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      align-items:center;
+      justify-content:flex-end;
     }
-    
-    .btn:active:not([disabled]) {
-      transform: translateY(1px);
-      background-color: rgba(255, 255, 255, 0.08);
+
+    .field{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      min-width: 220px;
     }
-    
-    .btn[disabled] {
-      opacity: .45;
-      cursor: not-allowed;
-    }
-    
-    .hint {
-      color: var(--muted);
-      font-size: 12px;
-      text-align: center;
-      padding-top: 4px;
-    }
-    
-    /* content scroll */
-    .content {
-      flex: 1;
-      overflow: auto;
-      -webkit-overflow-scrolling: touch;
-      padding: 10px 10px 90px;
-      touch-action: pan-y;
-      position: relative;
-    }
-    
-    /* Domenica OFF */
-    .off {
-      border: 1px solid var(--border);
-      background: rgba(18, 22, 34, 0.72);
-      border-radius: 16px;
-      padding: 16px;
-    }
-    
-    .off h2 {
-      margin: 0 0 6px;
-      font-size: 14px;
-    }
-    
-    .off p {
-      margin: 0;
-      color: var(--muted);
-    }
-    
-    /* timeline */
-    .timeline {
-      position: relative;
-      border-left: 2px solid var(--line);
-      margin-left: 54px;   /* colonna orari */
-      padding-left: 12px;  /* spazio blocchi */
-    }
-    
-    .hourTick {
-      position: relative;
-      padding: 18px 0;
-    }
-    
-    .hourLabel {
-      position: absolute;
-      left: -68px;
-      top: 10px;
-      width: 56px;
-      text-align: right;
-      color: rgba(233, 238, 252, 0.78);
-      font-weight: 900;
-      font-size: 12px;
-    }
-    
-    .tickLine {
-      position: absolute;
-      left: -12px;
-      right: 0;
-      top: 18px;
-      height: 1px;
-      background: rgba(255, 255, 255, 0.06);
-    }
-    
-    /* blocco */
-    .slot {
-      margin-top: 8px;
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      background: rgba(255, 255, 255, 0.03);
-      padding: 14px 14px 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      min-height: 112px; /* spazio per leggere */
-    }
-    
-    .slot.locked {
-      opacity: .65;
-    }
-    
-    .slotHead {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 12px;
-    }
-    
-    .slotTitle {
-      min-width: 0;
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-    
-    .slotTitle .big {
-      font-weight: 950;
-      font-size: 16px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    
-    .slotTitle .small {
-      color: var(--muted);
-      font-size: 12px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    
-    .money {
-      font-size: 18px;
-      line-height: 1;
-      margin-top: 2px;
-    }
-    
-    .row2 {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-    }
-    
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 6px 10px;
-      border-radius: 999px;
-      border: 1px solid var(--border);
-      background: rgba(0, 0, 0, 0.20);
-      font-weight: 900;
-      font-size: 12px;
-      white-space: nowrap;
-    }
-    
-    .dot {
-      width: 9px;
-      height: 9px;
-      border-radius: 999px;
-      display: inline-block;
-    }
-    
-    .dot.todo {
-      background: var(--todo);
-    }
-    
-    .dot.done {
-      background: var(--done);
-    }
-    
-    .dot.skip {
-      background: var(--skip);
-    }
-    
-    .dot.lock {
-      background: var(--lock);
-    }
-    
-    .note {
-      color: var(--muted);
-      font-size: 12px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      max-width: 60%;
-      text-align: right;
-    }
-    
-    .actions {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-    
-    .actions .btn {
-      flex: 1;
-      min-width: 140px;
-      padding: 12px 12px;
-      border-radius: 14px;
-      font-weight: 950;
-      font-size: 14px;
-    }
-    
-    /* pausa */
-    .break {
-      margin: 18px 0;
-      border: 1px dashed rgba(255, 255, 255, 0.16);
-      border-radius: 16px;
-      padding: 18px 14px;
-      background: rgba(148, 163, 184, 0.08);
-      min-height: 92px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-    }
-    
-    .break .b1 {
-      font-weight: 950;
-    }
-    
-    .break .b2 {
+
+    label{
       color: var(--muted);
       font-size: 12px;
     }
-    
-    /* ora line */
-    .nowLine {
-      position: absolute;
-      left: -2px;
-      right: 0;
-      height: 2px;
-      background: rgba(78, 163, 255, 0.65);
-      border-radius: 999px;
-      pointer-events: none;
-    }
-    
-    .nowPill {
-      position: absolute;
-      left: -58px;
-      transform: translateY(-50%);
-      background: rgba(78, 163, 255, 0.15);
-      border: 1px solid rgba(78, 163, 255, 0.35);
-      color: rgba(233, 238, 252, 0.95);
-      font-weight: 950;
-      font-size: 11px;
-      padding: 5px 8px;
-      border-radius: 999px;
-      width: 54px;
-      text-align: right;
-      pointer-events: none;
-    }
-    
-    /* bottom bar */
-    .status {
-      position: absolute;
-      left: 0;
-      right: 0;
-      bottom: 0;
+
+    input[type="text"], input[type="date"]{
+      width:100%;
       padding: 10px 12px;
-      border-top: 1px solid var(--border);
-      background: rgba(0, 0, 0, 0.22);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-    }
-    
-    .status .msg {
-      color: var(--muted);
-      font-size: 12px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      max-width: 72%;
-    }
-    
-    /* WhatsApp floating */
-    .fab {
-      position: absolute;
-      right: 14px;
-      bottom: 68px;
-      z-index: 20;
-      border-radius: 999px;
-      padding: 12px 14px;
-      font-weight: 950;
-      box-shadow: var(--shadow);
-    }
-    
-    /* sheet NON FATTO */
-    .sheetOverlay {
-      position: absolute;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.55);
-      display: none;
-      align-items: flex-end;
-      justify-content: center;
-      padding: 14px;
-      z-index: 50;
-    }
-    
-    .sheetOverlay.open {
-      display: flex;
-    }
-    
-    .sheet {
-      width: 100%;
-      background: rgba(18, 22, 34, 0.96);
-      border: 1px solid var(--border);
-      border-radius: 18px;
-      overflow: hidden;
-      box-shadow: var(--shadow);
-    }
-    
-    .sheetHead {
-      padding: 12px;
-      border-bottom: 1px solid var(--border);
-      background: rgba(0, 0, 0, 0.18);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-    }
-    
-    .sheetBody {
-      padding: 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-    
-    .choice {
-      border: 1px solid var(--border);
-      background: rgba(255, 255, 255, 0.03);
-      border-radius: 14px;
-      padding: 12px;
-      font-weight: 950;
-      cursor: pointer;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-    }
-    
-    .choice:hover,
-    .choice:focus-visible {
-      background: rgba(255, 255, 255, 0.06);
-    }
-    
-    .choice small {
-      color: var(--muted);
-      font-weight: 850;
-    }
-    
-    /* modal impostazioni (solo numero WhatsApp) */
-    .modalOverlay {
-      position: absolute;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.55);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 14px;
-      z-index: 60;
-    }
-    
-    .modalOverlay.open {
-      display: flex;
-    }
-    
-    .modal {
-      width: 100%;
-      max-width: 520px;
-      background: rgba(18, 22, 34, 0.96);
-      border: 1px solid var(--border);
-      border-radius: 18px;
-      overflow: hidden;
-      box-shadow: var(--shadow);
-    }
-    
-    .modalHead {
-      padding: 12px;
-      border-bottom: 1px solid var(--border);
-      background: rgba(0, 0, 0, 0.18);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-    }
-    
-    .modalBody {
-      padding: 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-    
-    .field label {
-      display: block;
-      color: var(--muted);
-      font-size: 12px;
-      margin-bottom: 6px;
-      font-weight: 900;
-    }
-    
-    .field input {
-      width: 100%;
-      border: 1px solid var(--border);
-      background: rgba(0, 0, 0, 0.20);
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: rgba(0,0,0,.20);
       color: var(--text);
-      padding: 12px 12px;
-      border-radius: 14px;
       outline: none;
-      font-weight: 900;
-      font-size: 14px;
     }
-    
-    .field input:focus-visible {
-      outline: var(--focus-outline);
-      outline-offset: 2px;
+    input[type="text"]:focus, input[type="date"]:focus, button:focus{
+      box-shadow: var(--focus);
+      border-color: rgba(106,168,255,.55);
     }
-    
-    .rowBtns {
-      display: flex;
-      gap: 10px;
+
+    .btns{
+      display:flex;
+      gap:8px;
+      align-items:center;
+      flex-wrap:wrap;
+      justify-content:flex-end;
     }
-    
-    .rowBtns .btn {
-      flex: 1;
-      padding: 12px 12px;
+
+    button{
+      appearance:none;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.05);
+      color: var(--text);
+      padding: 10px 12px;
+      border-radius: 12px;
+      cursor:pointer;
+      transition: transform .06s ease, background .15s ease, border-color .15s ease;
+      outline:none;
+      white-space:nowrap;
+    }
+    button:hover{ background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.14);}
+    button:active{ transform: translateY(1px); }
+    .primary{
+      border-color: rgba(106,168,255,.35);
+      background: rgba(106,168,255,.16);
+    }
+    .primary:hover{
+      background: rgba(106,168,255,.22);
+      border-color: rgba(106,168,255,.55);
+    }
+    .danger{
+      border-color: rgba(255,77,77,.35);
+      background: rgba(255,77,77,.12);
+    }
+    .danger:hover{
+      background: rgba(255,77,77,.18);
+      border-color: rgba(255,77,77,.55);
+    }
+
+    .help{
+      background: rgba(255,255,255,.04);
+      border: 1px dashed rgba(255,255,255,.14);
       border-radius: 14px;
-      font-weight: 950;
+      padding: 12px;
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+      color: var(--muted);
     }
-    
-    /* Media Queries per migliorare responsive */
-    @media (max-width: 480px) {
-      .phone {
-        border-radius: 24px;
-        padding: 10px;
-      }
-      
-      .screen {
-        border-radius: 16px;
-      }
-      
-      .actions .btn {
-        min-width: 120px;
-      }
-      
-      .fab {
-        right: 10px;
-        bottom: 64px;
-        padding: 10px 12px;
-        font-size: 13px;
-      }
+    .help b{color: var(--text); font-weight: 650;}
+    .help .dot{
+      width:10px;height:10px;border-radius:999px;margin-top:5px;
+      background: rgba(106,168,255,.9);
+      box-shadow: 0 0 0 6px rgba(106,168,255,.12);
+      flex: 0 0 auto;
     }
-    
-    @media (max-width: 380px) {
-      .hourLabel {
-        left: -60px;
-        width: 50px;
-      }
-      
-      .timeline {
-        margin-left: 48px;
-      }
-      
-      .nowPill {
-        left: -52px;
-        width: 48px;
-      }
-      
-      .actions {
-        flex-direction: column;
-      }
-      
-      .actions .btn {
-        min-width: 100%;
-      }
+
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow:hidden;
     }
-    
-    /* Print styles */
-    @media print {
-      body {
-        background: white;
-        color: black;
-        padding: 0;
-      }
-      
-      .phone, .screen {
-        box-shadow: none;
-        border: 1px solid #ccc;
-        width: 100%;
-        height: auto;
-      }
-      
-      .btn, .fab, .sheetOverlay, .modalOverlay {
-        display: none !important;
-      }
+    .card h2{
+      margin:0;
+      font-size: 14px;
+      letter-spacing:.2px;
+    }
+    .cardhead{
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      align-items:center;
+      background: rgba(0,0,0,.12);
+    }
+    .cardbody{
+      padding: 12px 14px;
+    }
+
+    .weekline{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      align-items:center;
+      justify-content:space-between;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .weekline strong{ color: var(--text); font-weight: 700; }
+
+    .tablewrap{
+      padding: 0;
+    }
+
+    table{
+      width:100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+      font-size: 13px;
+    }
+    thead th{
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      background: rgba(15,22,34,.92);
+      backdrop-filter: blur(8px);
+    }
+    th, td{
+      border-bottom: 1px solid var(--line);
+      border-right: 1px solid var(--line);
+      padding: 10px;
+      vertical-align: top;
+    }
+    th:last-child, td:last-child{ border-right: none; }
+    tbody tr:last-child td{ border-bottom: none; }
+
+    th.day{
+      width: 120px;
+      text-align:left;
+      color: var(--text);
+      font-weight: 700;
+    }
+    th.slot{
+      text-align:left;
+      color: var(--muted);
+      font-weight: 650;
+    }
+    .slotmeta{
+      display:flex;
+      flex-direction:column;
+      gap:2px;
+    }
+    .slotmeta .time{ color: var(--muted); font-size: 12px; }
+    .slotmeta .kind{ color: var(--text); font-size: 12px; font-weight: 700; }
+
+    .cell{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      min-height: 88px;
+    }
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(0,0,0,.16);
+      width: fit-content;
+      max-width:100%;
+    }
+    .pill .small{
+      color: var(--muted);
+      font-size: 12px;
+      white-space:nowrap;
+    }
+    .pill .big{
+      font-weight: 700;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+      max-width: 420px;
+    }
+
+    .statusRow{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:space-between;
+    }
+    .statusHint{
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .toggle{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(0,0,0,.14);
+      cursor:pointer;
+      user-select:none;
+      transition: background .15s ease, border-color .15s ease;
+    }
+    .toggle:hover{
+      background: rgba(255,255,255,.06);
+      border-color: rgba(255,255,255,.14);
+    }
+
+    .ball{
+      width:12px;height:12px;border-radius:999px;
+      background: var(--bad);
+      box-shadow: 0 0 0 6px rgba(255,77,77,.12);
+    }
+    .done .ball{
+      background: var(--good);
+      box-shadow: 0 0 0 6px rgba(36,209,126,.12);
+    }
+    .toggle .txt{
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .done .txt{
+      color: rgba(233,238,247,.9);
+      font-weight: 650;
+    }
+
+    .sidebar{
+      display:flex;
+      flex-direction:column;
+      gap:14px;
+    }
+
+    .list{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      max-height: 520px;
+      overflow:auto;
+      padding-right: 6px;
+    }
+
+    .item{
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 10px 10px;
+      background: rgba(0,0,0,.14);
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+      justify-content:space-between;
+    }
+    .item .left{
+      display:flex;
+      flex-direction:column;
+      gap:2px;
+      min-width: 0;
+    }
+    .item .title{
+      font-weight: 750;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+      max-width: 360px;
+    }
+    .item .meta{
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .tag{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding: 6px 9px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.04);
+      color: var(--muted);
+      font-size: 12px;
+      white-space:nowrap;
+    }
+    .tag strong{ color: var(--text); font-weight: 750; }
+
+    textarea{
+      width:100%;
+      min-height: 120px;
+      resize: vertical;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: rgba(0,0,0,.20);
+      color: var(--text);
+      outline:none;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12px;
+      line-height: 1.35;
+    }
+    textarea:focus{ box-shadow: var(--focus); border-color: rgba(106,168,255,.55); }
+
+    .muted{ color: var(--muted); }
+    .smallnote{ font-size: 12px; color: var(--muted); }
+
+    @media (max-width: 980px){
+      .wrap{ grid-template-columns: 1fr; }
+      .item .title{ max-width: 66vw; }
+      th.day{ width: 108px; }
+    }
+    @media (max-width: 640px){
+      th.day{ width: 96px; }
+      .controls .field{ min-width: 100%; }
+      .btns{ width:100%; justify-content:space-between; }
+      .pill .big{ max-width: 70vw; }
     }
   </style>
-  
-  <!-- Preconnect per WhatsApp API -->
-  <link rel="preconnect" href="https://wa.me">
 </head>
 
 <body>
-  <div class="phone" role="application" aria-label="Agenda operativa offline">
-    <div class="screen">
-      <div class="topbar" id="topbar">
-        <div class="topRow">
-          <button class="btn small ghost" id="prevDay" type="button" aria-label="Giorno precedente">
-            <span aria-hidden="true">←</span>
-            <span class="sr-only">Giorno precedente</span>
-          </button>
-          <div class="dateTitle" id="dateTitle" role="heading" aria-level="1">—</div>
-          <button class="btn small ghost" id="nextDay" type="button" aria-label="Giorno successivo">
-            <span aria-hidden="true">→</span>
-            <span class="sr-only">Giorno successivo</span>
-          </button>
-        </div>
+  <!--
+  ASSUNZIONI
+  - La pianificazione degli immobili per "Pubblicità Sito" (Slot 1) è sequenziale: Immobile 1 → Lunedì della settimana di inizio, Immobile 2 → Martedì, ecc. (solo Lun–Sab). Finito il Sabato si passa alla settimana successiva.
+  - La settimana visualizzata va da Lunedì a Domenica, ma gli slot sono mostrati solo Lun–Sab come nella tua tabella.
+  - Il range "SETTIMANA DAL AL" viene calcolato automaticamente in base al Lunedì selezionato.
+  - I pallini rosso/verde (DA FARE / FATTO) sono per OGNI slot e vengono salvati in localStorage per settimana.
+  - I 50 immobili sono modificabili (nome per riga) con import/export tramite textarea (uno per riga).
+  -->
 
-        <div class="subRow">
-          <div>08:00–20:00 • Pausa 13:00–14:30</div>
-          <button class="btn small" id="btnSettings" type="button" aria-label="Impostazioni">
-            <span aria-hidden="true">⚙️</span>
-            <span class="sr-only">Impostazioni</span>
-          </button>
-        </div>
-
-        <div class="hint">Swipe ← → per cambiare giorno</div>
-      </div>
-
-      <div class="content" id="content" role="main" aria-label="Contenuto principale">
-        <div id="offBox" class="off" style="display:none;" role="alert">
-          <h2>Domenica</h2>
-          <p>OFF — nessuna azione prevista oggi.</p>
-        </div>
-
-        <div id="timelineWrap" class="timeline" aria-label="Timeline oraria delle attività"></div>
-      </div>
-
-      <button class="btn fab" id="btnWhatsApp" type="button" aria-label="Chiama Agenzia su WhatsApp">
-        <span aria-hidden="true">🟢</span> Chiama Agenzia
-      </button>
-
-      <div class="status" role="status" aria-live="polite" aria-atomic="true">
-        <div class="msg" id="statusMsg">Pronto.</div>
-        <div style="display:flex; gap:10px;">
-          <button class="btn small" id="btnExport" type="button" aria-label="Esporta dati giornalieri">
-            <span aria-hidden="true">📥</span> Export
-          </button>
-        </div>
-      </div>
-
-      <!-- Sheet NON FATTO -->
-      <div class="sheetOverlay" id="sheetOverlay" role="dialog" aria-modal="true" aria-label="Motivo non completamento">
-        <div class="sheet">
-          <div class="sheetHead">
-            <strong id="sheetTitle">NON FATTO</strong>
-            <button class="btn small" id="sheetClose" type="button" aria-label="Chiudi">
-              <span aria-hidden="true">✕</span>
-            </button>
+  <div class="wrap">
+    <header>
+      <div class="toprow">
+        <div class="brand">
+          <div class="badge" aria-hidden="true"></div>
+          <div>
+            <h1>Calendario Settimanale – Rotazione 4 Slot</h1>
+            <p class="sub">Visibile, chiaro e immediato • Slot con stato <span style="color:var(--bad);font-weight:700;">rosso</span>/<span style="color:var(--good);font-weight:700;">verde</span> cliccabile</p>
           </div>
-          <div class="sheetBody" id="sheetBody"></div>
         </div>
-      </div>
 
-      <!-- Modal Impostazioni -->
-      <div class="modalOverlay" id="modalOverlay" role="dialog" aria-modal="true" aria-label="Impostazioni">
-        <div class="modal">
-          <div class="modalHead">
-            <strong>Impostazioni</strong>
-            <button class="btn small" id="modalClose" type="button" aria-label="Chiudi">
-              <span aria-hidden="true">✕</span>
-            </button>
+        <div class="controls" role="group" aria-label="Impostazioni calendario">
+          <div class="field">
+            <label for="clientName">Nome cliente (parte alta)</label>
+            <input id="clientName" type="text" placeholder="Es. Rossi Immobiliare" autocomplete="off" />
           </div>
-          <div class="modalBody">
-            <div class="field">
-              <label for="masterNumber">Numero WhatsApp Agenzia (master)</label>
-              <input id="masterNumber" placeholder="+39XXXXXXXXXX" inputmode="tel" 
-                     aria-describedby="numberHelp" />
-              <div id="numberHelp" class="sr-only">Inserisci il numero completo con prefisso internazionale</div>
-            </div>
-            <div class="rowBtns">
-              <button class="btn" id="saveSettings" type="button">Salva</button>
-              <button class="btn ghost" id="resetSettings" type="button">Reset</button>
-            </div>
+
+          <div class="field">
+            <label for="weekDate">Settimana (scegli una data, io la porto a Lunedì)</label>
+            <input id="weekDate" type="date" />
+          </div>
+
+          <div class="btns">
+            <button id="prevWeek" title="Settimana precedente">← Indietro</button>
+            <button id="nextWeek" title="Settimana successiva">Avanti →</button>
+            <button id="setPlanStart" class="primary" title="Usa questa settimana come inizio pianificazione immobili">Imposta inizio pianificazione</button>
           </div>
         </div>
       </div>
-    </div>
+
+      <div class="help" role="note" aria-label="Come usare">
+        <div class="dot" aria-hidden="true"></div>
+        <div>
+          <div><b>Come usare:</b> scrivi il <b>Nome cliente</b>, scegli una data (la settimana si aggancia al <b>Lunedì</b>), poi clicca sui pallini per segnare <b>DA FARE/FATTO</b>.</div>
+          <div class="muted">Gli immobili (50) vengono programmati automaticamente su <b>Slot 1 – Pubblicità Sito</b> e il cliente può vedere <b>quando</b> il suo immobile va in pubblicità. Dati salvati in <b>localStorage</b>.</div>
+        </div>
+      </div>
+    </header>
+
+    <!-- CALENDARIO -->
+    <section class="card">
+      <div class="cardhead">
+        <h2 id="titleClient">Cliente: <span class="muted">(non impostato)</span></h2>
+        <div class="weekline" aria-label="Settimana dal al">
+          <span>SETTIMANA DAL <strong id="weekFrom">—</strong> AL <strong id="weekTo">—</strong></span>
+          <span class="smallnote">Slot: 1 Pubblicità Sito • 2 Carosello • 3 Video Reel • 4 Video promo immobile di oggi</span>
+        </div>
+      </div>
+      <div class="tablewrap">
+        <table aria-label="Calendario settimanale a 4 slot">
+          <thead>
+            <tr>
+              <th class="day">GIORNO</th>
+              <th class="slot">
+                <div class="slotmeta">
+                  <span class="kind">SLOT 1</span>
+                  <span class="time" id="s1hdr">—</span>
+                </div>
+              </th>
+              <th class="slot">
+                <div class="slotmeta">
+                  <span class="kind">SLOT 2</span>
+                  <span class="time" id="s2hdr">—</span>
+                </div>
+              </th>
+              <th class="slot">
+                <div class="slotmeta">
+                  <span class="kind">SLOT 3</span>
+                  <span class="time" id="s3hdr">—</span>
+                </div>
+              </th>
+              <th class="slot">
+                <div class="slotmeta">
+                  <span class="kind">SLOT 4</span>
+                  <span class="time" id="s4hdr">—</span>
+                </div>
+              </th>
+            </tr>
+          </thead>
+          <tbody id="calBody">
+            <!-- popolato da JS -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <section class="card">
+        <div class="cardhead">
+          <h2>Pianificazione immobili (Slot 1 – Pubblicità Sito)</h2>
+          <span class="tag" title="La pianificazione parte dal Lunedì impostato come inizio">
+            Inizio: <strong id="planStartBadge">—</strong>
+          </span>
+        </div>
+        <div class="cardbody">
+          <div class="smallnote" style="margin-bottom:10px;">
+            Ogni immobile è assegnato a un giorno (Lun–Sab) nello <b>Slot 1</b>. Cerca il tuo immobile nella lista qui sotto.
+          </div>
+          <div class="list" id="propertyList" aria-label="Lista immobili programmati"></div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="cardhead">
+          <h2>Gestione elenco immobili (50)</h2>
+          <button id="resetProps" class="danger" title="Ripristina elenco demo (50 immobili)">Reset elenco</button>
+        </div>
+        <div class="cardbody">
+          <div class="smallnote" style="margin-bottom:8px;">
+            Modifica i nomi: <b>uno per riga</b>. Poi clicca “Salva elenco”.
+          </div>
+          <textarea id="propsTextarea" aria-label="Elenco immobili (uno per riga)"></textarea>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;margin-top:10px;">
+            <button id="saveProps" class="primary">Salva elenco</button>
+            <button id="exportData">Esporta (JSON)</button>
+            <button id="importData">Importa (JSON)</button>
+          </div>
+          <div class="smallnote" id="ioHint" style="margin-top:8px;">
+            Suggerimento: usa Esporta/Importa per portarti dietro nome cliente, inizio pianificazione, stati e immobili.
+          </div>
+        </div>
+      </section>
+    </aside>
   </div>
 
   <script>
-    // Aggiungi questo codice JavaScript per migliorare l'accessibilità
-    document.addEventListener('DOMContentLoaded', function() {
-      // Gestione focus trap per modali
-      const sheetOverlay = document.getElementById('sheetOverlay');
-      const modalOverlay = document.getElementById('modalOverlay');
-      
-      function trapFocus(element) {
-        const focusableElements = element.querySelectorAll(
-          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-        );
-        const firstFocusable = focusableElements[0];
-        const lastFocusable = focusableElements[focusableElements.length - 1];
-        
-        element.addEventListener('keydown', function(e) {
-          if (e.key === 'Tab') {
-            if (e.shiftKey) {
-              if (document.activeElement === firstFocusable) {
-                lastFocusable.focus();
-                e.preventDefault();
-              }
-            } else {
-              if (document.activeElement === lastFocusable) {
-                firstFocusable.focus();
-                e.preventDefault();
-              }
-            }
+    // ------------------------------
+    // DATI BASE: giorni/slot/orari
+    // ------------------------------
+    const DAYS = [
+      { key: "LUNEDI", label: "LUNEDÌ", times: ["08:00–10:00","10:00–14:00","14:00–18:00","18:00–22:00"] },
+      { key: "MARTEDI", label: "MARTEDÌ", times: ["09:00–11:00","11:00–15:00","15:00–19:00","19:00–23:00"] },
+      { key: "MERCOLEDI", label: "MERCOLEDÌ", times: ["08:00–10:00","10:00–14:00","14:00–18:00","18:00–22:00"] },
+      { key: "GIOVEDI", label: "GIOVEDÌ", times: ["08:00–10:00","10:00–14:00","14:00–18:00","18:00–22:00"] },
+      { key: "VENERDI", label: "VENERDÌ", times: ["09:00–11:00","11:00–15:00","15:00–19:00","19:00–23:00"] },
+      { key: "SABATO", label: "SABATO", times: ["08:00–10:00","10:00–14:00","14:00–18:00","18:00–22:00"] },
+    ];
+
+    const SLOT_KIND = {
+      1: "Pubblicità Sito",
+      2: "Carosello",
+      3: "Video Reel",
+      4: "Video promo immobile di oggi"
+    };
+
+    // ------------------------------
+    // localStorage keys
+    // ------------------------------
+    const LS = {
+      clientName: "cal_clientName_v1",
+      weekMonday: "cal_weekMonday_v1",
+      planStartMonday: "cal_planStartMonday_v1",
+      properties: "cal_properties_v1",
+      status: "cal_status_v1", // oggetto { [weekKey]: { [dayKey-slotN]: "done"|"todo" } }
+      bundle: "cal_bundle_v1"
+    };
+
+    // ------------------------------
+    // Helpers date
+    // ------------------------------
+    const pad2 = n => String(n).padStart(2,"0");
+    const formatIT = (d) => `${pad2(d.getDate())}/${pad2(d.getMonth()+1)}/${d.getFullYear()}`;
+    const toISODate = (d) => `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
+
+    function cloneDate(d){ return new Date(d.getTime()); }
+
+    function startOfMonday(date){
+      const d = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+      const day = d.getDay(); // 0=Sun,1=Mon...
+      const diff = (day === 0 ? -6 : 1 - day);
+      d.setDate(d.getDate() + diff);
+      d.setHours(0,0,0,0);
+      return d;
+    }
+
+    function addDays(d, n){
+      const x = cloneDate(d);
+      x.setDate(x.getDate() + n);
+      return x;
+    }
+    function addWeeks(d, n){ return addDays(d, n*7); }
+
+    function weekKey(monday){
+      // chiave stabile per stati: YYYY-MM-DD del lunedì
+      return toISODate(monday);
+    }
+
+    // ------------------------------
+    // DOM
+    // ------------------------------
+    const elClientName = document.getElementById("clientName");
+    const elTitleClient = document.getElementById("titleClient");
+    const elWeekDate = document.getElementById("weekDate");
+    const elWeekFrom = document.getElementById("weekFrom");
+    const elWeekTo = document.getElementById("weekTo");
+    const elCalBody = document.getElementById("calBody");
+
+    const elPrev = document.getElementById("prevWeek");
+    const elNext = document.getElementById("nextWeek");
+    const elSetPlanStart = document.getElementById("setPlanStart");
+
+    const elPlanStartBadge = document.getElementById("planStartBadge");
+    const elPropertyList = document.getElementById("propertyList");
+
+    const elPropsTextarea = document.getElementById("propsTextarea");
+    const elSaveProps = document.getElementById("saveProps");
+    const elResetProps = document.getElementById("resetProps");
+    const elExport = document.getElementById("exportData");
+    const elImport = document.getElementById("importData");
+
+    const s1hdr = document.getElementById("s1hdr");
+    const s2hdr = document.getElementById("s2hdr");
+    const s3hdr = document.getElementById("s3hdr");
+    const s4hdr = document.getElementById("s4hdr");
+
+    // ------------------------------
+    // State
+    // ------------------------------
+    let currentMonday = startOfMonday(new Date());
+    let planStartMonday = null;
+    let properties = [];
+
+    function defaultProperties(){
+      // 50 immobili demo
+      return Array.from({length:50}, (_,i)=> `Immobile #${i+1}`);
+    }
+
+    function load(){
+      const savedName = localStorage.getItem(LS.clientName);
+      if(savedName) elClientName.value = savedName;
+
+      const savedWeek = localStorage.getItem(LS.weekMonday);
+      if(savedWeek){
+        currentMonday = startOfMonday(new Date(savedWeek));
+      }
+
+      const ps = localStorage.getItem(LS.planStartMonday);
+      planStartMonday = ps ? startOfMonday(new Date(ps)) : startOfMonday(new Date());
+
+      const p = localStorage.getItem(LS.properties);
+      properties = p ? safeJsonParse(p, defaultProperties()) : defaultProperties();
+
+      // sync input date
+      elWeekDate.value = toISODate(currentMonday);
+
+      // textarea
+      elPropsTextarea.value = properties.join("\n");
+    }
+
+    function saveBasics(){
+      localStorage.setItem(LS.clientName, elClientName.value.trim());
+      localStorage.setItem(LS.weekMonday, toISODate(currentMonday));
+      localStorage.setItem(LS.planStartMonday, toISODate(planStartMonday));
+      localStorage.setItem(LS.properties, JSON.stringify(properties));
+    }
+
+    function safeJsonParse(str, fallback){
+      try { return JSON.parse(str); } catch { return fallback; }
+    }
+
+    // ------------------------------
+    // Status storage per week
+    // ------------------------------
+    function getAllStatus(){
+      return safeJsonParse(localStorage.getItem(LS.status) || "{}", {});
+    }
+
+    function setAllStatus(obj){
+      localStorage.setItem(LS.status, JSON.stringify(obj));
+    }
+
+    function getSlotStatus(monday, dayKey, slotNum){
+      const all = getAllStatus();
+      const wk = weekKey(monday);
+      const key = `${dayKey}-S${slotNum}`;
+      return all?.[wk]?.[key] || "todo";
+    }
+
+    function toggleSlotStatus(monday, dayKey, slotNum){
+      const all = getAllStatus();
+      const wk = weekKey(monday);
+      all[wk] = all[wk] || {};
+      const key = `${dayKey}-S${slotNum}`;
+      const cur = all[wk][key] || "todo";
+      all[wk][key] = (cur === "done") ? "todo" : "done";
+      setAllStatus(all);
+    }
+
+    // ------------------------------
+    // Pianificazione immobili su slot1
+    // ------------------------------
+    function scheduleForProperty(index){
+      // index: 0..properties.length-1
+      // Solo 6 giorni a settimana (Lun-Sab) => 6 per settimana.
+      const perWeek = DAYS.length; // 6
+      const weekOffset = Math.floor(index / perWeek);
+      const dayIndex = index % perWeek;
+
+      const date = addDays(addWeeks(planStartMonday, weekOffset), dayIndex); // lunedì + dayIndex
+      const day = DAYS[dayIndex];
+      const slotTime = day.times[0]; // slot 1
+      return { date, day, slotTime, weekOffset, dayIndex };
+    }
+
+    function propertyAssignedToDay(monday, dayIndex){
+      // dato lunedì (settimana visualizzata) e dayIndex 0..5,
+      // trova quale proprietà cade lì, se è dentro 0..len-1
+      const diffDays = Math.round((startOfMonday(monday).getTime() - planStartMonday.getTime()) / (1000*60*60*24));
+      const weeksFromStart = Math.floor(diffDays / 7);
+      // dayIndex in week => absolute slot index
+      const absoluteIndex = weeksFromStart * DAYS.length + dayIndex;
+      if(absoluteIndex < 0 || absoluteIndex >= properties.length) return null;
+      return { name: properties[absoluteIndex], idx: absoluteIndex };
+    }
+
+    // ------------------------------
+    // Render
+    // ------------------------------
+    function renderHeader(){
+      const name = elClientName.value.trim();
+      elTitleClient.innerHTML = name
+        ? `Cliente: <span style="font-weight:800">${escapeHtml(name)}</span>`
+        : `Cliente: <span class="muted">(non impostato)</span>`;
+
+      const from = cloneDate(currentMonday);
+      const to = addDays(currentMonday, 6); // Domenica
+      elWeekFrom.textContent = formatIT(from);
+      elWeekTo.textContent = formatIT(to);
+
+      elPlanStartBadge.textContent = formatIT(planStartMonday);
+
+      // slot headers show the most common times (we keep a dash because times change on Tue/Fri)
+      s1hdr.textContent = "Orari variabili per giorno";
+      s2hdr.textContent = "Orari variabili per giorno";
+      s3hdr.textContent = "Orari variabili per giorno";
+      s4hdr.textContent = "Orari variabili per giorno";
+    }
+
+    function renderCalendar(){
+      elCalBody.innerHTML = "";
+
+      DAYS.forEach((day, dayIndex) => {
+        const tr = document.createElement("tr");
+
+        // day cell
+        const th = document.createElement("th");
+        th.className = "day";
+        const date = addDays(currentMonday, dayIndex);
+        th.innerHTML = `<div style="display:flex;flex-direction:column;gap:2px;">
+          <div>${day.label}</div>
+          <div class="muted" style="font-size:12px;">${formatIT(date)}</div>
+        </div>`;
+        tr.appendChild(th);
+
+        // 4 slots
+        for(let slot=1; slot<=4; slot++){
+          const td = document.createElement("td");
+          const status = getSlotStatus(currentMonday, day.key, slot);
+
+          const cell = document.createElement("div");
+          cell.className = "cell";
+
+          // pill: time + kind (+ property if slot1)
+          const pill = document.createElement("div");
+          pill.className = "pill";
+
+          const time = day.times[slot-1];
+          let big = SLOT_KIND[slot];
+
+          if(slot === 1){
+            const assigned = propertyAssignedToDay(currentMonday, dayIndex);
+            big = assigned ? `Pubblicità Sito • ${assigned.name}` : `Pubblicità Sito • (nessun immobile)`;
           }
-        });
-      }
-      
-      // Applica focus trap quando le modali si aprono
-      trapFocus(sheetOverlay);
-      trapFocus(modalOverlay);
-      
-      // Salva stato scroll per migliorare UX
-      let scrollPosition = 0;
-      
-      document.addEventListener('scroll', function() {
-        scrollPosition = window.scrollY;
-      });
-      
-      // Service Worker per funzionalità offline (opzionale)
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/sw.js').catch(error => {
-          console.log('Service Worker registration failed:', error);
-        });
-      }
-    });
-  </script>
 
-  <!-- Il tuo script esistente rimane qui -->
-  <script>
-    // ... Il tuo codice JavaScript esistente rimane invariato ...
-    (() => {
-      /* ========= CONFIG AGENDA ========= */
-      const AGENDA_START = "08:00";
-      const AGENDA_END   = "20:00";
-      const BREAK_START  = "13:00";
-      const BREAK_END    = "14:30";
+          pill.innerHTML = `
+            <span class="small">${escapeHtml(time)}</span>
+            <span class="big" title="${escapeHtml(big)}">${escapeHtml(big)}</span>
+          `;
+          cell.appendChild(pill);
 
-      // Blocchi (esempio coerente con i tuoi vincoli)
-      const BLOCKS = [
-        { id:1,  start:"08:00", end:"09:00", label:"Contatta NUOVI" },
-        { id:2,  start:"09:00", end:"10:00", label:"Qualifica CONTATTATI" },
-        { id:3,  start:"10:00", end:"11:00", label:"Verifica REQUISITI" },
-        { id:4,  start:"11:00", end:"12:00", label:"Pronti ad APPUNTAMENTO" },
-        { id:5,  start:"12:00", end:"13:00", label:"Fissa appuntamenti (se permesso)" },
-        { id:6,  start:"14:30", end:"15:30", label:"Follow-up controllato" },
-        { id:7,  start:"15:30", end:"16:30", label:"Gestione rimandi (2/3)" },
-        { id:8,  start:"16:30", end:"17:30", label:"Pulizia stati" },
-        { id:9,  start:"17:30", end:"18:30", label:"Verifica vincoli" },
-        { id:10, start:"18:30", end:"19:30", label:"Chiusura operativa" },
-        { id:11, start:"19:30", end:"20:00", label:"Controllo finale" },
-      ];
+          const row = document.createElement("div");
+          row.className = "statusRow";
 
-      /* ========= HELPERS ========= */
-      const $ = (s) => document.querySelector(s);
-      const timelineWrap = $("#timelineWrap");
-      const content = $("#content");
-      const statusMsg = $("#statusMsg");
+          const hint = document.createElement("div");
+          hint.className = "statusHint";
+          hint.textContent = "Stato:";
 
-      function setStatus(msg){ 
-        statusMsg.textContent = msg;
-        // Annuncia ai screen reader se è un messaggio importante
-        if (msg.includes("FATTO") || msg.includes("NON FATTO") || msg.includes("Errore")) {
-          const announcement = document.createElement('div');
-          announcement.className = 'sr-only';
-          announcement.setAttribute('aria-live', 'assertive');
-          announcement.textContent = msg;
-          document.body.appendChild(announcement);
-          setTimeout(() => announcement.remove(), 1000);
-        }
-      }
-
-      function pad(n){ return String(n).padStart(2,"0"); }
-      function isoDate(d){
-        const x = new Date(d.getTime());
-        return `${x.getFullYear()}-${pad(x.getMonth()+1)}-${pad(x.getDate())}`;
-      }
-      function fmtDateIT(d){
-        const days = ["Domenica","Lunedì","Martedì","Mercoledì","Giovedì","Venerdì","Sabato"];
-        const months = ["Gen","Feb","Mar","Apr","Mag","Giu","Lug","Ago","Set","Ott","Nov","Dic"];
-        return `${days[d.getDay()]} ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
-      }
-      function timeToMinutes(t){
-        const [h,m] = t.split(":").map(Number);
-        return h*60 + m;
-      }
-      function clamp(n,a,b){ return Math.max(a, Math.min(b, n)); }
-      function escapeHtml(s){
-        return String(s ?? "")
-          .replaceAll("&","&amp;")
-          .replaceAll("<","&lt;")
-          .replaceAll(">","&gt;")
-          .replaceAll('"',"&quot;")
-          .replaceAll("'","&#039;");
-      }
-      function isSunday(d){ return d.getDay() === 0; }
-
-      /* ========= SETTINGS (solo WhatsApp) ========= */
-      const SETTINGS_KEY = "agenda_settings_offline_v1";
-      const DEFAULT_SETTINGS = { masterWhatsApp: "" };
-      let settings = loadSettings();
-
-      function loadSettings(){
-        try{
-          const raw = localStorage.getItem(SETTINGS_KEY);
-          return raw ? {...DEFAULT_SETTINGS, ...JSON.parse(raw)} : {...DEFAULT_SETTINGS};
-        }catch(_){ return {...DEFAULT_SETTINGS}; }
-      }
-      function saveSettings(){
-        localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
-      }
-
-      /* ========= DAY STATE ========= */
-      function dayKey(dateStr){ return `agenda_day_${dateStr}`; }
-
-      function defaultDayState(dateStr){
-        return {
-          date: dateStr,
-          blocks: BLOCKS.map((b,i)=>({
-            id: b.id,
-            start: b.start,
-            end: b.end,
-            label: b.label,
-            status: (i===0 ? "todo" : "locked"), // vincolo a catena
-            closedAt: null,
-            nonDoneReason: ""
-          })),
-          meta: { updatedAt: new Date().toISOString() }
-        };
-      }
-
-      function loadDay(dateStr){
-        try{
-          const raw = localStorage.getItem(dayKey(dateStr));
-          return raw ? JSON.parse(raw) : defaultDayState(dateStr);
-        }catch(_){ return defaultDayState(dateStr); }
-      }
-
-      function saveDay(state){
-        state.meta.updatedAt = new Date().toISOString();
-        localStorage.setItem(dayKey(state.date), JSON.stringify(state));
-      }
-
-      function recomputeLocks(day){
-        for(let i=0;i<day.blocks.length;i++){
-          const b = day.blocks[i];
-          if(i===0){
-            if(b.status === "locked") b.status = "todo";
-            continue;
-          }
-          const prev = day.blocks[i-1];
-          const prevClosed = (prev.status === "done" || prev.status === "skipped");
-          if(prevClosed){
-            if(b.status === "locked") b.status = "todo";
-          }else{
-            if(b.status !== "done" && b.status !== "skipped"){
-              b.status = "locked";
-            }
-          }
-        }
-      }
-
-      /* ========= UI / LOGIC ========= */
-      let selected = new Date();
-      let dayState = null;
-
-      function render(){
-        $("#dateTitle").textContent = fmtDateIT(selected);
-
-        const sunday = isSunday(selected);
-        $("#offBox").style.display = sunday ? "block" : "none";
-        timelineWrap.style.display = sunday ? "none" : "block";
-        if(sunday){
-          setStatus("Domenica OFF.");
-          return;
-        }
-
-        const dStr = isoDate(selected);
-        dayState = loadDay(dStr);
-        recomputeLocks(dayState);
-        saveDay(dayState);
-
-        timelineWrap.innerHTML = "";
-
-        const startMin = timeToMinutes(AGENDA_START);
-        const endMin = timeToMinutes(AGENDA_END);
-
-        // tick orari
-        for(let t = startMin; t <= endMin; t += 60){
-          const h = Math.floor(t/60);
-          const label = `${pad(h)}:00`;
-
-          const tick = document.createElement("div");
-          tick.className = "hourTick";
-          tick.dataset.minute = String(t);
-          tick.innerHTML = `<div class="hourLabel">${label}</div><div class="tickLine"></div>`;
-          timelineWrap.appendChild(tick);
-
-          // pausa
-          if(label === BREAK_START){
-            const br = document.createElement("div");
-            br.className = "break";
-            br.innerHTML = `
-              <div>
-                <div class="b1">⏸ PAUSA</div>
-                <div class="b2">${BREAK_START}–${BREAK_END}</div>
-              </div>
-              <div class="b2">Tempo zero</div>
-            `;
-            timelineWrap.appendChild(br);
-          }
-        }
-
-        // posizionamento: inserisco ogni blocco subito dopo il tick più vicino <= start
-        const tickNodes = Array.from(timelineWrap.querySelectorAll(".hourTick"));
-        function findTickNodeFor(startTime){
-          const m = timeToMinutes(startTime);
-          let candidate = tickNodes[0];
-          for(const tn of tickNodes){
-            const tm = Number(tn.dataset.minute);
-            if(tm <= m) candidate = tn;
-          }
-          return candidate;
-        }
-
-        for(const bDef of BLOCKS){
-          const b = dayState.blocks.find(x=>x.id===bDef.id);
-          const locked = b.status === "locked";
-
-          const badge = (b.status === "todo")
-            ? `<span class="badge"><span class="dot todo"></span>DA FARE</span>`
-            : (b.status === "done")
-              ? `<span class="badge"><span class="dot done"></span>FATTO</span>`
-              : (b.status === "skipped")
-                ? `<span class="badge"><span class="dot skip"></span>NON FATTO</span>`
-                : `<span class="badge"><span class="dot lock"></span>BLOCCATO</span>`;
-
-          const slot = document.createElement("div");
-          slot.className = "slot" + (locked ? " locked" : "");
-          slot.dataset.blockId = String(b.id);
-          slot.setAttribute('role', 'article');
-          slot.setAttribute('aria-label', `${b.label} dalle ${b.start} alle ${b.end}, stato: ${b.status}`);
-
-          slot.innerHTML = `
-            <div class="slotHead">
-              <div class="slotTitle">
-                <div class="big">${escapeHtml(b.label)}</div>
-                <div class="small">${b.start}–${b.end}</div>
-              </div>
-              <div class="money">💲</div>
-            </div>
-
-            <div class="row2">
-              ${badge}
-              <div class="note">${b.status==="skipped" && b.nonDoneReason ? "Motivo: " + escapeHtml(b.nonDoneReason) : ""}</div>
-            </div>
-
-            <div class="actions">
-              <button class="btn" data-act="done" data-id="${b.id}" ${locked ? "disabled" : ""}
-                      aria-label="Segna '${b.label}' come completato">
-                ✔ FATTO
-              </button>
-              <button class="btn ghost" data-act="nondone" data-id="${b.id}" ${locked ? "disabled" : ""}
-                      aria-label="Segna '${b.label}' come non completato">
-                ⏭ NON FATTO
-              </button>
-            </div>
+          const toggle = document.createElement("button");
+          toggle.type = "button";
+          toggle.className = "toggle" + (status === "done" ? " done" : "");
+          toggle.setAttribute("aria-pressed", status === "done" ? "true" : "false");
+          toggle.setAttribute("title", "Clicca per cambiare stato (DA FARE / FATTO)");
+          toggle.innerHTML = `
+            <span class="ball" aria-hidden="true"></span>
+            <span class="txt">${status === "done" ? "FATTO" : "DA FARE"}</span>
           `;
 
-          const anchor = findTickNodeFor(b.start);
-          anchor.insertAdjacentElement("afterend", slot);
-        }
-
-        // bind azioni
-        timelineWrap.querySelectorAll("button[data-act]").forEach(btn=>{
-          btn.addEventListener("click", ()=>{
-            const id = Number(btn.dataset.id);
-            const act = btn.dataset.act;
-            if(act === "done") onDone(id);
-            if(act === "nondone") openNonDoneSheet(id);
+          toggle.addEventListener("click", () => {
+            toggleSlotStatus(currentMonday, day.key, slot);
+            render(); // refresh
           });
-        });
 
-        // ora line e auto-scroll se è oggi
-        const todayStr = isoDate(new Date());
-        if(dStr === todayStr){
-          const now = new Date();
-          let nowMin = now.getHours()*60 + now.getMinutes();
-          nowMin = clamp(nowMin, startMin, endMin);
-          placeNowLine(nowMin, startMin, endMin);
-          autoScrollToNowOrCurrentBlock(nowMin);
-        }else{
-          content.scrollTop = 0;
-          setStatus("Giorno selezionato.");
-        }
-      }
+          row.appendChild(hint);
+          row.appendChild(toggle);
+          cell.appendChild(row);
 
-      function placeNowLine(nowMin, startMin, endMin){
-        const ticks = Array.from(timelineWrap.querySelectorAll(".hourTick"));
-        if(ticks.length < 2) return;
-
-        const first = ticks[0].getBoundingClientRect();
-        const last = ticks[ticks.length-1].getBoundingClientRect();
-        const wrap = timelineWrap.getBoundingClientRect();
-        const totalPx = (last.top - first.top) + 1;
-
-        const ratio = (nowMin - startMin) / (endMin - startMin);
-        const y = (first.top - wrap.top) + ratio * totalPx;
-
-        let line = timelineWrap.querySelector(".nowLine");
-        let pill = timelineWrap.querySelector(".nowPill");
-        if(!line){
-          line = document.createElement("div");
-          line.className = "nowLine";
-          timelineWrap.appendChild(line);
-
-          pill = document.createElement("div");
-          pill.className = "nowPill";
-          pill.textContent = "ORA";
-          timelineWrap.appendChild(pill);
-        }
-        line.style.top = `${y}px`;
-        pill.style.top = `${y}px`;
-      }
-
-      function getCurrentBlockId(nowMin){
-        const bs = timeToMinutes(BREAK_START);
-        const be = timeToMinutes(BREAK_END);
-        if(nowMin >= bs && nowMin < be) return null;
-
-        for(const b of dayState.blocks){
-          const s = timeToMinutes(b.start);
-          const e = timeToMinutes(b.end);
-          if(nowMin >= s && nowMin < e) return b.id;
-        }
-        if(nowMin < timeToMinutes(AGENDA_START)) return dayState.blocks[0].id;
-        return dayState.blocks[dayState.blocks.length-1].id;
-      }
-
-      function autoScrollToNowOrCurrentBlock(nowMin){
-        const currentId = getCurrentBlockId(nowMin);
-        let targetEl = null;
-
-        if(currentId){
-          targetEl = timelineWrap.querySelector(`.slot[data-block-id="${currentId}"]`);
-        }
-        if(!targetEl){
-          targetEl = timelineWrap.querySelector(`.slot:not(.locked)`);
-        }
-        if(!targetEl) targetEl = timelineWrap;
-
-        const rect = targetEl.getBoundingClientRect();
-        const cRect = content.getBoundingClientRect();
-        const offset = rect.top - cRect.top - (cRect.height * 0.22);
-        content.scrollTop += offset;
-
-        setStatus(currentId ? `Aperto su blocco ${currentId}.` : `Pausa (${BREAK_START}–${BREAK_END}).`);
-      }
-
-      function onDone(blockId){
-        const b = dayState.blocks.find(x=>x.id===blockId);
-        if(!b || b.status==="locked") return;
-
-        b.status = (b.status === "done") ? "todo" : "done";
-        b.closedAt = new Date().toISOString();
-        if(b.status === "done"){
-          b.nonDoneReason = "";
-          setStatus(`Blocco ${blockId}: FATTO.`);
-        }else{
-          setStatus(`Blocco ${blockId}: riaperto.`);
+          td.appendChild(cell);
+          tr.appendChild(td);
         }
 
-        recomputeLocks(dayState);
-        saveDay(dayState);
-        render();
-      }
-
-      /* ========= SHEET NON FATTO ========= */
-      const sheetOverlay = $("#sheetOverlay");
-      const sheetBody = $("#sheetBody");
-      let sheetBlockId = null;
-
-      function openNonDoneSheet(blockId){
-        sheetBlockId = blockId;
-        $("#sheetTitle").textContent = `NON FATTO • Blocco ${blockId}`;
-        sheetBody.innerHTML = "";
-
-        // scelte secche, niente testo libero
-        const choices = [
-          { code:"RIMANDATO", label:"⏳ Rimandato", hint:"Registrato come rimando" },
-          { code:"NO_INTERESSE", label:"🚫 Nessun interesse", hint:"Non inseguire" },
-          { code:"INFO_GENERICHE", label:"📉 Solo info/prezzo", hint:"Senza problema reale" },
-        ];
-
-        for(const c of choices){
-          const div = document.createElement("div");
-          div.className = "choice";
-          div.tabIndex = 0;
-          div.setAttribute('role', 'button');
-          div.innerHTML = `<div>${c.label}<br><small>${c.hint}</small></div><div>→</div>`;
-          div.addEventListener("click", ()=> applyNonDone(c.code));
-          div.addEventListener("keydown", (e)=> {
-            if(e.key === 'Enter' || e.key === ' ') {
-              e.preventDefault();
-              applyNonDone(c.code);
-            }
-          });
-          sheetBody.appendChild(div);
-        }
-
-        sheetOverlay.classList.add("open");
-        // Focus sul primo elemento
-        setTimeout(() => {
-          const firstChoice = sheetBody.querySelector('.choice');
-          if(firstChoice) firstChoice.focus();
-        }, 100);
-      }
-
-      function closeSheet(){
-        sheetOverlay.classList.remove("open");
-        sheetBlockId = null;
-        // Ripristina focus al bottone che ha aperto la sheet
-        const triggerBtn = timelineWrap.querySelector(`button[data-id="${sheetBlockId}"]`);
-        if(triggerBtn) triggerBtn.focus();
-      }
-
-      $("#sheetClose").addEventListener("click", closeSheet);
-      sheetOverlay.addEventListener("click", (e)=>{ if(e.target===sheetOverlay) closeSheet(); });
-
-      function applyNonDone(reasonCode){
-        const b = dayState.blocks.find(x=>x.id===sheetBlockId);
-        if(!b || b.status==="locked") return;
-
-        b.status = "skipped";
-        b.closedAt = new Date().toISOString();
-        b.nonDoneReason = reasonCode;
-
-        recomputeLocks(dayState);
-        saveDay(dayState);
-        setStatus(`Blocco ${b.id}: NON FATTO (${reasonCode}).`);
-        closeSheet();
-        render();
-      }
-
-      /* ========= EXPORT (solo locale) ========= */
-      $("#btnExport").addEventListener("click", ()=>{
-        if(!dayState) return;
-        const payload = {
-          ...dayState,
-          exportedAt: new Date().toISOString(),
-          agenda: { start: AGENDA_START, end: AGENDA_END, breakStart: BREAK_START, breakEnd: BREAK_END }
-        };
-        const blob = new Blob([JSON.stringify(payload, null, 2)], {type:"application/json"});
-        const a = document.createElement("a");
-        a.href = URL.createObjectURL(blob);
-        a.download = `agenda_${dayState.date}.json`;
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        setStatus("Export completato.");
+        elCalBody.appendChild(tr);
       });
+    }
 
-      /* ========= NAV GIORNI + SWIPE ========= */
-      $("#prevDay").addEventListener("click", ()=>{ selected.setDate(selected.getDate()-1); render(); });
-      $("#nextDay").addEventListener("click", ()=>{ selected.setDate(selected.getDate()+1); render(); });
+    function renderPropertyScheduleList(){
+      elPropertyList.innerHTML = "";
 
-      let touchX = null;
-      function onTouchStart(e){ touchX = e.touches[0].clientX; }
-      function onTouchEnd(e){
-        if(touchX === null) return;
-        const dx = e.changedTouches[0].clientX - touchX;
-        touchX = null;
-        if(Math.abs(dx) < 60) return;
-        if(dx < 0) { selected.setDate(selected.getDate()+1); render(); }
-        else { selected.setDate(selected.getDate()-1); render(); }
-      }
-      $("#topbar").addEventListener("touchstart", onTouchStart, {passive:true});
-      $("#topbar").addEventListener("touchend", onTouchEnd, {passive:true});
-      content.addEventListener("touchstart", onTouchStart, {passive:true});
-      content.addEventListener("touchend", onTouchEnd, {passive:true});
+      // Lista completa di tutti i 50 immobili con data slot1
+      properties.forEach((name, idx) => {
+        const s = scheduleForProperty(idx);
+        const wkMon = startOfMonday(s.date);
+        const wk = weekKey(wkMon);
+        const dayKey = s.day.key;
 
-      /* ========= WHATSAPP MASTER (memorizzato) ========= */
-      $("#btnWhatsApp").addEventListener("click", ()=>{
-        const num = (settings.masterWhatsApp || "").trim();
-        if(!num){
-          openModal();
-          setStatus("Imposta il numero WhatsApp in ⚙️.");
-          return;
-        }
-        const cleaned = num.replace(/[^\d+]/g,"").replace("+","");
-        const url = `https://wa.me/${encodeURIComponent(cleaned)}`;
-        window.open(url, "_blank", "noopener,noreferrer");
+        const status = getSlotStatus(wkMon, dayKey, 1); // stato slot1 del giorno assegnato
+
+        const div = document.createElement("div");
+        div.className = "item";
+        div.innerHTML = `
+          <div class="left">
+            <div class="title" title="${escapeHtml(name)}">${escapeHtml(name)}</div>
+            <div class="meta">
+              Pubblicità: <b>${s.day.label}</b> • ${formatIT(s.date)} • <span>${escapeHtml(s.slotTime)}</span>
+            </div>
+          </div>
+          <div class="tag" title="Stato dello Slot 1 in quel giorno">
+            <span style="display:inline-flex;align-items:center;gap:6px;">
+              <span style="width:10px;height:10px;border-radius:999px;background:${status==="done" ? "var(--good)" : "var(--bad)"}"></span>
+              <strong>${status==="done" ? "FATTO" : "DA FARE"}</strong>
+            </span>
+          </div>
+        `;
+        elPropertyList.appendChild(div);
       });
+    }
 
-      /* ========= MODAL IMPOSTAZIONI ========= */
-      const modalOverlay = $("#modalOverlay");
-      const masterNumber = $("#masterNumber");
+    function render(){
+      renderHeader();
+      renderCalendar();
+      renderPropertyScheduleList();
+      saveBasics();
+    }
 
-      function openModal(){
-        masterNumber.value = settings.masterWhatsApp || "";
-        modalOverlay.classList.add("open");
-        setTimeout(() => masterNumber.focus(), 100);
-      }
-      function closeModal(){
-        modalOverlay.classList.remove("open");
-      }
+    // ------------------------------
+    // Events
+    // ------------------------------
+    elClientName.addEventListener("input", () => {
+      renderHeader();
+      saveBasics();
+    });
 
-      $("#btnSettings").addEventListener("click", openModal);
-      $("#modalClose").addEventListener("click", closeModal);
-      modalOverlay.addEventListener("click", (e)=>{ if(e.target===modalOverlay) closeModal(); });
-
-      $("#saveSettings").addEventListener("click", ()=>{
-        settings.masterWhatsApp = masterNumber.value.trim();
-        saveSettings();
-        setStatus("Numero salvato.");
-        closeModal();
-      });
-
-      $("#resetSettings").addEventListener("click", ()=>{
-        if(!confirm("Reset numero WhatsApp?")) return;
-        settings = { masterWhatsApp: "" };
-        saveSettings();
-        setStatus("Numero resettato.");
-        closeModal();
-      });
-
-      /* ========= ESC ========= */
-      document.addEventListener("keydown", (e)=>{
-        if(e.key === "Escape"){
-          closeSheet();
-          closeModal();
-        }
-      });
-
-      /* ========= INIT ========= */
+    elWeekDate.addEventListener("change", () => {
+      const chosen = elWeekDate.value ? new Date(elWeekDate.value) : new Date();
+      currentMonday = startOfMonday(chosen);
+      elWeekDate.value = toISODate(currentMonday);
       render();
-      
-      // Periodicamente aggiorna la posizione dell'ora corrente
-      setInterval(() => {
-        const todayStr = isoDate(new Date());
-        const selectedStr = isoDate(selected);
-        if(todayStr === selectedStr) {
-          const now = new Date();
-          const startMin = timeToMinutes(AGENDA_START);
-          const endMin = timeToMinutes(AGENDA_END);
-          let nowMin = now.getHours()*60 + now.getMinutes();
-          nowMin = clamp(nowMin, startMin, endMin);
-          placeNowLine(nowMin, startMin, endMin);
-        }
-      }, 60000); // Ogni minuto
-    })();
+    });
+
+    elPrev.addEventListener("click", () => {
+      currentMonday = addWeeks(currentMonday, -1);
+      elWeekDate.value = toISODate(currentMonday);
+      render();
+    });
+
+    elNext.addEventListener("click", () => {
+      currentMonday = addWeeks(currentMonday, 1);
+      elWeekDate.value = toISODate(currentMonday);
+      render();
+    });
+
+    elSetPlanStart.addEventListener("click", () => {
+      planStartMonday = cloneDate(currentMonday);
+      render();
+    });
+
+    elSaveProps.addEventListener("click", () => {
+      const lines = elPropsTextarea.value
+        .split("\n")
+        .map(s => s.trim())
+        .filter(Boolean);
+
+      // se l’utente mette meno di 1, non fare disastri: mantieni
+      if(lines.length === 0){
+        alert("Inserisci almeno 1 immobile (uno per riga).");
+        return;
+      }
+
+      // Se non sono 50, va bene comunque: pianifica quanto c'è.
+      properties = lines;
+      render();
+    });
+
+    elResetProps.addEventListener("click", () => {
+      properties = defaultProperties();
+      elPropsTextarea.value = properties.join("\n");
+      render();
+    });
+
+    elExport.addEventListener("click", async () => {
+      const bundle = {
+        v: 1,
+        clientName: elClientName.value.trim(),
+        currentMonday: toISODate(currentMonday),
+        planStartMonday: toISODate(planStartMonday),
+        properties,
+        status: getAllStatus()
+      };
+      const json = JSON.stringify(bundle, null, 2);
+      try{
+        await navigator.clipboard.writeText(json);
+        alert("Export copiato negli appunti ✅");
+      }catch{
+        // fallback: mostra prompt
+        prompt("Copia questo JSON:", json);
+      }
+    });
+
+    elImport.addEventListener("click", () => {
+      const raw = prompt("Incolla qui il JSON esportato:");
+      if(!raw) return;
+      let b;
+      try{ b = JSON.parse(raw); } catch {
+        alert("JSON non valido.");
+        return;
+      }
+      if(!b || typeof b !== "object"){
+        alert("JSON non valido.");
+        return;
+      }
+
+      if(typeof b.clientName === "string") elClientName.value = b.clientName;
+      if(b.currentMonday) currentMonday = startOfMonday(new Date(b.currentMonday));
+      if(b.planStartMonday) planStartMonday = startOfMonday(new Date(b.planStartMonday));
+      if(Array.isArray(b.properties) && b.properties.length) properties = b.properties;
+      if(b.status && typeof b.status === "object") setAllStatus(b.status);
+
+      elWeekDate.value = toISODate(currentMonday);
+      elPropsTextarea.value = properties.join("\n");
+      render();
+    });
+
+    // ------------------------------
+    // Utils
+    // ------------------------------
+    function escapeHtml(str){
+      return String(str)
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+
+    // ------------------------------
+    // Init
+    // ------------------------------
+    load();
+    render();
   </script>
 </body>
 </html>
