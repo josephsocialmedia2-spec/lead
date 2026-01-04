@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Calendario Settimanale – Rotazione 4 Slot</title>
+  <title>Calendario Settimanale – Clienti + Export CSV</title>
   <style>
     :root{
       --bg:#0b0f17;
@@ -15,17 +15,13 @@
       --accent:#6aa8ff;
       --good:#24d17e;
       --bad:#ff4d4d;
-      --warn:#ffcc66;
       --shadow: 0 10px 24px rgba(0,0,0,.35);
       --radius: 16px;
-      --radius2: 12px;
       --focus: 0 0 0 3px rgba(106,168,255,.35);
-      font-synthesis-weight: none;
       text-rendering: optimizeLegibility;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
     }
-
     *{box-sizing:border-box}
     body{
       margin:0;
@@ -35,17 +31,14 @@
       color:var(--text);
       font: 14px/1.35 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
     }
-
-    a{color:inherit}
     .wrap{
-      max-width: 1200px;
+      max-width: 1240px;
       margin: 22px auto 40px;
       padding: 0 14px;
       display: grid;
       gap: 14px;
-      grid-template-columns: 1.4fr .9fr;
+      grid-template-columns: 1.45fr .85fr;
     }
-
     header{
       grid-column: 1 / -1;
       background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
@@ -56,7 +49,6 @@
       display: grid;
       gap: 12px;
     }
-
     .toprow{
       display:flex;
       flex-wrap:wrap;
@@ -64,50 +56,19 @@
       align-items:center;
       justify-content:space-between;
     }
-
-    .brand{
-      display:flex;
-      gap:10px;
-      align-items:center;
-      min-width: 260px;
-    }
+    .brand{display:flex;gap:10px;align-items:center;min-width: 260px;}
     .badge{
       width:36px;height:36px;border-radius:12px;
       background: linear-gradient(135deg, rgba(106,168,255,.9), rgba(36,209,126,.8));
       box-shadow: 0 10px 20px rgba(0,0,0,.25);
     }
-    h1{
-      margin:0;
-      font-size: 18px;
-      letter-spacing:.2px;
-    }
-    .sub{
-      margin:0;
-      color:var(--muted);
-      font-size: 13px;
-    }
+    h1{margin:0;font-size:18px;letter-spacing:.2px;}
+    .sub{margin:0;color:var(--muted);font-size:13px;}
 
-    .controls{
-      display:flex;
-      flex-wrap:wrap;
-      gap:10px;
-      align-items:center;
-      justify-content:flex-end;
-    }
-
-    .field{
-      display:flex;
-      flex-direction:column;
-      gap:6px;
-      min-width: 220px;
-    }
-
-    label{
-      color: var(--muted);
-      font-size: 12px;
-    }
-
-    input[type="text"], input[type="date"]{
+    .controls{display:flex;flex-wrap:wrap;gap:10px;align-items:end;justify-content:flex-end;}
+    .field{display:flex;flex-direction:column;gap:6px;min-width: 220px;}
+    label{color: var(--muted);font-size: 12px;}
+    input[type="text"], input[type="date"], select{
       width:100%;
       padding: 10px 12px;
       border-radius: 12px;
@@ -116,19 +77,12 @@
       color: var(--text);
       outline: none;
     }
-    input[type="text"]:focus, input[type="date"]:focus, button:focus{
+    input[type="text"]:focus, input[type="date"]:focus, select:focus, button:focus{
       box-shadow: var(--focus);
       border-color: rgba(106,168,255,.55);
     }
 
-    .btns{
-      display:flex;
-      gap:8px;
-      align-items:center;
-      flex-wrap:wrap;
-      justify-content:flex-end;
-    }
-
+    .btns{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end;}
     button{
       appearance:none;
       border: 1px solid var(--line);
@@ -170,13 +124,13 @@
       align-items:flex-start;
       color: var(--muted);
     }
-    .help b{color: var(--text); font-weight: 650;}
     .help .dot{
       width:10px;height:10px;border-radius:999px;margin-top:5px;
       background: rgba(106,168,255,.9);
       box-shadow: 0 0 0 6px rgba(106,168,255,.12);
       flex: 0 0 auto;
     }
+    .help b{color: var(--text); font-weight: 650;}
 
     .card{
       background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
@@ -185,11 +139,7 @@
       box-shadow: var(--shadow);
       overflow:hidden;
     }
-    .card h2{
-      margin:0;
-      font-size: 14px;
-      letter-spacing:.2px;
-    }
+    .card h2{margin:0;font-size:14px;letter-spacing:.2px;}
     .cardhead{
       padding: 12px 14px;
       border-bottom: 1px solid var(--line);
@@ -199,9 +149,7 @@
       align-items:center;
       background: rgba(0,0,0,.12);
     }
-    .cardbody{
-      padding: 12px 14px;
-    }
+    .cardbody{padding: 12px 14px;}
 
     .weekline{
       display:flex;
@@ -214,207 +162,73 @@
     }
     .weekline strong{ color: var(--text); font-weight: 700; }
 
-    .tablewrap{
-      padding: 0;
-    }
+    table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:13px;}
+    thead th{position: sticky;top:0;z-index:1;background: rgba(15,22,34,.92);backdrop-filter: blur(8px);}
+    th, td{border-bottom: 1px solid var(--line);border-right: 1px solid var(--line);padding: 10px;vertical-align: top;}
+    th:last-child, td:last-child{ border-right:none; }
+    tbody tr:last-child td{border-bottom:none;}
+    th.day{width:120px;text-align:left;color:var(--text);font-weight:700;}
+    th.slot{text-align:left;color:var(--muted);font-weight:650;}
+    .slotmeta{display:flex;flex-direction:column;gap:2px;}
+    .slotmeta .time{color:var(--muted);font-size:12px;}
+    .slotmeta .kind{color:var(--text);font-size:12px;font-weight:700;}
 
-    table{
-      width:100%;
-      border-collapse: collapse;
-      table-layout: fixed;
-      font-size: 13px;
-    }
-    thead th{
-      position: sticky;
-      top: 0;
-      z-index: 1;
-      background: rgba(15,22,34,.92);
-      backdrop-filter: blur(8px);
-    }
-    th, td{
-      border-bottom: 1px solid var(--line);
-      border-right: 1px solid var(--line);
-      padding: 10px;
-      vertical-align: top;
-    }
-    th:last-child, td:last-child{ border-right: none; }
-    tbody tr:last-child td{ border-bottom: none; }
-
-    th.day{
-      width: 120px;
-      text-align:left;
-      color: var(--text);
-      font-weight: 700;
-    }
-    th.slot{
-      text-align:left;
-      color: var(--muted);
-      font-weight: 650;
-    }
-    .slotmeta{
-      display:flex;
-      flex-direction:column;
-      gap:2px;
-    }
-    .slotmeta .time{ color: var(--muted); font-size: 12px; }
-    .slotmeta .kind{ color: var(--text); font-size: 12px; font-weight: 700; }
-
-    .cell{
-      display:flex;
-      flex-direction:column;
-      gap:8px;
-      min-height: 88px;
-    }
+    .cell{display:flex;flex-direction:column;gap:8px;min-height: 88px;}
     .pill{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      padding: 8px 10px;
-      border-radius: 999px;
-      border: 1px solid var(--line);
-      background: rgba(0,0,0,.16);
-      width: fit-content;
-      max-width:100%;
+      display:inline-flex;align-items:center;gap:8px;
+      padding:8px 10px;border-radius:999px;border:1px solid var(--line);
+      background: rgba(0,0,0,.16);width:fit-content;max-width:100%;
     }
-    .pill .small{
-      color: var(--muted);
-      font-size: 12px;
-      white-space:nowrap;
-    }
-    .pill .big{
-      font-weight: 700;
-      overflow:hidden;
-      text-overflow:ellipsis;
-      white-space:nowrap;
-      max-width: 420px;
-    }
+    .pill .small{color:var(--muted);font-size:12px;white-space:nowrap;}
+    .pill .big{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width: 420px;}
 
-    .statusRow{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      flex-wrap:wrap;
-      justify-content:space-between;
-    }
-    .statusHint{
-      color: var(--muted);
-      font-size: 12px;
-    }
-
+    .statusRow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:space-between;}
+    .statusHint{color:var(--muted);font-size:12px;}
     .toggle{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      padding: 7px 10px;
-      border-radius: 999px;
-      border: 1px solid var(--line);
-      background: rgba(0,0,0,.14);
-      cursor:pointer;
-      user-select:none;
+      display:inline-flex;align-items:center;gap:8px;padding:7px 10px;border-radius:999px;
+      border:1px solid var(--line);background: rgba(0,0,0,.14);cursor:pointer;user-select:none;
       transition: background .15s ease, border-color .15s ease;
     }
-    .toggle:hover{
-      background: rgba(255,255,255,.06);
-      border-color: rgba(255,255,255,.14);
-    }
+    .toggle:hover{background: rgba(255,255,255,.06);border-color: rgba(255,255,255,.14);}
+    .ball{width:12px;height:12px;border-radius:999px;background: var(--bad);box-shadow: 0 0 0 6px rgba(255,77,77,.12);}
+    .done .ball{background: var(--good);box-shadow: 0 0 0 6px rgba(36,209,126,.12);}
+    .toggle .txt{font-size:12px;color:var(--muted);}
+    .done .txt{color: rgba(233,238,247,.9);font-weight:650;}
 
-    .ball{
-      width:12px;height:12px;border-radius:999px;
-      background: var(--bad);
-      box-shadow: 0 0 0 6px rgba(255,77,77,.12);
-    }
-    .done .ball{
-      background: var(--good);
-      box-shadow: 0 0 0 6px rgba(36,209,126,.12);
-    }
-    .toggle .txt{
-      font-size: 12px;
-      color: var(--muted);
-    }
-    .done .txt{
-      color: rgba(233,238,247,.9);
-      font-weight: 650;
-    }
-
-    .sidebar{
-      display:flex;
-      flex-direction:column;
-      gap:14px;
-    }
-
-    .list{
-      display:flex;
-      flex-direction:column;
-      gap:10px;
-      max-height: 520px;
-      overflow:auto;
-      padding-right: 6px;
-    }
-
+    .sidebar{display:flex;flex-direction:column;gap:14px;}
+    .list{display:flex;flex-direction:column;gap:10px;max-height: 520px;overflow:auto;padding-right: 6px;}
     .item{
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      padding: 10px 10px;
-      background: rgba(0,0,0,.14);
-      display:flex;
-      gap:10px;
-      align-items:flex-start;
-      justify-content:space-between;
+      border:1px solid var(--line);border-radius:14px;padding:10px;background: rgba(0,0,0,.14);
+      display:flex;gap:10px;align-items:flex-start;justify-content:space-between;
     }
-    .item .left{
-      display:flex;
-      flex-direction:column;
-      gap:2px;
-      min-width: 0;
-    }
-    .item .title{
-      font-weight: 750;
-      overflow:hidden;
-      text-overflow:ellipsis;
-      white-space:nowrap;
-      max-width: 360px;
-    }
-    .item .meta{
-      color: var(--muted);
-      font-size: 12px;
-    }
+    .item .left{display:flex;flex-direction:column;gap:2px;min-width:0;}
+    .item .title{font-weight:750;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:360px;}
+    .item .meta{color:var(--muted);font-size:12px;}
     .tag{
-      display:inline-flex;
-      align-items:center;
-      gap:6px;
-      padding: 6px 9px;
-      border-radius: 999px;
-      border: 1px solid var(--line);
-      background: rgba(255,255,255,.04);
-      color: var(--muted);
-      font-size: 12px;
-      white-space:nowrap;
+      display:inline-flex;align-items:center;gap:6px;padding:6px 9px;border-radius:999px;
+      border:1px solid var(--line);background: rgba(255,255,255,.04);
+      color: var(--muted);font-size:12px;white-space:nowrap;
     }
-    .tag strong{ color: var(--text); font-weight: 750; }
+    .tag strong{color: var(--text);font-weight:750;}
 
     textarea{
-      width:100%;
-      min-height: 120px;
-      resize: vertical;
-      padding: 10px 12px;
-      border-radius: 12px;
-      border: 1px solid var(--line);
-      background: rgba(0,0,0,.20);
-      color: var(--text);
-      outline:none;
+      width:100%;min-height: 120px;resize: vertical;
+      padding: 10px 12px;border-radius: 12px;border: 1px solid var(--line);
+      background: rgba(0,0,0,.20);color: var(--text);outline:none;
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      font-size: 12px;
-      line-height: 1.35;
+      font-size: 12px;line-height: 1.35;
     }
     textarea:focus{ box-shadow: var(--focus); border-color: rgba(106,168,255,.55); }
 
-    .muted{ color: var(--muted); }
     .smallnote{ font-size: 12px; color: var(--muted); }
+    .grid2{display:grid;grid-template-columns: 1fr 1fr; gap:10px;}
+    .grid3{display:grid;grid-template-columns: 1fr 1fr 1fr; gap:10px;}
 
     @media (max-width: 980px){
       .wrap{ grid-template-columns: 1fr; }
       .item .title{ max-width: 66vw; }
       th.day{ width: 108px; }
+      .grid2,.grid3{grid-template-columns: 1fr;}
     }
     @media (max-width: 640px){
       th.day{ width: 96px; }
@@ -428,11 +242,10 @@
 <body>
   <!--
   ASSUNZIONI
-  - La pianificazione degli immobili per "Pubblicità Sito" (Slot 1) è sequenziale: Immobile 1 → Lunedì della settimana di inizio, Immobile 2 → Martedì, ecc. (solo Lun–Sab). Finito il Sabato si passa alla settimana successiva.
-  - La settimana visualizzata va da Lunedì a Domenica, ma gli slot sono mostrati solo Lun–Sab come nella tua tabella.
-  - Il range "SETTIMANA DAL AL" viene calcolato automaticamente in base al Lunedì selezionato.
-  - I pallini rosso/verde (DA FARE / FATTO) sono per OGNI slot e vengono salvati in localStorage per settimana.
-  - I 50 immobili sono modificabili (nome per riga) con import/export tramite textarea (uno per riga).
+  - Hai più clienti (es. 50): ciascun cliente ha nome, lista immobili, inizio pianificazione, stati per slot.
+  - Pianificazione immobili per cliente: sequenziale su Slot 1 (Lun–Sab) partendo dal Lunedì “inizio pianificazione”.
+  - Export in CSV (compatibile Excel): 2 file per cliente (Calendario settimana + Pianificazione immobili).
+  - Dati salvati in localStorage.
   -->
 
   <div class="wrap">
@@ -442,13 +255,18 @@
           <div class="badge" aria-hidden="true"></div>
           <div>
             <h1>Calendario Settimanale – Rotazione 4 Slot</h1>
-            <p class="sub">Visibile, chiaro e immediato • Slot con stato <span style="color:var(--bad);font-weight:700;">rosso</span>/<span style="color:var(--good);font-weight:700;">verde</span> cliccabile</p>
+            <p class="sub">Multi-cliente + Export CSV • Pallini <span style="color:var(--bad);font-weight:700;">rosso</span>/<span style="color:var(--good);font-weight:700;">verde</span> cliccabili</p>
           </div>
         </div>
 
         <div class="controls" role="group" aria-label="Impostazioni calendario">
           <div class="field">
-            <label for="clientName">Nome cliente (parte alta)</label>
+            <label for="clientSelect">Cliente</label>
+            <select id="clientSelect" aria-label="Seleziona cliente"></select>
+          </div>
+
+          <div class="field">
+            <label for="clientName">Nome cliente (modifica)</label>
             <input id="clientName" type="text" placeholder="Es. Rossi Immobiliare" autocomplete="off" />
           </div>
 
@@ -458,6 +276,8 @@
           </div>
 
           <div class="btns">
+            <button id="addClient" class="primary" title="Aggiungi cliente">+ Cliente</button>
+            <button id="delClient" class="danger" title="Elimina cliente selezionato">Elimina</button>
             <button id="prevWeek" title="Settimana precedente">← Indietro</button>
             <button id="nextWeek" title="Settimana successiva">Avanti →</button>
             <button id="setPlanStart" class="primary" title="Usa questa settimana come inizio pianificazione immobili">Imposta inizio pianificazione</button>
@@ -468,8 +288,8 @@
       <div class="help" role="note" aria-label="Come usare">
         <div class="dot" aria-hidden="true"></div>
         <div>
-          <div><b>Come usare:</b> scrivi il <b>Nome cliente</b>, scegli una data (la settimana si aggancia al <b>Lunedì</b>), poi clicca sui pallini per segnare <b>DA FARE/FATTO</b>.</div>
-          <div class="muted">Gli immobili (50) vengono programmati automaticamente su <b>Slot 1 – Pubblicità Sito</b> e il cliente può vedere <b>quando</b> il suo immobile va in pubblicità. Dati salvati in <b>localStorage</b>.</div>
+          <div><b>Come usare:</b> seleziona/crea un <b>cliente</b>, imposta la settimana, clicca i pallini per <b>DA FARE/FATTO</b> e usa i bottoni <b>Export CSV</b>.</div>
+          <div class="smallnote">Ogni cliente ha la sua pianificazione immobili su <b>Slot 1 – Pubblicità Sito</b> + stati salvati in <b>localStorage</b>.</div>
         </div>
       </div>
     </header>
@@ -477,13 +297,25 @@
     <!-- CALENDARIO -->
     <section class="card">
       <div class="cardhead">
-        <h2 id="titleClient">Cliente: <span class="muted">(non impostato)</span></h2>
+        <h2 id="titleClient">Cliente: <span class="smallnote">(non impostato)</span></h2>
         <div class="weekline" aria-label="Settimana dal al">
           <span>SETTIMANA DAL <strong id="weekFrom">—</strong> AL <strong id="weekTo">—</strong></span>
           <span class="smallnote">Slot: 1 Pubblicità Sito • 2 Carosello • 3 Video Reel • 4 Video promo immobile di oggi</span>
         </div>
       </div>
-      <div class="tablewrap">
+
+      <div class="cardbody" style="border-bottom:1px solid var(--line); background: rgba(0,0,0,.06);">
+        <div class="grid3">
+          <button id="exportWeekCSV" class="primary">Export CSV • Calendario settimana</button>
+          <button id="exportPlanCSV">Export CSV • Pianificazione immobili</button>
+          <button id="exportClientBundle">Backup cliente (JSON)</button>
+        </div>
+        <div class="smallnote" style="margin-top:8px;">
+          CSV consigliato per Excel: contiene tutte le colonne (cliente, data, slot, orario, contenuto, immobile, stato).
+        </div>
+      </div>
+
+      <div style="padding:0;">
         <table aria-label="Calendario settimanale a 4 slot">
           <thead>
             <tr>
@@ -491,32 +323,30 @@
               <th class="slot">
                 <div class="slotmeta">
                   <span class="kind">SLOT 1</span>
-                  <span class="time" id="s1hdr">—</span>
+                  <span class="time">Orari variabili</span>
                 </div>
               </th>
               <th class="slot">
                 <div class="slotmeta">
                   <span class="kind">SLOT 2</span>
-                  <span class="time" id="s2hdr">—</span>
+                  <span class="time">Orari variabili</span>
                 </div>
               </th>
               <th class="slot">
                 <div class="slotmeta">
                   <span class="kind">SLOT 3</span>
-                  <span class="time" id="s3hdr">—</span>
+                  <span class="time">Orari variabili</span>
                 </div>
               </th>
               <th class="slot">
                 <div class="slotmeta">
                   <span class="kind">SLOT 4</span>
-                  <span class="time" id="s4hdr">—</span>
+                  <span class="time">Orari variabili</span>
                 </div>
               </th>
             </tr>
           </thead>
-          <tbody id="calBody">
-            <!-- popolato da JS -->
-          </tbody>
+          <tbody id="calBody"></tbody>
         </table>
       </div>
     </section>
@@ -532,7 +362,7 @@
         </div>
         <div class="cardbody">
           <div class="smallnote" style="margin-bottom:10px;">
-            Ogni immobile è assegnato a un giorno (Lun–Sab) nello <b>Slot 1</b>. Cerca il tuo immobile nella lista qui sotto.
+            Ogni immobile è assegnato a un giorno (Lun–Sab) nello <b>Slot 1</b>. Qui vedi tutta la rotazione del cliente.
           </div>
           <div class="list" id="propertyList" aria-label="Lista immobili programmati"></div>
         </div>
@@ -540,8 +370,8 @@
 
       <section class="card">
         <div class="cardhead">
-          <h2>Gestione elenco immobili (50)</h2>
-          <button id="resetProps" class="danger" title="Ripristina elenco demo (50 immobili)">Reset elenco</button>
+          <h2>Elenco immobili (per questo cliente)</h2>
+          <button id="resetProps" class="danger" title="Ripristina elenco demo (50 immobili)">Reset</button>
         </div>
         <div class="cardbody">
           <div class="smallnote" style="margin-bottom:8px;">
@@ -550,11 +380,10 @@
           <textarea id="propsTextarea" aria-label="Elenco immobili (uno per riga)"></textarea>
           <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;margin-top:10px;">
             <button id="saveProps" class="primary">Salva elenco</button>
-            <button id="exportData">Esporta (JSON)</button>
-            <button id="importData">Importa (JSON)</button>
+            <button id="importClientBundle">Importa Backup (JSON)</button>
           </div>
-          <div class="smallnote" id="ioHint" style="margin-top:8px;">
-            Suggerimento: usa Esporta/Importa per portarti dietro nome cliente, inizio pianificazione, stati e immobili.
+          <div class="smallnote" style="margin-top:8px;">
+            Tip: fai “Backup cliente (JSON)” prima di grosse modifiche.
           </div>
         </div>
       </section>
@@ -563,7 +392,7 @@
 
   <script>
     // ------------------------------
-    // DATI BASE: giorni/slot/orari
+    // CONFIG
     // ------------------------------
     const DAYS = [
       { key: "LUNEDI", label: "LUNEDÌ", times: ["08:00–10:00","10:00–14:00","14:00–18:00","18:00–22:00"] },
@@ -573,7 +402,6 @@
       { key: "VENERDI", label: "VENERDÌ", times: ["09:00–11:00","11:00–15:00","15:00–19:00","19:00–23:00"] },
       { key: "SABATO", label: "SABATO", times: ["08:00–10:00","10:00–14:00","14:00–18:00","18:00–22:00"] },
     ];
-
     const SLOT_KIND = {
       1: "Pubblicità Sito",
       2: "Carosello",
@@ -582,26 +410,48 @@
     };
 
     // ------------------------------
-    // localStorage keys
+    // STORAGE (multi-cliente)
     // ------------------------------
     const LS = {
-      clientName: "cal_clientName_v1",
-      weekMonday: "cal_weekMonday_v1",
-      planStartMonday: "cal_planStartMonday_v1",
-      properties: "cal_properties_v1",
-      status: "cal_status_v1", // oggetto { [weekKey]: { [dayKey-slotN]: "done"|"todo" } }
-      bundle: "cal_bundle_v1"
+      app: "cal_app_v2" // { activeClientId, weekMondayISO, clients: { [id]: { name, planStartMondayISO, properties[], statusByWeek{} } } }
     };
+
+    // ------------------------------
+    // DOM
+    // ------------------------------
+    const elClientSelect = document.getElementById("clientSelect");
+    const elClientName = document.getElementById("clientName");
+    const elWeekDate = document.getElementById("weekDate");
+    const elTitleClient = document.getElementById("titleClient");
+    const elWeekFrom = document.getElementById("weekFrom");
+    const elWeekTo = document.getElementById("weekTo");
+    const elPlanStartBadge = document.getElementById("planStartBadge");
+    const elCalBody = document.getElementById("calBody");
+    const elPropertyList = document.getElementById("propertyList");
+    const elPropsTextarea = document.getElementById("propsTextarea");
+
+    const elAddClient = document.getElementById("addClient");
+    const elDelClient = document.getElementById("delClient");
+    const elPrevWeek = document.getElementById("prevWeek");
+    const elNextWeek = document.getElementById("nextWeek");
+    const elSetPlanStart = document.getElementById("setPlanStart");
+
+    const elSaveProps = document.getElementById("saveProps");
+    const elResetProps = document.getElementById("resetProps");
+
+    const elExportWeekCSV = document.getElementById("exportWeekCSV");
+    const elExportPlanCSV = document.getElementById("exportPlanCSV");
+    const elExportClientBundle = document.getElementById("exportClientBundle");
+    const elImportClientBundle = document.getElementById("importClientBundle");
 
     // ------------------------------
     // Helpers date
     // ------------------------------
     const pad2 = n => String(n).padStart(2,"0");
-    const formatIT = (d) => `${pad2(d.getDate())}/${pad2(d.getMonth()+1)}/${d.getFullYear()}`;
     const toISODate = (d) => `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
+    const formatIT = (d) => `${pad2(d.getDate())}/${pad2(d.getMonth()+1)}/${d.getFullYear()}`;
 
     function cloneDate(d){ return new Date(d.getTime()); }
-
     function startOfMonday(date){
       const d = new Date(date.getFullYear(), date.getMonth(), date.getDate());
       const day = d.getDay(); // 0=Sun,1=Mon...
@@ -610,209 +460,177 @@
       d.setHours(0,0,0,0);
       return d;
     }
-
-    function addDays(d, n){
-      const x = cloneDate(d);
-      x.setDate(x.getDate() + n);
-      return x;
-    }
+    function addDays(d, n){ const x = cloneDate(d); x.setDate(x.getDate()+n); return x; }
     function addWeeks(d, n){ return addDays(d, n*7); }
-
-    function weekKey(monday){
-      // chiave stabile per stati: YYYY-MM-DD del lunedì
-      return toISODate(monday);
-    }
+    function weekKey(monday){ return toISODate(monday); }
 
     // ------------------------------
-    // DOM
+    // App state
     // ------------------------------
-    const elClientName = document.getElementById("clientName");
-    const elTitleClient = document.getElementById("titleClient");
-    const elWeekDate = document.getElementById("weekDate");
-    const elWeekFrom = document.getElementById("weekFrom");
-    const elWeekTo = document.getElementById("weekTo");
-    const elCalBody = document.getElementById("calBody");
-
-    const elPrev = document.getElementById("prevWeek");
-    const elNext = document.getElementById("nextWeek");
-    const elSetPlanStart = document.getElementById("setPlanStart");
-
-    const elPlanStartBadge = document.getElementById("planStartBadge");
-    const elPropertyList = document.getElementById("propertyList");
-
-    const elPropsTextarea = document.getElementById("propsTextarea");
-    const elSaveProps = document.getElementById("saveProps");
-    const elResetProps = document.getElementById("resetProps");
-    const elExport = document.getElementById("exportData");
-    const elImport = document.getElementById("importData");
-
-    const s1hdr = document.getElementById("s1hdr");
-    const s2hdr = document.getElementById("s2hdr");
-    const s3hdr = document.getElementById("s3hdr");
-    const s4hdr = document.getElementById("s4hdr");
-
-    // ------------------------------
-    // State
-    // ------------------------------
-    let currentMonday = startOfMonday(new Date());
-    let planStartMonday = null;
-    let properties = [];
-
     function defaultProperties(){
-      // 50 immobili demo
       return Array.from({length:50}, (_,i)=> `Immobile #${i+1}`);
     }
-
-    function load(){
-      const savedName = localStorage.getItem(LS.clientName);
-      if(savedName) elClientName.value = savedName;
-
-      const savedWeek = localStorage.getItem(LS.weekMonday);
-      if(savedWeek){
-        currentMonday = startOfMonday(new Date(savedWeek));
-      }
-
-      const ps = localStorage.getItem(LS.planStartMonday);
-      planStartMonday = ps ? startOfMonday(new Date(ps)) : startOfMonday(new Date());
-
-      const p = localStorage.getItem(LS.properties);
-      properties = p ? safeJsonParse(p, defaultProperties()) : defaultProperties();
-
-      // sync input date
-      elWeekDate.value = toISODate(currentMonday);
-
-      // textarea
-      elPropsTextarea.value = properties.join("\n");
+    function uid(){
+      return "c_" + Math.random().toString(16).slice(2) + "_" + Date.now().toString(16);
     }
 
-    function saveBasics(){
-      localStorage.setItem(LS.clientName, elClientName.value.trim());
-      localStorage.setItem(LS.weekMonday, toISODate(currentMonday));
-      localStorage.setItem(LS.planStartMonday, toISODate(planStartMonday));
-      localStorage.setItem(LS.properties, JSON.stringify(properties));
-    }
+    let app = null;           // loaded from storage
+    let currentMonday = startOfMonday(new Date());
+    let activeClientId = null;
 
     function safeJsonParse(str, fallback){
       try { return JSON.parse(str); } catch { return fallback; }
     }
 
-    // ------------------------------
-    // Status storage per week
-    // ------------------------------
-    function getAllStatus(){
-      return safeJsonParse(localStorage.getItem(LS.status) || "{}", {});
+    function loadApp(){
+      const raw = localStorage.getItem(LS.app);
+      app = safeJsonParse(raw || "null", null);
+
+      if(!app || typeof app !== "object" || !app.clients){
+        // bootstrap
+        const firstId = uid();
+        app = {
+          activeClientId: firstId,
+          weekMondayISO: toISODate(startOfMonday(new Date())),
+          clients: {
+            [firstId]: {
+              name: "Cliente 1",
+              planStartMondayISO: toISODate(startOfMonday(new Date())),
+              properties: defaultProperties(),
+              statusByWeek: {} // { [weekISO]: { [dayKey-slot]: "todo"|"done" } }
+            }
+          }
+        };
+      }
+
+      activeClientId = app.activeClientId;
+      currentMonday = startOfMonday(new Date(app.weekMondayISO));
     }
 
-    function setAllStatus(obj){
-      localStorage.setItem(LS.status, JSON.stringify(obj));
+    function saveApp(){
+      app.activeClientId = activeClientId;
+      app.weekMondayISO = toISODate(currentMonday);
+      localStorage.setItem(LS.app, JSON.stringify(app));
     }
 
-    function getSlotStatus(monday, dayKey, slotNum){
-      const all = getAllStatus();
+    function getClient(){
+      return app.clients[activeClientId];
+    }
+
+    // ------------------------------
+    // Status (per cliente)
+    // ------------------------------
+    function getSlotStatusForClient(client, monday, dayKey, slotNum){
       const wk = weekKey(monday);
       const key = `${dayKey}-S${slotNum}`;
-      return all?.[wk]?.[key] || "todo";
+      return client.statusByWeek?.[wk]?.[key] || "todo";
     }
 
-    function toggleSlotStatus(monday, dayKey, slotNum){
-      const all = getAllStatus();
+    function toggleSlotStatusForClient(client, monday, dayKey, slotNum){
       const wk = weekKey(monday);
-      all[wk] = all[wk] || {};
+      client.statusByWeek[wk] = client.statusByWeek[wk] || {};
       const key = `${dayKey}-S${slotNum}`;
-      const cur = all[wk][key] || "todo";
-      all[wk][key] = (cur === "done") ? "todo" : "done";
-      setAllStatus(all);
+      const cur = client.statusByWeek[wk][key] || "todo";
+      client.statusByWeek[wk][key] = (cur === "done") ? "todo" : "done";
     }
 
     // ------------------------------
-    // Pianificazione immobili su slot1
+    // Pianificazione immobili (per cliente)
     // ------------------------------
-    function scheduleForProperty(index){
-      // index: 0..properties.length-1
-      // Solo 6 giorni a settimana (Lun-Sab) => 6 per settimana.
-      const perWeek = DAYS.length; // 6
+    function scheduleForProperty(client, index){
+      const planStartMonday = startOfMonday(new Date(client.planStartMondayISO));
+      const perWeek = DAYS.length; // 6 (Lun-Sab)
       const weekOffset = Math.floor(index / perWeek);
       const dayIndex = index % perWeek;
-
-      const date = addDays(addWeeks(planStartMonday, weekOffset), dayIndex); // lunedì + dayIndex
+      const date = addDays(addWeeks(planStartMonday, weekOffset), dayIndex);
       const day = DAYS[dayIndex];
-      const slotTime = day.times[0]; // slot 1
-      return { date, day, slotTime, weekOffset, dayIndex };
+      const slotTime = day.times[0];
+      return { date, day, slotTime, weekOffset, dayIndex, planStartMonday };
     }
 
-    function propertyAssignedToDay(monday, dayIndex){
-      // dato lunedì (settimana visualizzata) e dayIndex 0..5,
-      // trova quale proprietà cade lì, se è dentro 0..len-1
+    function propertyAssignedToDay(client, monday, dayIndex){
+      const planStartMonday = startOfMonday(new Date(client.planStartMondayISO));
       const diffDays = Math.round((startOfMonday(monday).getTime() - planStartMonday.getTime()) / (1000*60*60*24));
       const weeksFromStart = Math.floor(diffDays / 7);
-      // dayIndex in week => absolute slot index
       const absoluteIndex = weeksFromStart * DAYS.length + dayIndex;
-      if(absoluteIndex < 0 || absoluteIndex >= properties.length) return null;
-      return { name: properties[absoluteIndex], idx: absoluteIndex };
+      if(absoluteIndex < 0 || absoluteIndex >= client.properties.length) return null;
+      return { name: client.properties[absoluteIndex], idx: absoluteIndex };
     }
 
     // ------------------------------
-    // Render
+    // Rendering
     // ------------------------------
+    function renderClientSelect(){
+      const ids = Object.keys(app.clients);
+      elClientSelect.innerHTML = "";
+      ids.forEach(id => {
+        const opt = document.createElement("option");
+        opt.value = id;
+        opt.textContent = app.clients[id].name || "(senza nome)";
+        elClientSelect.appendChild(opt);
+      });
+      if(!app.clients[activeClientId]){
+        activeClientId = ids[0] || null;
+      }
+      elClientSelect.value = activeClientId;
+    }
+
     function renderHeader(){
-      const name = elClientName.value.trim();
-      elTitleClient.innerHTML = name
-        ? `Cliente: <span style="font-weight:800">${escapeHtml(name)}</span>`
-        : `Cliente: <span class="muted">(non impostato)</span>`;
+      const client = getClient();
+
+      elClientName.value = client.name || "";
+      elTitleClient.innerHTML = client.name
+        ? `Cliente: <span style="font-weight:800">${escapeHtml(client.name)}</span>`
+        : `Cliente: <span class="smallnote">(non impostato)</span>`;
 
       const from = cloneDate(currentMonday);
-      const to = addDays(currentMonday, 6); // Domenica
+      const to = addDays(currentMonday, 6);
       elWeekFrom.textContent = formatIT(from);
       elWeekTo.textContent = formatIT(to);
 
-      elPlanStartBadge.textContent = formatIT(planStartMonday);
+      elPlanStartBadge.textContent = formatIT(startOfMonday(new Date(client.planStartMondayISO)));
 
-      // slot headers show the most common times (we keep a dash because times change on Tue/Fri)
-      s1hdr.textContent = "Orari variabili per giorno";
-      s2hdr.textContent = "Orari variabili per giorno";
-      s3hdr.textContent = "Orari variabili per giorno";
-      s4hdr.textContent = "Orari variabili per giorno";
+      elWeekDate.value = toISODate(currentMonday);
+      elPropsTextarea.value = client.properties.join("\n");
     }
 
     function renderCalendar(){
+      const client = getClient();
       elCalBody.innerHTML = "";
 
       DAYS.forEach((day, dayIndex) => {
         const tr = document.createElement("tr");
 
-        // day cell
         const th = document.createElement("th");
         th.className = "day";
         const date = addDays(currentMonday, dayIndex);
         th.innerHTML = `<div style="display:flex;flex-direction:column;gap:2px;">
           <div>${day.label}</div>
-          <div class="muted" style="font-size:12px;">${formatIT(date)}</div>
+          <div style="color:var(--muted);font-size:12px;">${formatIT(date)}</div>
         </div>`;
         tr.appendChild(th);
 
-        // 4 slots
         for(let slot=1; slot<=4; slot++){
           const td = document.createElement("td");
-          const status = getSlotStatus(currentMonday, day.key, slot);
+          const status = getSlotStatusForClient(client, currentMonday, day.key, slot);
 
           const cell = document.createElement("div");
           cell.className = "cell";
 
-          // pill: time + kind (+ property if slot1)
           const pill = document.createElement("div");
           pill.className = "pill";
 
           const time = day.times[slot-1];
-          let big = SLOT_KIND[slot];
+          let content = SLOT_KIND[slot];
 
           if(slot === 1){
-            const assigned = propertyAssignedToDay(currentMonday, dayIndex);
-            big = assigned ? `Pubblicità Sito • ${assigned.name}` : `Pubblicità Sito • (nessun immobile)`;
+            const assigned = propertyAssignedToDay(client, currentMonday, dayIndex);
+            content = assigned ? `Pubblicità Sito • ${assigned.name}` : `Pubblicità Sito • (nessun immobile)`;
           }
 
           pill.innerHTML = `
             <span class="small">${escapeHtml(time)}</span>
-            <span class="big" title="${escapeHtml(big)}">${escapeHtml(big)}</span>
+            <span class="big" title="${escapeHtml(content)}">${escapeHtml(content)}</span>
           `;
           cell.appendChild(pill);
 
@@ -832,9 +650,9 @@
             <span class="ball" aria-hidden="true"></span>
             <span class="txt">${status === "done" ? "FATTO" : "DA FARE"}</span>
           `;
-
           toggle.addEventListener("click", () => {
-            toggleSlotStatus(currentMonday, day.key, slot);
+            toggleSlotStatusForClient(client, currentMonday, day.key, slot);
+            saveApp();
             render(); // refresh
           });
 
@@ -851,16 +669,13 @@
     }
 
     function renderPropertyScheduleList(){
+      const client = getClient();
       elPropertyList.innerHTML = "";
 
-      // Lista completa di tutti i 50 immobili con data slot1
-      properties.forEach((name, idx) => {
-        const s = scheduleForProperty(idx);
+      client.properties.forEach((name, idx) => {
+        const s = scheduleForProperty(client, idx);
         const wkMon = startOfMonday(s.date);
-        const wk = weekKey(wkMon);
-        const dayKey = s.day.key;
-
-        const status = getSlotStatus(wkMon, dayKey, 1); // stato slot1 del giorno assegnato
+        const status = getSlotStatusForClient(client, wkMon, s.day.key, 1);
 
         const div = document.createElement("div");
         div.className = "item";
@@ -883,18 +698,175 @@
     }
 
     function render(){
+      renderClientSelect();
       renderHeader();
       renderCalendar();
       renderPropertyScheduleList();
-      saveBasics();
+      saveApp();
+    }
+
+    // ------------------------------
+    // CSV Export
+    // ------------------------------
+    function csvEscape(val){
+      const s = String(val ?? "");
+      // CSV standard: quote + double quotes
+      if(/[",\n\r;]/.test(s)) return `"${s.replaceAll('"','""')}"`;
+      return s;
+    }
+
+    function downloadTextFile(filename, text, mime="text/plain;charset=utf-8"){
+      const blob = new Blob([text], {type: mime});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(()=> URL.revokeObjectURL(url), 1500);
+    }
+
+    function exportWeekCSV(){
+      const client = getClient();
+      const clientName = client.name || "Cliente";
+      const rows = [];
+      // intestazione
+      rows.push([
+        "Cliente",
+        "Settimana_Dal",
+        "Settimana_Al",
+        "Giorno",
+        "Data",
+        "Slot",
+        "Orario",
+        "Tipo_Contenuto",
+        "Immobile",
+        "Stato"
+      ]);
+
+      const weekFrom = formatIT(currentMonday);
+      const weekTo = formatIT(addDays(currentMonday, 6));
+
+      DAYS.forEach((day, dayIndex) => {
+        const date = addDays(currentMonday, dayIndex);
+        for(let slot=1; slot<=4; slot++){
+          const time = day.times[slot-1];
+          const tipo = SLOT_KIND[slot];
+          const status = getSlotStatusForClient(client, currentMonday, day.key, slot) === "done" ? "FATTO" : "DA FARE";
+          let immobile = "";
+          if(slot === 1){
+            const assigned = propertyAssignedToDay(client, currentMonday, dayIndex);
+            immobile = assigned ? assigned.name : "";
+          }
+          rows.push([
+            clientName,
+            weekFrom,
+            weekTo,
+            day.label,
+            formatIT(date),
+            slot,
+            time,
+            tipo,
+            immobile,
+            status
+          ]);
+        }
+      });
+
+      const csv = rows.map(r => r.map(csvEscape).join(",")).join("\n");
+      const safeName = clientName.replaceAll(/[^\w\- ]+/g,"").trim().replaceAll(" ","_") || "Cliente";
+      downloadTextFile(`${safeName}_Calendario_${weekKey(currentMonday)}.csv`, csv, "text/csv;charset=utf-8");
+    }
+
+    function exportPlanCSV(){
+      const client = getClient();
+      const clientName = client.name || "Cliente";
+      const rows = [];
+      rows.push([
+        "Cliente",
+        "Immobile",
+        "Giorno",
+        "Data",
+        "Orario_Slot1",
+        "Settimana_Dal",
+        "Settimana_Al",
+        "Stato_Slot1"
+      ]);
+
+      client.properties.forEach((name, idx) => {
+        const s = scheduleForProperty(client, idx);
+        const wkMon = startOfMonday(s.date);
+        const status = getSlotStatusForClient(client, wkMon, s.day.key, 1) === "done" ? "FATTO" : "DA FARE";
+        rows.push([
+          clientName,
+          name,
+          s.day.label,
+          formatIT(s.date),
+          s.slotTime,
+          formatIT(wkMon),
+          formatIT(addDays(wkMon, 6)),
+          status
+        ]);
+      });
+
+      const csv = rows.map(r => r.map(csvEscape).join(",")).join("\n");
+      const safeName = clientName.replaceAll(/[^\w\- ]+/g,"").trim().replaceAll(" ","_") || "Cliente";
+      downloadTextFile(`${safeName}_Pianificazione_Immobilli.csv`, csv, "text/csv;charset=utf-8");
+    }
+
+    // ------------------------------
+    // Backup / Import cliente (JSON)
+    // ------------------------------
+    function exportClientBundle(){
+      const client = getClient();
+      const bundle = {
+        v: 2,
+        clientId: activeClientId,
+        name: client.name,
+        planStartMondayISO: client.planStartMondayISO,
+        properties: client.properties,
+        statusByWeek: client.statusByWeek
+      };
+      const json = JSON.stringify(bundle, null, 2);
+      const safeName = (client.name || "Cliente").replaceAll(/[^\w\- ]+/g,"").trim().replaceAll(" ","_") || "Cliente";
+      downloadTextFile(`${safeName}_backup.json`, json, "application/json;charset=utf-8");
+    }
+
+    function importClientBundle(){
+      const raw = prompt("Incolla qui il JSON di backup del cliente:");
+      if(!raw) return;
+      let b;
+      try{ b = JSON.parse(raw); } catch { alert("JSON non valido."); return; }
+      if(!b || typeof b !== "object") { alert("JSON non valido."); return; }
+
+      // crea un nuovo cliente da backup (così non sovrascrivi per errore)
+      const newId = uid();
+      app.clients[newId] = {
+        name: String(b.name || "Cliente importato"),
+        planStartMondayISO: b.planStartMondayISO ? toISODate(startOfMonday(new Date(b.planStartMondayISO))) : toISODate(startOfMonday(new Date())),
+        properties: Array.isArray(b.properties) && b.properties.length ? b.properties.map(x=>String(x)) : defaultProperties(),
+        statusByWeek: (b.statusByWeek && typeof b.statusByWeek === "object") ? b.statusByWeek : {}
+      };
+      activeClientId = newId;
+      saveApp();
+      render();
     }
 
     // ------------------------------
     // Events
     // ------------------------------
+    elClientSelect.addEventListener("change", () => {
+      activeClientId = elClientSelect.value;
+      render();
+    });
+
     elClientName.addEventListener("input", () => {
+      const client = getClient();
+      client.name = elClientName.value.trim();
+      saveApp();
+      renderClientSelect();
       renderHeader();
-      saveBasics();
     });
 
     elWeekDate.addEventListener("change", () => {
@@ -904,88 +876,79 @@
       render();
     });
 
-    elPrev.addEventListener("click", () => {
+    elPrevWeek.addEventListener("click", () => {
       currentMonday = addWeeks(currentMonday, -1);
-      elWeekDate.value = toISODate(currentMonday);
       render();
     });
-
-    elNext.addEventListener("click", () => {
+    elNextWeek.addEventListener("click", () => {
       currentMonday = addWeeks(currentMonday, 1);
-      elWeekDate.value = toISODate(currentMonday);
       render();
     });
 
     elSetPlanStart.addEventListener("click", () => {
-      planStartMonday = cloneDate(currentMonday);
+      const client = getClient();
+      client.planStartMondayISO = toISODate(currentMonday);
+      saveApp();
+      render();
+    });
+
+    elAddClient.addEventListener("click", () => {
+      const name = prompt("Nome nuovo cliente:", `Cliente ${Object.keys(app.clients).length + 1}`) || "";
+      const id = uid();
+      app.clients[id] = {
+        name: name.trim() || `Cliente ${Object.keys(app.clients).length + 1}`,
+        planStartMondayISO: toISODate(currentMonday),
+        properties: defaultProperties(),
+        statusByWeek: {}
+      };
+      activeClientId = id;
+      saveApp();
+      render();
+    });
+
+    elDelClient.addEventListener("click", () => {
+      const ids = Object.keys(app.clients);
+      if(ids.length <= 1){
+        alert("Deve restare almeno 1 cliente.");
+        return;
+      }
+      const client = getClient();
+      const ok = confirm(`Eliminare il cliente "${client.name}"? (azione definitiva)`);
+      if(!ok) return;
+
+      delete app.clients[activeClientId];
+      activeClientId = Object.keys(app.clients)[0];
+      saveApp();
       render();
     });
 
     elSaveProps.addEventListener("click", () => {
+      const client = getClient();
       const lines = elPropsTextarea.value
         .split("\n")
         .map(s => s.trim())
         .filter(Boolean);
 
-      // se l’utente mette meno di 1, non fare disastri: mantieni
       if(lines.length === 0){
         alert("Inserisci almeno 1 immobile (uno per riga).");
         return;
       }
-
-      // Se non sono 50, va bene comunque: pianifica quanto c'è.
-      properties = lines;
+      client.properties = lines;
+      saveApp();
       render();
     });
 
     elResetProps.addEventListener("click", () => {
-      properties = defaultProperties();
-      elPropsTextarea.value = properties.join("\n");
+      const client = getClient();
+      client.properties = defaultProperties();
+      saveApp();
       render();
     });
 
-    elExport.addEventListener("click", async () => {
-      const bundle = {
-        v: 1,
-        clientName: elClientName.value.trim(),
-        currentMonday: toISODate(currentMonday),
-        planStartMonday: toISODate(planStartMonday),
-        properties,
-        status: getAllStatus()
-      };
-      const json = JSON.stringify(bundle, null, 2);
-      try{
-        await navigator.clipboard.writeText(json);
-        alert("Export copiato negli appunti ✅");
-      }catch{
-        // fallback: mostra prompt
-        prompt("Copia questo JSON:", json);
-      }
-    });
-
-    elImport.addEventListener("click", () => {
-      const raw = prompt("Incolla qui il JSON esportato:");
-      if(!raw) return;
-      let b;
-      try{ b = JSON.parse(raw); } catch {
-        alert("JSON non valido.");
-        return;
-      }
-      if(!b || typeof b !== "object"){
-        alert("JSON non valido.");
-        return;
-      }
-
-      if(typeof b.clientName === "string") elClientName.value = b.clientName;
-      if(b.currentMonday) currentMonday = startOfMonday(new Date(b.currentMonday));
-      if(b.planStartMonday) planStartMonday = startOfMonday(new Date(b.planStartMonday));
-      if(Array.isArray(b.properties) && b.properties.length) properties = b.properties;
-      if(b.status && typeof b.status === "object") setAllStatus(b.status);
-
-      elWeekDate.value = toISODate(currentMonday);
-      elPropsTextarea.value = properties.join("\n");
-      render();
-    });
+    elExportWeekCSV.addEventListener("click", exportWeekCSV);
+    elExportPlanCSV.addEventListener("click", exportPlanCSV);
+    elExportClientBundle.addEventListener("click", exportClientBundle);
+    elImportClientBundle.addEventListener("click", importClientBundle);
 
     // ------------------------------
     // Utils
@@ -1002,7 +965,7 @@
     // ------------------------------
     // Init
     // ------------------------------
-    load();
+    loadApp();
     render();
   </script>
 </body>
