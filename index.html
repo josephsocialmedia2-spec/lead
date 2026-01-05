@@ -2,971 +2,711 @@
 <html lang="it">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Calendario Settimanale – Clienti + Export CSV</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>Acquisizione – Routine Giornaliera</title>
   <style>
-    :root{
-      --bg:#0b0f17;
-      --card:#121a27;
-      --card2:#0f1622;
-      --text:#e9eef7;
-      --muted:#a9b3c7;
-      --line:rgba(255,255,255,.08);
-      --accent:#6aa8ff;
-      --good:#24d17e;
-      --bad:#ff4d4d;
-      --shadow: 0 10px 24px rgba(0,0,0,.35);
-      --radius: 16px;
-      --focus: 0 0 0 3px rgba(106,168,255,.35);
-      text-rendering: optimizeLegibility;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-    }
-    *{box-sizing:border-box}
+    :root { --bg:#0b0b0b; --fg:#fff; --muted:rgba(255,255,255,.7); --card:rgba(255,255,255,.06); --border:rgba(255,255,255,.14); --accent:#00e5ff; }
     body{
-      margin:0;
-      background: radial-gradient(1200px 700px at 20% 0%, rgba(106,168,255,.18), transparent 60%),
-                  radial-gradient(900px 500px at 100% 0%, rgba(36,209,126,.10), transparent 55%),
-                  var(--bg);
-      color:var(--text);
-      font: 14px/1.35 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
-    }
-    .wrap{
-      max-width: 1240px;
-      margin: 22px auto 40px;
-      padding: 0 14px;
-      display: grid;
-      gap: 14px;
-      grid-template-columns: 1.45fr .85fr;
+      margin:0; font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      background:var(--bg); color:var(--fg); min-height:100vh;
+      padding: env(safe-area-inset-top) env(safe-area-inset-right)
+               env(safe-area-inset-bottom) env(safe-area-inset-left);
+      display:flex; flex-direction:column;
     }
     header{
-      grid-column: 1 / -1;
-      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 16px;
-      display: grid;
-      gap: 12px;
+      position:sticky; top:0; z-index:5;
+      background: linear-gradient(to bottom, rgba(11,11,11,.98), rgba(11,11,11,.85));
+      border-bottom:1px solid var(--border);
+      padding:12px 12px;
+      display:flex; flex-wrap:wrap; gap:10px; align-items:center;
     }
-    .toprow{
-      display:flex;
-      flex-wrap:wrap;
-      gap:10px 12px;
-      align-items:center;
-      justify-content:space-between;
-    }
-    .brand{display:flex;gap:10px;align-items:center;min-width: 260px;}
-    .badge{
-      width:36px;height:36px;border-radius:12px;
-      background: linear-gradient(135deg, rgba(106,168,255,.9), rgba(36,209,126,.8));
-      box-shadow: 0 10px 20px rgba(0,0,0,.25);
-    }
-    h1{margin:0;font-size:18px;letter-spacing:.2px;}
-    .sub{margin:0;color:var(--muted);font-size:13px;}
-
-    .controls{display:flex;flex-wrap:wrap;gap:10px;align-items:end;justify-content:flex-end;}
-    .field{display:flex;flex-direction:column;gap:6px;min-width: 220px;}
-    label{color: var(--muted);font-size: 12px;}
-    input[type="text"], input[type="date"], select{
-      width:100%;
-      padding: 10px 12px;
-      border-radius: 12px;
-      border: 1px solid var(--line);
-      background: rgba(0,0,0,.20);
-      color: var(--text);
-      outline: none;
-    }
-    input[type="text"]:focus, input[type="date"]:focus, select:focus, button:focus{
-      box-shadow: var(--focus);
-      border-color: rgba(106,168,255,.55);
-    }
-
-    .btns{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end;}
-    button{
-      appearance:none;
-      border: 1px solid var(--line);
-      background: rgba(255,255,255,.05);
-      color: var(--text);
-      padding: 10px 12px;
-      border-radius: 12px;
-      cursor:pointer;
-      transition: transform .06s ease, background .15s ease, border-color .15s ease;
-      outline:none;
-      white-space:nowrap;
-    }
-    button:hover{ background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.14);}
-    button:active{ transform: translateY(1px); }
-    .primary{
-      border-color: rgba(106,168,255,.35);
-      background: rgba(106,168,255,.16);
-    }
-    .primary:hover{
-      background: rgba(106,168,255,.22);
-      border-color: rgba(106,168,255,.55);
-    }
-    .danger{
-      border-color: rgba(255,77,77,.35);
-      background: rgba(255,77,77,.12);
-    }
-    .danger:hover{
-      background: rgba(255,77,77,.18);
-      border-color: rgba(255,77,77,.55);
-    }
-
-    .help{
-      background: rgba(255,255,255,.04);
-      border: 1px dashed rgba(255,255,255,.14);
-      border-radius: 14px;
-      padding: 12px;
-      display:flex;
-      gap:10px;
-      align-items:flex-start;
-      color: var(--muted);
-    }
-    .help .dot{
-      width:10px;height:10px;border-radius:999px;margin-top:5px;
-      background: rgba(106,168,255,.9);
-      box-shadow: 0 0 0 6px rgba(106,168,255,.12);
-      flex: 0 0 auto;
-    }
-    .help b{color: var(--text); font-weight: 650;}
-
-    .card{
-      background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      overflow:hidden;
-    }
-    .card h2{margin:0;font-size:14px;letter-spacing:.2px;}
-    .cardhead{
-      padding: 12px 14px;
-      border-bottom: 1px solid var(--line);
-      display:flex;
-      justify-content:space-between;
-      gap:10px;
-      align-items:center;
-      background: rgba(0,0,0,.12);
-    }
-    .cardbody{padding: 12px 14px;}
-
-    .weekline{
-      display:flex;
-      flex-wrap:wrap;
-      gap:10px;
-      align-items:center;
-      justify-content:space-between;
-      color: var(--muted);
-      font-size: 13px;
-    }
-    .weekline strong{ color: var(--text); font-weight: 700; }
-
-    table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:13px;}
-    thead th{position: sticky;top:0;z-index:1;background: rgba(15,22,34,.92);backdrop-filter: blur(8px);}
-    th, td{border-bottom: 1px solid var(--line);border-right: 1px solid var(--line);padding: 10px;vertical-align: top;}
-    th:last-child, td:last-child{ border-right:none; }
-    tbody tr:last-child td{border-bottom:none;}
-    th.day{width:120px;text-align:left;color:var(--text);font-weight:700;}
-    th.slot{text-align:left;color:var(--muted);font-weight:650;}
-    .slotmeta{display:flex;flex-direction:column;gap:2px;}
-    .slotmeta .time{color:var(--muted);font-size:12px;}
-    .slotmeta .kind{color:var(--text);font-size:12px;font-weight:700;}
-
-    .cell{display:flex;flex-direction:column;gap:8px;min-height: 88px;}
+    h1{ font-size:16px; margin:0; letter-spacing:.2px; }
     .pill{
-      display:inline-flex;align-items:center;gap:8px;
-      padding:8px 10px;border-radius:999px;border:1px solid var(--line);
-      background: rgba(0,0,0,.16);width:fit-content;max-width:100%;
+      font-size:13px; padding:8px 10px; border-radius:999px;
+      border:1px solid var(--border); background:rgba(255,255,255,.05);
     }
-    .pill .small{color:var(--muted);font-size:12px;white-space:nowrap;}
-    .pill .big{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width: 420px;}
-
-    .statusRow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:space-between;}
-    .statusHint{color:var(--muted);font-size:12px;}
-    .toggle{
-      display:inline-flex;align-items:center;gap:8px;padding:7px 10px;border-radius:999px;
-      border:1px solid var(--line);background: rgba(0,0,0,.14);cursor:pointer;user-select:none;
-      transition: background .15s ease, border-color .15s ease;
+    .pill b{ color: var(--accent); }
+    button{
+      background: var(--fg); color:#000; border:0; border-radius:12px;
+      padding:10px 12px; font-weight:800; cursor:pointer;
+      touch-action: manipulation;
     }
-    .toggle:hover{background: rgba(255,255,255,.06);border-color: rgba(255,255,255,.14);}
-    .ball{width:12px;height:12px;border-radius:999px;background: var(--bad);box-shadow: 0 0 0 6px rgba(255,77,77,.12);}
-    .done .ball{background: var(--good);box-shadow: 0 0 0 6px rgba(36,209,126,.12);}
-    .toggle .txt{font-size:12px;color:var(--muted);}
-    .done .txt{color: rgba(233,238,247,.9);font-weight:650;}
-
-    .sidebar{display:flex;flex-direction:column;gap:14px;}
-    .list{display:flex;flex-direction:column;gap:10px;max-height: 520px;overflow:auto;padding-right: 6px;}
-    .item{
-      border:1px solid var(--line);border-radius:14px;padding:10px;background: rgba(0,0,0,.14);
-      display:flex;gap:10px;align-items:flex-start;justify-content:space-between;
+    button.secondary{
+      background: rgba(255,255,255,.10); color: var(--fg);
+      border:1px solid rgba(255,255,255,.18);
     }
-    .item .left{display:flex;flex-direction:column;gap:2px;min-width:0;}
-    .item .title{font-weight:750;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:360px;}
-    .item .meta{color:var(--muted);font-size:12px;}
-    .tag{
-      display:inline-flex;align-items:center;gap:6px;padding:6px 9px;border-radius:999px;
-      border:1px solid var(--line);background: rgba(255,255,255,.04);
-      color: var(--muted);font-size:12px;white-space:nowrap;
+    button.danger{
+      background: rgba(255,60,60,.16); color: var(--fg);
+      border:1px solid rgba(255,60,60,.35);
     }
-    .tag strong{color: var(--text);font-weight:750;}
-
-    textarea{
-      width:100%;min-height: 120px;resize: vertical;
-      padding: 10px 12px;border-radius: 12px;border: 1px solid var(--line);
-      background: rgba(0,0,0,.20);color: var(--text);outline:none;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      font-size: 12px;line-height: 1.35;
+    button:disabled{ opacity:.55; cursor:not-allowed; }
+    main{ padding: 14px 12px 90px; display:flex; flex-direction:column; gap:12px; }
+    .card{
+      background: var(--card);
+      border:1px solid var(--border);
+      border-radius:16px;
+      padding:12px;
+      box-shadow: 0 18px 45px rgba(0,0,0,.25);
     }
-    textarea:focus{ box-shadow: var(--focus); border-color: rgba(106,168,255,.55); }
-
-    .smallnote{ font-size: 12px; color: var(--muted); }
-    .grid2{display:grid;grid-template-columns: 1fr 1fr; gap:10px;}
-    .grid3{display:grid;grid-template-columns: 1fr 1fr 1fr; gap:10px;}
-
-    @media (max-width: 980px){
-      .wrap{ grid-template-columns: 1fr; }
-      .item .title{ max-width: 66vw; }
-      th.day{ width: 108px; }
-      .grid2,.grid3{grid-template-columns: 1fr;}
+    .row{ display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between; }
+    .title{ font-weight:900; font-size:15px; }
+    .desc{ color: var(--muted); font-size:13px; margin-top:6px; line-height:1.35; }
+    .meta{ display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
+    .chip{
+      font-size:12px; padding:6px 8px; border-radius:999px;
+      border:1px solid rgba(255,255,255,.16); background:rgba(0,0,0,.18);
+      color: rgba(255,255,255,.85);
     }
-    @media (max-width: 640px){
-      th.day{ width: 96px; }
-      .controls .field{ min-width: 100%; }
-      .btns{ width:100%; justify-content:space-between; }
-      .pill .big{ max-width: 70vw; }
+    .progress{
+      height:10px; width:100%;
+      background: rgba(255,255,255,.08);
+      border-radius:999px; overflow:hidden;
+      margin-top:10px;
     }
+    .bar{
+      height:100%; width:0%;
+      background: linear-gradient(90deg, rgba(0,229,255,.85), rgba(0,229,255,.35));
+    }
+    .done{
+      border-color: rgba(0,229,255,.35);
+      background: rgba(0,229,255,.06);
+    }
+    details summary{ cursor:pointer; font-weight:800; }
+    textarea, input[type="text"], input[type="number"], select{
+      width:100%;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.16);
+      background: rgba(0,0,0,.22);
+      color: var(--fg);
+      padding:10px 10px;
+      font-size:14px;
+      outline:none;
+    }
+    label{ font-size:12px; color: var(--muted); display:block; margin:10px 0 6px; }
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:10px;
+    }
+    @media(min-width: 860px){
+      .grid{ grid-template-columns: 1.1fr .9fr; }
+    }
+    .sticky-footer{
+      position:fixed; left:0; right:0; bottom:0; z-index:6;
+      background: rgba(11,11,11,.94);
+      border-top:1px solid var(--border);
+      padding:10px 12px;
+      display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:space-between;
+    }
+    .kpi{
+      display:flex; gap:10px; flex-wrap:wrap; align-items:center;
+      font-size:13px; color: var(--muted);
+    }
+    .kpi b{ color: var(--fg); }
+    .small{ font-size:12px; color: var(--muted); }
+    .mono{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; }
+    .copyRow{ display:flex; gap:8px; align-items:center; margin-top:8px; flex-wrap:wrap; }
   </style>
 </head>
-
 <body>
-  <!--
-  ASSUNZIONI
-  - Hai più clienti (es. 50): ciascun cliente ha nome, lista immobili, inizio pianificazione, stati per slot.
-  - Pianificazione immobili per cliente: sequenziale su Slot 1 (Lun–Sab) partendo dal Lunedì “inizio pianificazione”.
-  - Export in CSV (compatibile Excel): 2 file per cliente (Calendario settimana + Pianificazione immobili).
-  - Dati salvati in localStorage.
-  -->
 
-  <div class="wrap">
-    <header>
-      <div class="toprow">
-        <div class="brand">
-          <div class="badge" aria-hidden="true"></div>
-          <div>
-            <h1>Calendario Settimanale – Rotazione 4 Slot</h1>
-            <p class="sub">Multi-cliente + Export CSV • Pallini <span style="color:var(--bad);font-weight:700;">rosso</span>/<span style="color:var(--good);font-weight:700;">verde</span> cliccabili</p>
-          </div>
-        </div>
+<header>
+  <h1>📍 Routine Acquisizione (Valle di Susa)</h1>
+  <span class="pill">Oggi: <b id="todayLabel"></b></span>
+  <span class="pill">Completamento: <b id="pctLabel">0%</b></span>
+  <button id="notifyBtn" class="secondary">🔔 Notifiche</button>
+  <button id="resetDayBtn" class="danger">↺ Reset oggi</button>
+</header>
 
-        <div class="controls" role="group" aria-label="Impostazioni calendario">
-          <div class="field">
-            <label for="clientSelect">Cliente</label>
-            <select id="clientSelect" aria-label="Seleziona cliente"></select>
-          </div>
-
-          <div class="field">
-            <label for="clientName">Nome cliente (modifica)</label>
-            <input id="clientName" type="text" placeholder="Es. Rossi Immobiliare" autocomplete="off" />
-          </div>
-
-          <div class="field">
-            <label for="weekDate">Settimana (scegli una data, io la porto a Lunedì)</label>
-            <input id="weekDate" type="date" />
-          </div>
-
-          <div class="btns">
-            <button id="addClient" class="primary" title="Aggiungi cliente">+ Cliente</button>
-            <button id="delClient" class="danger" title="Elimina cliente selezionato">Elimina</button>
-            <button id="prevWeek" title="Settimana precedente">← Indietro</button>
-            <button id="nextWeek" title="Settimana successiva">Avanti →</button>
-            <button id="setPlanStart" class="primary" title="Usa questa settimana come inizio pianificazione immobili">Imposta inizio pianificazione</button>
-          </div>
-        </div>
+<main class="grid">
+  <section class="card">
+    <div class="row">
+      <div>
+        <div class="title">✅ Checklist “Massacro” (60–90 min)</div>
+        <div class="desc">Fai questi step in ordine. Spunta “Fatto”, avvia i timer, copia gli script. Tutto si salva da solo.</div>
       </div>
-
-      <div class="help" role="note" aria-label="Come usare">
-        <div class="dot" aria-hidden="true"></div>
-        <div>
-          <div><b>Come usare:</b> seleziona/crea un <b>cliente</b>, imposta la settimana, clicca i pallini per <b>DA FARE/FATTO</b> e usa i bottoni <b>Export CSV</b>.</div>
-          <div class="smallnote">Ogni cliente ha la sua pianificazione immobili su <b>Slot 1 – Pubblicità Sito</b> + stati salvati in <b>localStorage</b>.</div>
-        </div>
+      <div class="kpi">
+        <span>Portali: <b id="kpiPortali">0</b></span>
+        <span>DM: <b id="kpiDM">0</b></span>
+        <span>Call: <b id="kpiCall">0</b></span>
       </div>
-    </header>
+    </div>
 
-    <!-- CALENDARIO -->
-    <section class="card">
-      <div class="cardhead">
-        <h2 id="titleClient">Cliente: <span class="smallnote">(non impostato)</span></h2>
-        <div class="weekline" aria-label="Settimana dal al">
-          <span>SETTIMANA DAL <strong id="weekFrom">—</strong> AL <strong id="weekTo">—</strong></span>
-          <span class="smallnote">Slot: 1 Pubblicità Sito • 2 Carosello • 3 Video Reel • 4 Video promo immobile di oggi</span>
-        </div>
+    <div class="progress"><div class="bar" id="progressBar"></div></div>
+
+    <div id="steps"></div>
+  </section>
+
+  <aside class="card">
+    <div class="title">⚙️ Impostazioni veloci</div>
+    <div class="desc">Personalizza micro-zona, obiettivi giornalieri e orari promemoria.</div>
+
+    <label>Micro-zona (scrivila come la dici tu)</label>
+    <input id="zoneInput" type="text" placeholder="Es: Avigliana + Sant’Ambrogio" />
+
+    <label>Obiettivi di oggi</label>
+    <div class="row">
+      <div style="flex:1; min-width:160px;">
+        <label class="small">Contatti portali</label>
+        <input id="goalPortali" type="number" min="0" step="1" />
       </div>
-
-      <div class="cardbody" style="border-bottom:1px solid var(--line); background: rgba(0,0,0,.06);">
-        <div class="grid3">
-          <button id="exportWeekCSV" class="primary">Export CSV • Calendario settimana</button>
-          <button id="exportPlanCSV">Export CSV • Pianificazione immobili</button>
-          <button id="exportClientBundle">Backup cliente (JSON)</button>
-        </div>
-        <div class="smallnote" style="margin-top:8px;">
-          CSV consigliato per Excel: contiene tutte le colonne (cliente, data, slot, orario, contenuto, immobile, stato).
-        </div>
+      <div style="flex:1; min-width:160px;">
+        <label class="small">DM attivi</label>
+        <input id="goalDM" type="number" min="0" step="1" />
       </div>
-
-      <div style="padding:0;">
-        <table aria-label="Calendario settimanale a 4 slot">
-          <thead>
-            <tr>
-              <th class="day">GIORNO</th>
-              <th class="slot">
-                <div class="slotmeta">
-                  <span class="kind">SLOT 1</span>
-                  <span class="time">Orari variabili</span>
-                </div>
-              </th>
-              <th class="slot">
-                <div class="slotmeta">
-                  <span class="kind">SLOT 2</span>
-                  <span class="time">Orari variabili</span>
-                </div>
-              </th>
-              <th class="slot">
-                <div class="slotmeta">
-                  <span class="kind">SLOT 3</span>
-                  <span class="time">Orari variabili</span>
-                </div>
-              </th>
-              <th class="slot">
-                <div class="slotmeta">
-                  <span class="kind">SLOT 4</span>
-                  <span class="time">Orari variabili</span>
-                </div>
-              </th>
-            </tr>
-          </thead>
-          <tbody id="calBody"></tbody>
-        </table>
+      <div style="flex:1; min-width:160px;">
+        <label class="small">Call</label>
+        <input id="goalCall" type="number" min="0" step="1" />
       </div>
-    </section>
+    </div>
 
-    <!-- SIDEBAR -->
-    <aside class="sidebar">
-      <section class="card">
-        <div class="cardhead">
-          <h2>Pianificazione immobili (Slot 1 – Pubblicità Sito)</h2>
-          <span class="tag" title="La pianificazione parte dal Lunedì impostato come inizio">
-            Inizio: <strong id="planStartBadge">—</strong>
-          </span>
-        </div>
-        <div class="cardbody">
-          <div class="smallnote" style="margin-bottom:10px;">
-            Ogni immobile è assegnato a un giorno (Lun–Sab) nello <b>Slot 1</b>. Qui vedi tutta la rotazione del cliente.
-          </div>
-          <div class="list" id="propertyList" aria-label="Lista immobili programmati"></div>
-        </div>
-      </section>
+    <label>Promemoria (solo se abiliti le notifiche)</label>
+    <div class="row">
+      <div style="flex:1; min-width:180px;">
+        <label class="small">Orario 1 (HH:MM)</label>
+        <input id="rem1" type="text" placeholder="09:30" />
+      </div>
+      <div style="flex:1; min-width:180px;">
+        <label class="small">Orario 2 (HH:MM)</label>
+        <input id="rem2" type="text" placeholder="18:30" />
+      </div>
+    </div>
 
-      <section class="card">
-        <div class="cardhead">
-          <h2>Elenco immobili (per questo cliente)</h2>
-          <button id="resetProps" class="danger" title="Ripristina elenco demo (50 immobili)">Reset</button>
-        </div>
-        <div class="cardbody">
-          <div class="smallnote" style="margin-bottom:8px;">
-            Modifica i nomi: <b>uno per riga</b>. Poi clicca “Salva elenco”.
-          </div>
-          <textarea id="propsTextarea" aria-label="Elenco immobili (uno per riga)"></textarea>
-          <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;margin-top:10px;">
-            <button id="saveProps" class="primary">Salva elenco</button>
-            <button id="importClientBundle">Importa Backup (JSON)</button>
-          </div>
-          <div class="smallnote" style="margin-top:8px;">
-            Tip: fai “Backup cliente (JSON)” prima di grosse modifiche.
-          </div>
-        </div>
-      </section>
-    </aside>
+    <div class="copyRow">
+      <button id="saveSettingsBtn">💾 Salva</button>
+      <button id="fullscreenBtn" class="secondary">⛶ Full screen</button>
+    </div>
+
+    <details style="margin-top:12px;">
+      <summary>📌 Note</summary>
+      <div class="desc" style="margin-top:8px;">
+        • Le notifiche funzionano meglio se la pagina resta aperta (o se la aggiungi alla Home).<br>
+        • Se vuoi promemoria “sempre”, ti conviene metterli anche nella sveglia/calendario del telefono.
+      </div>
+    </details>
+
+    <label style="margin-top:12px;">Note di oggi</label>
+    <textarea id="dailyNotes" placeholder="Scrivi qui: risposte, obiezioni, follow-up…"></textarea>
+  </aside>
+</main>
+
+<div class="sticky-footer">
+  <div class="kpi">
+    <span class="pill">Zona: <b id="zoneLabel">—</b></span>
+    <span class="pill">Timer: <b id="timerLabel">00:00</b></span>
   </div>
+  <div class="copyRow">
+    <button id="startTimerBtn">⏱️ Avvia timer</button>
+    <button id="pauseTimerBtn" class="secondary">⏸️ Pausa</button>
+    <button id="stopTimerBtn" class="secondary">⏹️ Stop</button>
+  </div>
+</div>
 
-  <script>
-    // ------------------------------
-    // CONFIG
-    // ------------------------------
-    const DAYS = [
-      { key: "LUNEDI", label: "LUNEDÌ", times: ["08:00–10:00","10:00–14:00","14:00–18:00","18:00–22:00"] },
-      { key: "MARTEDI", label: "MARTEDÌ", times: ["09:00–11:00","11:00–15:00","15:00–19:00","19:00–23:00"] },
-      { key: "MERCOLEDI", label: "MERCOLEDÌ", times: ["08:00–10:00","10:00–14:00","14:00–18:00","18:00–22:00"] },
-      { key: "GIOVEDI", label: "GIOVEDÌ", times: ["08:00–10:00","10:00–14:00","14:00–18:00","18:00–22:00"] },
-      { key: "VENERDI", label: "VENERDÌ", times: ["09:00–11:00","11:00–15:00","15:00–19:00","19:00–23:00"] },
-      { key: "SABATO", label: "SABATO", times: ["08:00–10:00","10:00–14:00","14:00–18:00","18:00–22:00"] },
-    ];
-    const SLOT_KIND = {
-      1: "Pubblicità Sito",
-      2: "Carosello",
-      3: "Video Reel",
-      4: "Video promo immobile di oggi"
-    };
+<script>
+(() => {
+  const TZ = "Europe/Rome";
+  const STORAGE_KEY = "acq_routine_v1";
+  const todayLabel = document.getElementById("todayLabel");
+  const pctLabel = document.getElementById("pctLabel");
+  const progressBar = document.getElementById("progressBar");
+  const stepsEl = document.getElementById("steps");
 
-    // ------------------------------
-    // STORAGE (multi-cliente)
-    // ------------------------------
-    const LS = {
-      app: "cal_app_v2" // { activeClientId, weekMondayISO, clients: { [id]: { name, planStartMondayISO, properties[], statusByWeek{} } } }
-    };
+  const zoneInput = document.getElementById("zoneInput");
+  const zoneLabel = document.getElementById("zoneLabel");
+  const goalPortali = document.getElementById("goalPortali");
+  const goalDM = document.getElementById("goalDM");
+  const goalCall = document.getElementById("goalCall");
+  const rem1 = document.getElementById("rem1");
+  const rem2 = document.getElementById("rem2");
+  const dailyNotes = document.getElementById("dailyNotes");
 
-    // ------------------------------
-    // DOM
-    // ------------------------------
-    const elClientSelect = document.getElementById("clientSelect");
-    const elClientName = document.getElementById("clientName");
-    const elWeekDate = document.getElementById("weekDate");
-    const elTitleClient = document.getElementById("titleClient");
-    const elWeekFrom = document.getElementById("weekFrom");
-    const elWeekTo = document.getElementById("weekTo");
-    const elPlanStartBadge = document.getElementById("planStartBadge");
-    const elCalBody = document.getElementById("calBody");
-    const elPropertyList = document.getElementById("propertyList");
-    const elPropsTextarea = document.getElementById("propsTextarea");
+  const kpiPortali = document.getElementById("kpiPortali");
+  const kpiDM = document.getElementById("kpiDM");
+  const kpiCall = document.getElementById("kpiCall");
 
-    const elAddClient = document.getElementById("addClient");
-    const elDelClient = document.getElementById("delClient");
-    const elPrevWeek = document.getElementById("prevWeek");
-    const elNextWeek = document.getElementById("nextWeek");
-    const elSetPlanStart = document.getElementById("setPlanStart");
+  const notifyBtn = document.getElementById("notifyBtn");
+  const resetDayBtn = document.getElementById("resetDayBtn");
+  const saveSettingsBtn = document.getElementById("saveSettingsBtn");
+  const fullscreenBtn = document.getElementById("fullscreenBtn");
 
-    const elSaveProps = document.getElementById("saveProps");
-    const elResetProps = document.getElementById("resetProps");
+  const timerLabel = document.getElementById("timerLabel");
+  const startTimerBtn = document.getElementById("startTimerBtn");
+  const pauseTimerBtn = document.getElementById("pauseTimerBtn");
+  const stopTimerBtn = document.getElementById("stopTimerBtn");
 
-    const elExportWeekCSV = document.getElementById("exportWeekCSV");
-    const elExportPlanCSV = document.getElementById("exportPlanCSV");
-    const elExportClientBundle = document.getElementById("exportClientBundle");
-    const elImportClientBundle = document.getElementById("importClientBundle");
+  // ---- Date helpers (local day key in Europe/Rome)
+  function getRomeDayKey(d = new Date()){
+    const fmt = new Intl.DateTimeFormat("it-IT", { timeZone: TZ, year:"numeric", month:"2-digit", day:"2-digit" });
+    const parts = fmt.formatToParts(d);
+    const y = parts.find(p=>p.type==="year").value;
+    const m = parts.find(p=>p.type==="month").value;
+    const da = parts.find(p=>p.type==="day").value;
+    return `${y}-${m}-${da}`;
+  }
+  function prettyToday(){
+    const fmt = new Intl.DateTimeFormat("it-IT", { timeZone: TZ, weekday:"long", day:"2-digit", month:"long", year:"numeric" });
+    return fmt.format(new Date());
+  }
+  todayLabel.textContent = prettyToday();
 
-    // ------------------------------
-    // Helpers date
-    // ------------------------------
-    const pad2 = n => String(n).padStart(2,"0");
-    const toISODate = (d) => `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
-    const formatIT = (d) => `${pad2(d.getDate())}/${pad2(d.getMonth()+1)}/${d.getFullYear()}`;
-
-    function cloneDate(d){ return new Date(d.getTime()); }
-    function startOfMonday(date){
-      const d = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-      const day = d.getDay(); // 0=Sun,1=Mon...
-      const diff = (day === 0 ? -6 : 1 - day);
-      d.setDate(d.getDate() + diff);
-      d.setHours(0,0,0,0);
-      return d;
-    }
-    function addDays(d, n){ const x = cloneDate(d); x.setDate(x.getDate()+n); return x; }
-    function addWeeks(d, n){ return addDays(d, n*7); }
-    function weekKey(monday){ return toISODate(monday); }
-
-    // ------------------------------
-    // App state
-    // ------------------------------
-    function defaultProperties(){
-      return Array.from({length:50}, (_,i)=> `Immobile #${i+1}`);
-    }
-    function uid(){
-      return "c_" + Math.random().toString(16).slice(2) + "_" + Date.now().toString(16);
-    }
-
-    let app = null;           // loaded from storage
-    let currentMonday = startOfMonday(new Date());
-    let activeClientId = null;
-
-    function safeJsonParse(str, fallback){
-      try { return JSON.parse(str); } catch { return fallback; }
-    }
-
-    function loadApp(){
-      const raw = localStorage.getItem(LS.app);
-      app = safeJsonParse(raw || "null", null);
-
-      if(!app || typeof app !== "object" || !app.clients){
-        // bootstrap
-        const firstId = uid();
-        app = {
-          activeClientId: firstId,
-          weekMondayISO: toISODate(startOfMonday(new Date())),
-          clients: {
-            [firstId]: {
-              name: "Cliente 1",
-              planStartMondayISO: toISODate(startOfMonday(new Date())),
-              properties: defaultProperties(),
-              statusByWeek: {} // { [weekISO]: { [dayKey-slot]: "todo"|"done" } }
-            }
-          }
-        };
-      }
-
-      activeClientId = app.activeClientId;
-      currentMonday = startOfMonday(new Date(app.weekMondayISO));
-    }
-
-    function saveApp(){
-      app.activeClientId = activeClientId;
-      app.weekMondayISO = toISODate(currentMonday);
-      localStorage.setItem(LS.app, JSON.stringify(app));
-    }
-
-    function getClient(){
-      return app.clients[activeClientId];
-    }
-
-    // ------------------------------
-    // Status (per cliente)
-    // ------------------------------
-    function getSlotStatusForClient(client, monday, dayKey, slotNum){
-      const wk = weekKey(monday);
-      const key = `${dayKey}-S${slotNum}`;
-      return client.statusByWeek?.[wk]?.[key] || "todo";
-    }
-
-    function toggleSlotStatusForClient(client, monday, dayKey, slotNum){
-      const wk = weekKey(monday);
-      client.statusByWeek[wk] = client.statusByWeek[wk] || {};
-      const key = `${dayKey}-S${slotNum}`;
-      const cur = client.statusByWeek[wk][key] || "todo";
-      client.statusByWeek[wk][key] = (cur === "done") ? "todo" : "done";
-    }
-
-    // ------------------------------
-    // Pianificazione immobili (per cliente)
-    // ------------------------------
-    function scheduleForProperty(client, index){
-      const planStartMonday = startOfMonday(new Date(client.planStartMondayISO));
-      const perWeek = DAYS.length; // 6 (Lun-Sab)
-      const weekOffset = Math.floor(index / perWeek);
-      const dayIndex = index % perWeek;
-      const date = addDays(addWeeks(planStartMonday, weekOffset), dayIndex);
-      const day = DAYS[dayIndex];
-      const slotTime = day.times[0];
-      return { date, day, slotTime, weekOffset, dayIndex, planStartMonday };
-    }
-
-    function propertyAssignedToDay(client, monday, dayIndex){
-      const planStartMonday = startOfMonday(new Date(client.planStartMondayISO));
-      const diffDays = Math.round((startOfMonday(monday).getTime() - planStartMonday.getTime()) / (1000*60*60*24));
-      const weeksFromStart = Math.floor(diffDays / 7);
-      const absoluteIndex = weeksFromStart * DAYS.length + dayIndex;
-      if(absoluteIndex < 0 || absoluteIndex >= client.properties.length) return null;
-      return { name: client.properties[absoluteIndex], idx: absoluteIndex };
-    }
-
-    // ------------------------------
-    // Rendering
-    // ------------------------------
-    function renderClientSelect(){
-      const ids = Object.keys(app.clients);
-      elClientSelect.innerHTML = "";
-      ids.forEach(id => {
-        const opt = document.createElement("option");
-        opt.value = id;
-        opt.textContent = app.clients[id].name || "(senza nome)";
-        elClientSelect.appendChild(opt);
-      });
-      if(!app.clients[activeClientId]){
-        activeClientId = ids[0] || null;
-      }
-      elClientSelect.value = activeClientId;
-    }
-
-    function renderHeader(){
-      const client = getClient();
-
-      elClientName.value = client.name || "";
-      elTitleClient.innerHTML = client.name
-        ? `Cliente: <span style="font-weight:800">${escapeHtml(client.name)}</span>`
-        : `Cliente: <span class="smallnote">(non impostato)</span>`;
-
-      const from = cloneDate(currentMonday);
-      const to = addDays(currentMonday, 6);
-      elWeekFrom.textContent = formatIT(from);
-      elWeekTo.textContent = formatIT(to);
-
-      elPlanStartBadge.textContent = formatIT(startOfMonday(new Date(client.planStartMondayISO)));
-
-      elWeekDate.value = toISODate(currentMonday);
-      elPropsTextarea.value = client.properties.join("\n");
-    }
-
-    function renderCalendar(){
-      const client = getClient();
-      elCalBody.innerHTML = "";
-
-      DAYS.forEach((day, dayIndex) => {
-        const tr = document.createElement("tr");
-
-        const th = document.createElement("th");
-        th.className = "day";
-        const date = addDays(currentMonday, dayIndex);
-        th.innerHTML = `<div style="display:flex;flex-direction:column;gap:2px;">
-          <div>${day.label}</div>
-          <div style="color:var(--muted);font-size:12px;">${formatIT(date)}</div>
-        </div>`;
-        tr.appendChild(th);
-
-        for(let slot=1; slot<=4; slot++){
-          const td = document.createElement("td");
-          const status = getSlotStatusForClient(client, currentMonday, day.key, slot);
-
-          const cell = document.createElement("div");
-          cell.className = "cell";
-
-          const pill = document.createElement("div");
-          pill.className = "pill";
-
-          const time = day.times[slot-1];
-          let content = SLOT_KIND[slot];
-
-          if(slot === 1){
-            const assigned = propertyAssignedToDay(client, currentMonday, dayIndex);
-            content = assigned ? `Pubblicità Sito • ${assigned.name}` : `Pubblicità Sito • (nessun immobile)`;
-          }
-
-          pill.innerHTML = `
-            <span class="small">${escapeHtml(time)}</span>
-            <span class="big" title="${escapeHtml(content)}">${escapeHtml(content)}</span>
-          `;
-          cell.appendChild(pill);
-
-          const row = document.createElement("div");
-          row.className = "statusRow";
-
-          const hint = document.createElement("div");
-          hint.className = "statusHint";
-          hint.textContent = "Stato:";
-
-          const toggle = document.createElement("button");
-          toggle.type = "button";
-          toggle.className = "toggle" + (status === "done" ? " done" : "");
-          toggle.setAttribute("aria-pressed", status === "done" ? "true" : "false");
-          toggle.setAttribute("title", "Clicca per cambiare stato (DA FARE / FATTO)");
-          toggle.innerHTML = `
-            <span class="ball" aria-hidden="true"></span>
-            <span class="txt">${status === "done" ? "FATTO" : "DA FARE"}</span>
-          `;
-          toggle.addEventListener("click", () => {
-            toggleSlotStatusForClient(client, currentMonday, day.key, slot);
-            saveApp();
-            render(); // refresh
-          });
-
-          row.appendChild(hint);
-          row.appendChild(toggle);
-          cell.appendChild(row);
-
-          td.appendChild(cell);
-          tr.appendChild(td);
+  // ---- Default steps
+  const DEFAULT_STEPS = [
+    {
+      id:"portali",
+      title:"1) Portali (20 min) – 5 contatti",
+      minutes:20,
+      why:"Obiettivo: parlare con proprietari (annunci > 90 giorni).",
+      doList:[
+        "Apri Immobiliare.it / Idealista",
+        "Filtra: zona (micro-zona) + annunci > 90 giorni",
+        "Contatta 5 proprietari (meglio privati)",
+      ],
+      scripts:[
+        {
+          label:"Messaggio Portali (copy)",
+          text:"Ciao, ho visto l’annuncio della casa a [COMUNE]. Se è online da un po’, spesso il blocco non è ‘sfortuna’ ma 1–2 cose precise. Se vuoi, in 10 minuti ti dico cosa controllare nel tuo caso."
         }
-
-        elCalBody.appendChild(tr);
-      });
+      ],
+      kpi:{ portali:+5 }
+    },
+    {
+      id:"reel",
+      title:"2) Reel (15 min) – 1 video",
+      minutes:15,
+      why:"È l’esca: chi si riconosce ti scrive.",
+      doList:[
+        "Hook 3s: ‘Se la tua casa in Valle di Susa è online da mesi…’",
+        "1 idea: ‘spesso non è il prezzo, ma…’",
+        "CTA: ‘Scrivimi INVENDUTA’",
+        "Pubblica su IG + TikTok"
+      ],
+      scripts:[
+        {
+          label:"Script Reel pronto",
+          text:"Se hai una casa in Valle di Susa online da mesi e non si vende, ascolta: spesso il problema non è il prezzo, ma come viene percepita da foto e annuncio. Scrivimi ‘INVENDUTA’ e ti dico cosa controllare nel tuo caso."
+        }
+      ],
+      kpi:{}
+    },
+    {
+      id:"stories",
+      title:"3) Stories (5 min) – 3 stories",
+      minutes:5,
+      why:"Le stories sono il ‘volantino moderno’ e aprono DM.",
+      doList:[
+        "Story 1: sondaggio ‘Stai pensando di vendere entro 6 mesi?’",
+        "Story 2: box ‘Comune + mq: ti dico il range’",
+        "Story 3: CTA ‘DM VALLE per check 10 min’"
+      ],
+      scripts:[
+        {
+          label:"Testo Story CTA",
+          text:"Se sei proprietario in [ZONA], scrivimi ‘VALLE’ in DM: ti dico cosa sta succedendo sul mercato e cosa controllare prima di vendere."
+        }
+      ],
+      kpi:{}
+    },
+    {
+      id:"dm",
+      title:"4) DM (25 min) – 5 DM attivi",
+      minutes:25,
+      why:"Qui si fa la conversione: domande → call.",
+      doList:[
+        "Scrivi a 5 persone: visualizzazioni stories / interazioni",
+        "Non vendere: qualifica con 4 domande",
+        "Chiudi sempre chiedendo la call"
+      ],
+      scripts:[
+        {
+          label:"DM soft (apertura)",
+          text:"Ciao! Vedo che segui i contenuti sulla Valle di Susa. Sei in fase curiosità o stai valutando di vendere nei prossimi mesi?"
+        },
+        {
+          label:"4 domande (una alla volta)",
+          text:"1) In che comune/frazione è?\n2) Prima casa, seconda casa o eredità?\n3) Da quanto è in vendita / perché vendi?\n4) Entro quando vuoi risolvere?"
+        },
+        {
+          label:"Chiusura → call",
+          text:"Perfetto. Se vuoi, in 10 minuti ti dico cosa farei io nel tuo caso. Meglio una call oggi o domani?"
+        }
+      ],
+      kpi:{ dm:+5 }
+    },
+    {
+      id:"call",
+      title:"5) Call (10 min) – 1 call breve",
+      minutes:10,
+      why:"La call serve a fissare sopralluogo, non a ‘convincere’.",
+      doList:[
+        "2 min: obiettivo + tempistiche",
+        "3 min: blocco principale",
+        "3 min: 2 azioni pratiche",
+        "2 min: proposta sopralluogo"
+      ],
+      scripts:[
+        {
+          label:"Chiusura sopralluogo",
+          text:"Ti va che passo 20 minuti a vedere casa e ti porto un piano di vendita? Così capisci subito se ha senso."
+        }
+      ],
+      kpi:{ call:+1 }
     }
+  ];
 
-    function renderPropertyScheduleList(){
-      const client = getClient();
-      elPropertyList.innerHTML = "";
+  // ---- State
+  function loadState(){
+    const raw = localStorage.getItem(STORAGE_KEY);
+    const dayKey = getRomeDayKey();
+    const defaults = {
+      dayKey,
+      settings: {
+        zone: "Valle di Susa",
+        goals: { portali:5, dm:5, call:1 },
+        reminders: { rem1:"09:30", rem2:"18:30" }
+      },
+      steps: DEFAULT_STEPS.map(s => ({ id:s.id, done:false })),
+      kpi: { portali:0, dm:0, call:0 },
+      notes: "",
+      timer: { seconds:0, running:false, startedAt:null }
+    };
 
-      client.properties.forEach((name, idx) => {
-        const s = scheduleForProperty(client, idx);
-        const wkMon = startOfMonday(s.date);
-        const status = getSlotStatusForClient(client, wkMon, s.day.key, 1);
+    if (!raw) return defaults;
+    try {
+      const st = JSON.parse(raw);
+      // new day -> reset day-specific fields
+      if (st.dayKey !== dayKey) {
+        st.dayKey = dayKey;
+        st.steps = DEFAULT_STEPS.map(s => ({ id:s.id, done:false }));
+        st.kpi = { portali:0, dm:0, call:0 };
+        st.notes = "";
+        st.timer = { seconds:0, running:false, startedAt:null };
+      }
+      return { ...defaults, ...st, settings: { ...defaults.settings, ...(st.settings||{}) } };
+    } catch {
+      return defaults;
+    }
+  }
 
-        const div = document.createElement("div");
-        div.className = "item";
-        div.innerHTML = `
-          <div class="left">
-            <div class="title" title="${escapeHtml(name)}">${escapeHtml(name)}</div>
-            <div class="meta">
-              Pubblicità: <b>${s.day.label}</b> • ${formatIT(s.date)} • <span>${escapeHtml(s.slotTime)}</span>
-            </div>
+  let state = loadState();
+  function saveState(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+
+  // ---- UI render
+  function computePct(){
+    const total = DEFAULT_STEPS.length;
+    const done = state.steps.filter(s=>s.done).length;
+    return total ? Math.round((done/total)*100) : 0;
+  }
+
+  function updateKPI(){
+    kpiPortali.textContent = state.kpi.portali;
+    kpiDM.textContent = state.kpi.dm;
+    kpiCall.textContent = state.kpi.call;
+  }
+
+  function renderHeader(){
+    const pct = computePct();
+    pctLabel.textContent = pct + "%";
+    progressBar.style.width = pct + "%";
+    zoneLabel.textContent = state.settings.zone || "—";
+
+    zoneInput.value = state.settings.zone || "";
+    goalPortali.value = state.settings.goals?.portali ?? 5;
+    goalDM.value = state.settings.goals?.dm ?? 5;
+    goalCall.value = state.settings.goals?.call ?? 1;
+    rem1.value = state.settings.reminders?.rem1 ?? "09:30";
+    rem2.value = state.settings.reminders?.rem2 ?? "18:30";
+    dailyNotes.value = state.notes || "";
+
+    updateKPI();
+  }
+
+  function copyToClipboard(text){
+    navigator.clipboard?.writeText(text).catch(()=>{});
+  }
+
+  function renderSteps(){
+    stepsEl.innerHTML = "";
+    DEFAULT_STEPS.forEach(step => {
+      const sState = state.steps.find(s=>s.id===step.id) || { done:false };
+      const card = document.createElement("div");
+      card.className = "card" + (sState.done ? " done" : "");
+      card.style.marginTop = "12px";
+
+      const top = document.createElement("div");
+      top.className = "row";
+      top.innerHTML = `
+        <div>
+          <div class="title">${step.title}</div>
+          <div class="desc">${step.why}</div>
+        </div>
+        <div class="copyRow">
+          <button class="secondary" data-action="timer" data-min="${step.minutes}">⏱️ ${step.minutes}m</button>
+          <button data-action="toggle">${sState.done ? "✅ Fatto" : "⬜ Fatto"}</button>
+        </div>
+      `;
+      card.appendChild(top);
+
+      const meta = document.createElement("div");
+      meta.className = "meta";
+      meta.innerHTML = `
+        <span class="chip">Durata: ${step.minutes} min</span>
+        ${step.kpi?.portali ? `<span class="chip">+${step.kpi.portali} portali</span>` : ""}
+        ${step.kpi?.dm ? `<span class="chip">+${step.kpi.dm} DM</span>` : ""}
+        ${step.kpi?.call ? `<span class="chip">+${step.kpi.call} call</span>` : ""}
+      `;
+      card.appendChild(meta);
+
+      const list = document.createElement("div");
+      list.className = "desc";
+      list.style.marginTop = "10px";
+      list.innerHTML = "<b>Cosa fai:</b><br>" + step.doList.map(x=>"• "+x).join("<br>");
+      card.appendChild(list);
+
+      const details = document.createElement("details");
+      details.style.marginTop = "10px";
+      const sum = document.createElement("summary");
+      sum.textContent = "📋 Script pronti (copia)";
+      details.appendChild(sum);
+
+      const scriptsWrap = document.createElement("div");
+      scriptsWrap.style.marginTop = "10px";
+      step.scripts.forEach(sc => {
+        const block = document.createElement("div");
+        block.className = "card";
+        block.style.padding = "10px";
+        block.style.marginTop = "10px";
+        block.innerHTML = `
+          <div class="row">
+            <div class="title" style="font-size:13px;">${sc.label}</div>
+            <button class="secondary" data-action="copy">📎 Copia</button>
           </div>
-          <div class="tag" title="Stato dello Slot 1 in quel giorno">
-            <span style="display:inline-flex;align-items:center;gap:6px;">
-              <span style="width:10px;height:10px;border-radius:999px;background:${status==="done" ? "var(--good)" : "var(--bad)"}"></span>
-              <strong>${status==="done" ? "FATTO" : "DA FARE"}</strong>
-            </span>
-          </div>
+          <div class="desc mono" style="white-space:pre-wrap; margin-top:8px;">${escapeHtml(sc.text)}</div>
         `;
-        elPropertyList.appendChild(div);
+        block.querySelector('[data-action="copy"]').addEventListener("click", () => copyToClipboard(sc.text));
+        scriptsWrap.appendChild(block);
       });
-    }
+      details.appendChild(scriptsWrap);
+      card.appendChild(details);
 
-    function render(){
-      renderClientSelect();
-      renderHeader();
-      renderCalendar();
-      renderPropertyScheduleList();
-      saveApp();
-    }
-
-    // ------------------------------
-    // CSV Export
-    // ------------------------------
-    function csvEscape(val){
-      const s = String(val ?? "");
-      // CSV standard: quote + double quotes
-      if(/[",\n\r;]/.test(s)) return `"${s.replaceAll('"','""')}"`;
-      return s;
-    }
-
-    function downloadTextFile(filename, text, mime="text/plain;charset=utf-8"){
-      const blob = new Blob([text], {type: mime});
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      setTimeout(()=> URL.revokeObjectURL(url), 1500);
-    }
-
-    function exportWeekCSV(){
-      const client = getClient();
-      const clientName = client.name || "Cliente";
-      const rows = [];
-      // intestazione
-      rows.push([
-        "Cliente",
-        "Settimana_Dal",
-        "Settimana_Al",
-        "Giorno",
-        "Data",
-        "Slot",
-        "Orario",
-        "Tipo_Contenuto",
-        "Immobile",
-        "Stato"
-      ]);
-
-      const weekFrom = formatIT(currentMonday);
-      const weekTo = formatIT(addDays(currentMonday, 6));
-
-      DAYS.forEach((day, dayIndex) => {
-        const date = addDays(currentMonday, dayIndex);
-        for(let slot=1; slot<=4; slot++){
-          const time = day.times[slot-1];
-          const tipo = SLOT_KIND[slot];
-          const status = getSlotStatusForClient(client, currentMonday, day.key, slot) === "done" ? "FATTO" : "DA FARE";
-          let immobile = "";
-          if(slot === 1){
-            const assigned = propertyAssignedToDay(client, currentMonday, dayIndex);
-            immobile = assigned ? assigned.name : "";
-          }
-          rows.push([
-            clientName,
-            weekFrom,
-            weekTo,
-            day.label,
-            formatIT(date),
-            slot,
-            time,
-            tipo,
-            immobile,
-            status
-          ]);
-        }
+      // actions
+      top.querySelector('[data-action="toggle"]').addEventListener("click", () => toggleDone(step.id));
+      top.querySelector('[data-action="timer"]').addEventListener("click", (e) => {
+        const m = parseInt(e.currentTarget.getAttribute("data-min"), 10);
+        startStepTimer(m);
       });
 
-      const csv = rows.map(r => r.map(csvEscape).join(",")).join("\n");
-      const safeName = clientName.replaceAll(/[^\w\- ]+/g,"").trim().replaceAll(" ","_") || "Cliente";
-      downloadTextFile(`${safeName}_Calendario_${weekKey(currentMonday)}.csv`, csv, "text/csv;charset=utf-8");
+      stepsEl.appendChild(card);
+    });
+  }
+
+  function escapeHtml(str){
+    return String(str).replace(/[&<>"']/g, s => ({
+      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+    })[s]);
+  }
+
+  function toggleDone(id){
+    const s = state.steps.find(x=>x.id===id);
+    if (!s) return;
+    const stepDef = DEFAULT_STEPS.find(x=>x.id===id);
+    const wasDone = s.done;
+    s.done = !s.done;
+
+    // KPI adjustments only when marking done (not when unchecking)
+    if (!wasDone && s.done && stepDef?.kpi){
+      state.kpi.portali += stepDef.kpi.portali || 0;
+      state.kpi.dm      += stepDef.kpi.dm || 0;
+      state.kpi.call    += stepDef.kpi.call || 0;
     }
 
-    function exportPlanCSV(){
-      const client = getClient();
-      const clientName = client.name || "Cliente";
-      const rows = [];
-      rows.push([
-        "Cliente",
-        "Immobile",
-        "Giorno",
-        "Data",
-        "Orario_Slot1",
-        "Settimana_Dal",
-        "Settimana_Al",
-        "Stato_Slot1"
-      ]);
+    saveState();
+    renderHeader();
+    renderSteps();
+  }
 
-      client.properties.forEach((name, idx) => {
-        const s = scheduleForProperty(client, idx);
-        const wkMon = startOfMonday(s.date);
-        const status = getSlotStatusForClient(client, wkMon, s.day.key, 1) === "done" ? "FATTO" : "DA FARE";
-        rows.push([
-          clientName,
-          name,
-          s.day.label,
-          formatIT(s.date),
-          s.slotTime,
-          formatIT(wkMon),
-          formatIT(addDays(wkMon, 6)),
-          status
-        ]);
-      });
+  // ---- Settings
+  function saveSettings(){
+    state.settings.zone = zoneInput.value.trim() || "Valle di Susa";
+    state.settings.goals = {
+      portali: parseInt(goalPortali.value || "0",10),
+      dm: parseInt(goalDM.value || "0",10),
+      call: parseInt(goalCall.value || "0",10),
+    };
+    state.settings.reminders = {
+      rem1: rem1.value.trim(),
+      rem2: rem2.value.trim(),
+    };
+    saveState();
+    renderHeader();
+    scheduleLocalReminders(); // reschedule
+  }
 
-      const csv = rows.map(r => r.map(csvEscape).join(",")).join("\n");
-      const safeName = clientName.replaceAll(/[^\w\- ]+/g,"").trim().replaceAll(" ","_") || "Cliente";
-      downloadTextFile(`${safeName}_Pianificazione_Immobilli.csv`, csv, "text/csv;charset=utf-8");
-    }
+  saveSettingsBtn.addEventListener("click", saveSettings);
 
-    // ------------------------------
-    // Backup / Import cliente (JSON)
-    // ------------------------------
-    function exportClientBundle(){
-      const client = getClient();
-      const bundle = {
-        v: 2,
-        clientId: activeClientId,
-        name: client.name,
-        planStartMondayISO: client.planStartMondayISO,
-        properties: client.properties,
-        statusByWeek: client.statusByWeek
-      };
-      const json = JSON.stringify(bundle, null, 2);
-      const safeName = (client.name || "Cliente").replaceAll(/[^\w\- ]+/g,"").trim().replaceAll(" ","_") || "Cliente";
-      downloadTextFile(`${safeName}_backup.json`, json, "application/json;charset=utf-8");
-    }
+  dailyNotes.addEventListener("input", () => {
+    state.notes = dailyNotes.value;
+    saveState();
+  });
 
-    function importClientBundle(){
-      const raw = prompt("Incolla qui il JSON di backup del cliente:");
-      if(!raw) return;
-      let b;
-      try{ b = JSON.parse(raw); } catch { alert("JSON non valido."); return; }
-      if(!b || typeof b !== "object") { alert("JSON non valido."); return; }
+  resetDayBtn.addEventListener("click", () => {
+    const dayKey = getRomeDayKey();
+    state.dayKey = dayKey;
+    state.steps = DEFAULT_STEPS.map(s => ({ id:s.id, done:false }));
+    state.kpi = { portali:0, dm:0, call:0 };
+    state.notes = "";
+    state.timer = { seconds:0, running:false, startedAt:null };
+    saveState();
+    renderHeader();
+    renderSteps();
+    updateTimerUI();
+  });
 
-      // crea un nuovo cliente da backup (così non sovrascrivi per errore)
-      const newId = uid();
-      app.clients[newId] = {
-        name: String(b.name || "Cliente importato"),
-        planStartMondayISO: b.planStartMondayISO ? toISODate(startOfMonday(new Date(b.planStartMondayISO))) : toISODate(startOfMonday(new Date())),
-        properties: Array.isArray(b.properties) && b.properties.length ? b.properties.map(x=>String(x)) : defaultProperties(),
-        statusByWeek: (b.statusByWeek && typeof b.statusByWeek === "object") ? b.statusByWeek : {}
-      };
-      activeClientId = newId;
-      saveApp();
-      render();
-    }
+  fullscreenBtn.addEventListener("click", async () => {
+    try{
+      if (!document.fullscreenElement) await document.documentElement.requestFullscreen();
+      else await document.exitFullscreen();
+    } catch(e){ console.warn(e); }
+  });
 
-    // ------------------------------
-    // Events
-    // ------------------------------
-    elClientSelect.addEventListener("change", () => {
-      activeClientId = elClientSelect.value;
-      render();
-    });
+  // ---- Global timer
+  let interval = null;
 
-    elClientName.addEventListener("input", () => {
-      const client = getClient();
-      client.name = elClientName.value.trim();
-      saveApp();
-      renderClientSelect();
-      renderHeader();
-    });
+  function updateTimerUI(){
+    const sec = state.timer.seconds;
+    const mm = String(Math.floor(sec/60)).padStart(2,"0");
+    const ss = String(sec%60).padStart(2,"0");
+    timerLabel.textContent = `${mm}:${ss}`;
+  }
 
-    elWeekDate.addEventListener("change", () => {
-      const chosen = elWeekDate.value ? new Date(elWeekDate.value) : new Date();
-      currentMonday = startOfMonday(chosen);
-      elWeekDate.value = toISODate(currentMonday);
-      render();
-    });
+  function tick(){
+    if (!state.timer.running) return;
+    state.timer.seconds += 1;
+    saveState();
+    updateTimerUI();
+  }
 
-    elPrevWeek.addEventListener("click", () => {
-      currentMonday = addWeeks(currentMonday, -1);
-      render();
-    });
-    elNextWeek.addEventListener("click", () => {
-      currentMonday = addWeeks(currentMonday, 1);
-      render();
-    });
+  function startGlobalTimer(){
+    if (state.timer.running) return;
+    state.timer.running = true;
+    saveState();
+    if (!interval) interval = setInterval(tick, 1000);
+  }
+  function pauseGlobalTimer(){
+    state.timer.running = false;
+    saveState();
+  }
+  function stopGlobalTimer(){
+    state.timer.running = false;
+    state.timer.seconds = 0;
+    saveState();
+    updateTimerUI();
+  }
 
-    elSetPlanStart.addEventListener("click", () => {
-      const client = getClient();
-      client.planStartMondayISO = toISODate(currentMonday);
-      saveApp();
-      render();
-    });
+  startTimerBtn.addEventListener("click", startGlobalTimer);
+  pauseTimerBtn.addEventListener("click", pauseGlobalTimer);
+  stopTimerBtn.addEventListener("click", stopGlobalTimer);
 
-    elAddClient.addEventListener("click", () => {
-      const name = prompt("Nome nuovo cliente:", `Cliente ${Object.keys(app.clients).length + 1}`) || "";
-      const id = uid();
-      app.clients[id] = {
-        name: name.trim() || `Cliente ${Object.keys(app.clients).length + 1}`,
-        planStartMondayISO: toISODate(currentMonday),
-        properties: defaultProperties(),
-        statusByWeek: {}
-      };
-      activeClientId = id;
-      saveApp();
-      render();
-    });
+  function startStepTimer(minutes){
+    stopGlobalTimer();
+    state.timer.running = true;
+    state.timer.seconds = 0;
+    saveState();
+    updateTimerUI();
+    if (!interval) interval = setInterval(tick, 1000);
 
-    elDelClient.addEventListener("click", () => {
-      const ids = Object.keys(app.clients);
-      if(ids.length <= 1){
-        alert("Deve restare almeno 1 cliente.");
-        return;
+    // Local countdown alert
+    const target = minutes * 60;
+    const check = setInterval(() => {
+      if (!state.timer.running) return;
+      if (state.timer.seconds >= target){
+        clearInterval(check);
+        state.timer.running = false;
+        saveState();
+        notify(`Timer finito: ${minutes} minuti`, "Passa allo step successivo 👊");
       }
-      const client = getClient();
-      const ok = confirm(`Eliminare il cliente "${client.name}"? (azione definitiva)`);
-      if(!ok) return;
+    }, 500);
+  }
 
-      delete app.clients[activeClientId];
-      activeClientId = Object.keys(app.clients)[0];
-      saveApp();
-      render();
-    });
+  // ---- Notifications
+  function canNotify(){ return "Notification" in window; }
 
-    elSaveProps.addEventListener("click", () => {
-      const client = getClient();
-      const lines = elPropsTextarea.value
-        .split("\n")
-        .map(s => s.trim())
-        .filter(Boolean);
-
-      if(lines.length === 0){
-        alert("Inserisci almeno 1 immobile (uno per riga).");
-        return;
-      }
-      client.properties = lines;
-      saveApp();
-      render();
-    });
-
-    elResetProps.addEventListener("click", () => {
-      const client = getClient();
-      client.properties = defaultProperties();
-      saveApp();
-      render();
-    });
-
-    elExportWeekCSV.addEventListener("click", exportWeekCSV);
-    elExportPlanCSV.addEventListener("click", exportPlanCSV);
-    elExportClientBundle.addEventListener("click", exportClientBundle);
-    elImportClientBundle.addEventListener("click", importClientBundle);
-
-    // ------------------------------
-    // Utils
-    // ------------------------------
-    function escapeHtml(str){
-      return String(str)
-        .replaceAll("&","&amp;")
-        .replaceAll("<","&lt;")
-        .replaceAll(">","&gt;")
-        .replaceAll('"',"&quot;")
-        .replaceAll("'","&#039;");
+  async function requestNotify(){
+    if (!canNotify()) { alert("Notifiche non supportate in questo browser."); return; }
+    const perm = await Notification.requestPermission();
+    if (perm === "granted") {
+      notifyBtn.textContent = "🔔 Notifiche ON";
+      scheduleLocalReminders();
+      notify("Notifiche attive", "Ti ricorderò la routine agli orari impostati.");
+    } else {
+      notifyBtn.textContent = "🔔 Notifiche";
     }
+  }
 
-    // ------------------------------
-    // Init
-    // ------------------------------
-    loadApp();
-    render();
-  </script>
+  function notify(title, body){
+    if (canNotify() && Notification.permission === "granted") {
+      try { new Notification(title, { body }); } catch {}
+    }
+  }
+
+  notifyBtn.addEventListener("click", requestNotify);
+
+  // Local reminders while page is open (simple scheduler)
+  let reminderTimers = [];
+  function clearReminders(){
+    reminderTimers.forEach(t => clearTimeout(t));
+    reminderTimers = [];
+  }
+
+  function parseHHMM(s){
+    const m = /^(\d{1,2}):(\d{2})$/.exec((s||"").trim());
+    if (!m) return null;
+    const hh = Math.max(0, Math.min(23, parseInt(m[1],10)));
+    const mm = Math.max(0, Math.min(59, parseInt(m[2],10)));
+    return { hh, mm };
+  }
+
+  function scheduleOne(hhmm, label){
+    const t = parseHHMM(hhmm);
+    if (!t) return;
+    // Compute next occurrence in Europe/Rome using local Date (good enough for daily reminders)
+    const now = new Date();
+    const target = new Date();
+    target.setHours(t.hh, t.mm, 0, 0);
+    if (target <= now) target.setDate(target.getDate() + 1);
+    const ms = target.getTime() - now.getTime();
+    const id = setTimeout(() => {
+      notify("Routine acquisizione", label);
+      // reschedule for next day
+      scheduleLocalReminders();
+    }, ms);
+    reminderTimers.push(id);
+  }
+
+  function scheduleLocalReminders(){
+    clearReminders();
+    if (!(canNotify() && Notification.permission === "granted")) return;
+
+    const z = state.settings.zone || "Valle di Susa";
+    const msg1 = `Portali + Reel + Stories (${z}) – inizia adesso`;
+    const msg2 = `DM + Call: chiudi conversazioni e fissa sopralluoghi`;
+    scheduleOne(state.settings.reminders?.rem1, msg1);
+    scheduleOne(state.settings.reminders?.rem2, msg2);
+  }
+
+  // ---- Init
+  function init(){
+    renderHeader();
+    renderSteps();
+    updateTimerUI();
+
+    // notify button label
+    if (canNotify() && Notification.permission === "granted") notifyBtn.textContent = "🔔 Notifiche ON";
+
+    // keep reminders up to date
+    scheduleLocalReminders();
+  }
+  init();
+})();
+</script>
 </body>
 </html>
