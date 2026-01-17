@@ -114,6 +114,12 @@
   <h1>📍 Routine Acquisizione (Valle di Susa)</h1>
   <span class="pill">Oggi: <b id="todayLabel"></b></span>
   <span class="pill">Completamento: <b id="pctLabel">0%</b></span>
+
+  <select id="modeSelect" class="pill" style="appearance:none;">
+    <option value="leadbox">🎯 LeadBox (B2B)</option>
+    <option value="immobiliare">🏠 Immobiliare</option>
+  </select>
+
   <button id="notifyBtn" class="secondary">🔔 Notifiche</button>
   <button id="resetDayBtn" class="danger">↺ Reset oggi</button>
 </header>
@@ -122,8 +128,8 @@
   <section class="card">
     <div class="row">
       <div>
-        <div class="title">✅ Checklist “Massacro” (60–90 min)</div>
-        <div class="desc">Fai questi step in ordine. Spunta “Fatto”, avvia i timer, copia gli script. Tutto si salva da solo.</div>
+        <div class="title">✅ Checklist (scegli modalità sopra)</div>
+        <div class="desc">Spunta “Fatto”, avvia i timer, copia gli script. Tutto si salva da solo nel browser.</div>
       </div>
       <div class="kpi">
         <span>Portali: <b id="kpiPortali">0</b></span>
@@ -181,7 +187,7 @@
       <summary>📌 Note</summary>
       <div class="desc" style="margin-top:8px;">
         • Le notifiche funzionano meglio se la pagina resta aperta (o se la aggiungi alla Home).<br>
-        • Se vuoi promemoria “sempre”, ti conviene metterli anche nella sveglia/calendario del telefono.
+        • Se vuoi promemoria “sempre”, mettili anche nella sveglia/calendario del telefono.
       </div>
     </details>
 
@@ -205,11 +211,13 @@
 <script>
 (() => {
   const TZ = "Europe/Rome";
-  const STORAGE_KEY = "acq_routine_v1";
+  const STORAGE_KEY = "acq_routine_v2";
   const todayLabel = document.getElementById("todayLabel");
   const pctLabel = document.getElementById("pctLabel");
   const progressBar = document.getElementById("progressBar");
   const stepsEl = document.getElementById("steps");
+
+  const modeSelect = document.getElementById("modeSelect");
 
   const zoneInput = document.getElementById("zoneInput");
   const zoneLabel = document.getElementById("zoneLabel");
@@ -249,8 +257,88 @@
   }
   todayLabel.textContent = prettyToday();
 
-  // ---- Default steps
-  const DEFAULT_STEPS = [
+  // ---- Two modes of steps
+  const STEPS_LEADBOX = [
+    {
+      id:"google",
+      title:"1) Google/Maps (20 min) – 40 URL buoni",
+      minutes:20,
+      why:"Apri aziende locali, entra nel sito ufficiale (no Google link, no directory).",
+      doList:[
+        "Cerca: 'aziende [COMUNE]' / 'artigiani [COMUNE]' / 'ristoranti [COMUNE]'",
+        "Apri solo siti ufficiali",
+        "Salva i siti (preferiti) o copia URL"
+      ],
+      scripts: [
+        { label:"Query veloci (copy)", text:"aziende [COMUNE]\nidraulico [COMUNE]\nelettricista [COMUNE]\nfalegname [COMUNE]\npalestra [COMUNE]\nristorante [COMUNE]" }
+      ],
+      kpi:{}
+    },
+    {
+      id:"urls",
+      title:"2) Incolla URL (10 min) – urls_oggi.txt",
+      minutes:10,
+      why:"Metti 1 URL per riga in LeadBox → input → urls_oggi.txt",
+      doList:[
+        "Apri Desktop → LeadBox → input → urls_oggi.txt",
+        "Incolla 1 sito per riga",
+        "Salva e chiudi"
+      ],
+      scripts: [
+        { label:"Regole anti-spazzatura (copy)", text:"✅ Sì: siti ufficiali azienda\n❌ No: google.com/search, facebook/instagram, paginegialle, aziende.it, news/blog" }
+      ],
+      kpi:{}
+    },
+    {
+      id:"run",
+      title:"3) Doppio click (2 min) – AVVIA_LEADBOX",
+      minutes:2,
+      why:"Genera master + daily (Excel) con telefoni/email e messaggi pronti.",
+      doList:[
+        "Doppio click su AVVIA_LEADBOX.bat (Desktop)",
+        "Aspetta 'FATTO!'",
+        "Apri Desktop → LeadBox → output"
+      ],
+      scripts: [
+        { label:"Comando (se serve)", text:"py LeadBox\\scripts\\leadbox.py collect LeadBox\\input\\urls_oggi.txt" }
+      ],
+      kpi:{}
+    },
+    {
+      id:"contact",
+      title:"4) Contatti (45–90 min) – 40/50 one-to-one",
+      minutes:45,
+      why:"Messaggi personalizzati, opt-out, qualità > quantità.",
+      doList:[
+        "Apri daily_YYYY-MM-DD.xlsx",
+        "Per ogni riga: personalizza 1 dettaglio",
+        "Invia (WhatsApp/Email)",
+        "Segna stato: CONTATTATO / RISPOSTO / FOLLOW_UP"
+      ],
+      scripts:[
+        { label:"WhatsApp (copy)", text:"Ciao! Sono Joseph. Ho visto {company_name} e lavoro su video brevi (Reels/TikTok) per portare richieste. Se vuoi ti mando 2 idee gratuite su misura. Se non ti interessa dimmelo pure e non ti disturbo più." },
+        { label:"Email (copy)", text:"Oggetto: 2 idee video per {company_name}\n\nCiao {company_name}, sono Joseph.\nMi occupo di video brevi pensati per generare richieste. Se ti va, ti mando 2-3 idee gratuite su misura (senza impegno). A chi posso scrivere?\n\nPS: se non ti interessa dimmelo pure e non ti disturbo più." }
+      ],
+      kpi:{ dm:+5 }
+    },
+    {
+      id:"follow",
+      title:"5) Follow-up (15 min) – chiudi conversazioni",
+      minutes:15,
+      why:"Chi non risponde spesso risponde al follow-up leggero.",
+      doList:[
+        "Apri master_contacts.xlsx",
+        "Filtra: CONTATTATO e nessuna risposta",
+        "Follow-up breve + opt-out"
+      ],
+      scripts:[
+        { label:"Follow-up (copy)", text:"Ciao! Ti disturbo un attimo: ti avevo scritto per 2 idee video gratuite per {company_name}. Ha senso sentirci 10 minuti o preferisci che non ti scriva più?" }
+      ],
+      kpi:{}
+    }
+  ];
+
+  const STEPS_IMMOBILIARE = [
     {
       id:"portali",
       title:"1) Portali (20 min) – 5 contatti",
@@ -353,18 +441,23 @@
     }
   ];
 
+  function getStepsForMode(mode){
+    return mode === "immobiliare" ? STEPS_IMMOBILIARE : STEPS_LEADBOX;
+  }
+
   // ---- State
   function loadState(){
     const raw = localStorage.getItem(STORAGE_KEY);
     const dayKey = getRomeDayKey();
     const defaults = {
       dayKey,
+      mode: "leadbox",
       settings: {
         zone: "Valle di Susa",
         goals: { portali:5, dm:5, call:1 },
         reminders: { rem1:"09:30", rem2:"18:30" }
       },
-      steps: DEFAULT_STEPS.map(s => ({ id:s.id, done:false })),
+      steps: getStepsForMode("leadbox").map(s => ({ id:s.id, done:false })),
       kpi: { portali:0, dm:0, call:0 },
       notes: "",
       timer: { seconds:0, running:false, startedAt:null }
@@ -376,7 +469,8 @@
       // new day -> reset day-specific fields
       if (st.dayKey !== dayKey) {
         st.dayKey = dayKey;
-        st.steps = DEFAULT_STEPS.map(s => ({ id:s.id, done:false }));
+        const m = st.mode || "leadbox";
+        st.steps = getStepsForMode(m).map(s => ({ id:s.id, done:false }));
         st.kpi = { portali:0, dm:0, call:0 };
         st.notes = "";
         st.timer = { seconds:0, running:false, startedAt:null };
@@ -390,9 +484,22 @@
   let state = loadState();
   function saveState(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
 
+  modeSelect.value = state.mode || "leadbox";
+
+  modeSelect.addEventListener("change", () => {
+    state.mode = modeSelect.value;
+    const activeSteps = getStepsForMode(state.mode);
+    state.steps = activeSteps.map(s => ({ id:s.id, done:false }));
+    state.kpi = { portali:0, dm:0, call:0 };
+    saveState();
+    renderHeader();
+    renderSteps();
+  });
+
   // ---- UI render
   function computePct(){
-    const total = DEFAULT_STEPS.length;
+    const ACTIVE_STEPS = getStepsForMode(state.mode || "leadbox");
+    const total = ACTIVE_STEPS.length;
     const done = state.steps.filter(s=>s.done).length;
     return total ? Math.round((done/total)*100) : 0;
   }
@@ -426,7 +533,9 @@
 
   function renderSteps(){
     stepsEl.innerHTML = "";
-    DEFAULT_STEPS.forEach(step => {
+    const ACTIVE_STEPS = getStepsForMode(state.mode || "leadbox");
+
+    ACTIVE_STEPS.forEach(step => {
       const sState = state.steps.find(s=>s.id===step.id) || { done:false };
       const card = document.createElement("div");
       card.className = "card" + (sState.done ? " done" : "");
@@ -508,7 +617,7 @@
   function toggleDone(id){
     const s = state.steps.find(x=>x.id===id);
     if (!s) return;
-    const stepDef = DEFAULT_STEPS.find(x=>x.id===id);
+    const stepDef = getStepsForMode(state.mode || "leadbox").find(x=>x.id===id);
     const wasDone = s.done;
     s.done = !s.done;
 
@@ -551,7 +660,8 @@
   resetDayBtn.addEventListener("click", () => {
     const dayKey = getRomeDayKey();
     state.dayKey = dayKey;
-    state.steps = DEFAULT_STEPS.map(s => ({ id:s.id, done:false }));
+    const activeSteps = getStepsForMode(state.mode || "leadbox");
+    state.steps = activeSteps.map(s => ({ id:s.id, done:false }));
     state.kpi = { portali:0, dm:0, call:0 };
     state.notes = "";
     state.timer = { seconds:0, running:false, startedAt:null };
@@ -668,7 +778,7 @@
   function scheduleOne(hhmm, label){
     const t = parseHHMM(hhmm);
     if (!t) return;
-    // Compute next occurrence in Europe/Rome using local Date (good enough for daily reminders)
+    // Compute next occurrence using local Date (good enough for daily reminders)
     const now = new Date();
     const target = new Date();
     target.setHours(t.hh, t.mm, 0, 0);
@@ -687,8 +797,11 @@
     if (!(canNotify() && Notification.permission === "granted")) return;
 
     const z = state.settings.zone || "Valle di Susa";
-    const msg1 = `Portali + Reel + Stories (${z}) – inizia adesso`;
-    const msg2 = `DM + Call: chiudi conversazioni e fissa sopralluoghi`;
+    const msg1 = `Routine (${state.mode === "immobiliare" ? "Immobiliare" : "LeadBox"}): inizia adesso – ${z}`;
+    const msg2 = state.mode === "immobiliare"
+      ? `DM + Call: chiudi conversazioni e fissa sopralluoghi`
+      : `DM/Email: chiudi conversazioni e fissa call`;
+
     scheduleOne(state.settings.reminders?.rem1, msg1);
     scheduleOne(state.settings.reminders?.rem2, msg2);
   }
@@ -699,10 +812,8 @@
     renderSteps();
     updateTimerUI();
 
-    // notify button label
     if (canNotify() && Notification.permission === "granted") notifyBtn.textContent = "🔔 Notifiche ON";
 
-    // keep reminders up to date
     scheduleLocalReminders();
   }
   init();
