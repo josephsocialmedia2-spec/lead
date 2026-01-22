@@ -2,822 +2,908 @@
 <html lang="it">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>Acquisizione – Routine Giornaliera</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Agenda Operativa – Agente Immobiliare</title>
   <style>
-    :root { --bg:#0b0b0b; --fg:#fff; --muted:rgba(255,255,255,.7); --card:rgba(255,255,255,.06); --border:rgba(255,255,255,.14); --accent:#00e5ff; }
+    :root{
+      --bg:#0b0f14;
+      --card:#121a23;
+      --muted:#8aa0b6;
+      --text:#e8f0f7;
+      --line:#223142;
+      --accent:#ff7a18;
+      --green:#1fbf75;
+      --blue:#4b7bec;
+      --red:#ff5c5c;
+      --purple:#a55eea;
+      --shadow: 0 14px 40px rgba(0,0,0,.35);
+      --radius: 16px;
+    }
+    *{box-sizing:border-box}
     body{
-      margin:0; font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
-      background:var(--bg); color:var(--fg); min-height:100vh;
-      padding: env(safe-area-inset-top) env(safe-area-inset-right)
-               env(safe-area-inset-bottom) env(safe-area-inset-left);
-      display:flex; flex-direction:column;
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      background: radial-gradient(1200px 800px at 20% -10%, rgba(255,122,24,.18), transparent 55%),
+                  radial-gradient(900px 700px at 110% 10%, rgba(31,191,117,.14), transparent 50%),
+                  var(--bg);
+      color: var(--text);
+      padding: 22px;
     }
     header{
-      position:sticky; top:0; z-index:5;
-      background: linear-gradient(to bottom, rgba(11,11,11,.98), rgba(11,11,11,.85));
-      border-bottom:1px solid var(--border);
-      padding:12px 12px;
-      display:flex; flex-wrap:wrap; gap:10px; align-items:center;
+      max-width: 1100px;
+      margin: 0 auto 18px auto;
+      display:flex;
+      gap:14px;
+      align-items:flex-start;
+      justify-content:space-between;
+      flex-wrap:wrap;
     }
-    h1{ font-size:16px; margin:0; letter-spacing:.2px; }
-    .pill{
-      font-size:13px; padding:8px 10px; border-radius:999px;
-      border:1px solid var(--border); background:rgba(255,255,255,.05);
+    .title{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
     }
-    .pill b{ color: var(--accent); }
-    button{
-      background: var(--fg); color:#000; border:0; border-radius:12px;
-      padding:10px 12px; font-weight:800; cursor:pointer;
-      touch-action: manipulation;
+    h1{
+      font-size: 20px;
+      margin:0;
+      letter-spacing:.2px;
     }
-    button.secondary{
-      background: rgba(255,255,255,.10); color: var(--fg);
-      border:1px solid rgba(255,255,255,.18);
+    .sub{
+      color: var(--muted);
+      font-size: 13px;
+      line-height:1.35;
+      max-width: 720px;
     }
-    button.danger{
-      background: rgba(255,60,60,.16); color: var(--fg);
-      border:1px solid rgba(255,60,60,.35);
+    .controls{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+      justify-content:flex-end;
     }
-    button:disabled{ opacity:.55; cursor:not-allowed; }
-    main{ padding: 14px 12px 90px; display:flex; flex-direction:column; gap:12px; }
-    .card{
-      background: var(--card);
-      border:1px solid var(--border);
-      border-radius:16px;
-      padding:12px;
-      box-shadow: 0 18px 45px rgba(0,0,0,.25);
-    }
-    .row{ display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between; }
-    .title{ font-weight:900; font-size:15px; }
-    .desc{ color: var(--muted); font-size:13px; margin-top:6px; line-height:1.35; }
-    .meta{ display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
     .chip{
-      font-size:12px; padding:6px 8px; border-radius:999px;
-      border:1px solid rgba(255,255,255,.16); background:rgba(0,0,0,.18);
-      color: rgba(255,255,255,.85);
+      border:1px solid var(--line);
+      background: rgba(18,26,35,.65);
+      color: var(--text);
+      padding: 9px 10px;
+      border-radius: 999px;
+      font-size: 13px;
+      display:flex;
+      align-items:center;
+      gap:8px;
     }
-    .progress{
-      height:10px; width:100%;
-      background: rgba(255,255,255,.08);
-      border-radius:999px; overflow:hidden;
-      margin-top:10px;
-    }
-    .bar{
-      height:100%; width:0%;
-      background: linear-gradient(90deg, rgba(0,229,255,.85), rgba(0,229,255,.35));
-    }
-    .done{
-      border-color: rgba(0,229,255,.35);
-      background: rgba(0,229,255,.06);
-    }
-    details summary{ cursor:pointer; font-weight:800; }
-    textarea, input[type="text"], input[type="number"], select{
-      width:100%;
-      border-radius:12px;
-      border:1px solid rgba(255,255,255,.16);
-      background: rgba(0,0,0,.22);
-      color: var(--fg);
-      padding:10px 10px;
-      font-size:14px;
+    input[type="search"]{
+      border:1px solid var(--line);
+      background: rgba(18,26,35,.65);
+      color: var(--text);
+      padding: 10px 12px;
+      border-radius: 999px;
       outline:none;
+      width: 260px;
     }
-    label{ font-size:12px; color: var(--muted); display:block; margin:10px 0 6px; }
-    .grid{
+    input[type="search"]::placeholder{color:#6f879f}
+    button{
+      border:1px solid var(--line);
+      background: rgba(18,26,35,.65);
+      color: var(--text);
+      padding: 10px 12px;
+      border-radius: 999px;
+      cursor:pointer;
+    }
+    button:hover{border-color:#35506a}
+    main{
+      max-width: 1100px;
+      margin: 0 auto;
       display:grid;
       grid-template-columns: 1fr;
+      gap:14px;
+    }
+    .grid{
+      border:1px solid var(--line);
+      background: rgba(18,26,35,.55);
+      border-radius: var(--radius);
+      overflow:hidden;
+      box-shadow: var(--shadow);
+    }
+    .gridHead{
+      display:grid;
+      grid-template-columns: 92px 1fr;
+      gap:0;
+      padding: 12px 14px;
+      border-bottom:1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255,255,255,.03), transparent);
+      align-items:center;
+    }
+    .gridHead .left{color: var(--muted); font-size:12px}
+    .gridHead .right{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .legend{
+      display:flex; gap:10px; flex-wrap:wrap;
+      color: var(--muted); font-size:12px;
+    }
+    .dot{width:10px;height:10px;border-radius:999px;display:inline-block;margin-right:6px}
+    .rows{
+      display:flex;
+      flex-direction:column;
+    }
+    .row{
+      display:grid;
+      grid-template-columns: 92px 1fr;
+      gap:0;
+      border-top:1px solid rgba(34,49,66,.45);
+      min-height: 64px;
+    }
+    .time{
+      padding: 12px 14px;
+      color: var(--muted);
+      font-size: 13px;
+      border-right:1px solid rgba(34,49,66,.45);
+      display:flex;
+      align-items:center;
+      justify-content:flex-start;
+    }
+    .slot{
+      padding: 10px 12px;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .block{
+      flex: 1 1 520px;
+      border:1px solid rgba(255,255,255,.07);
+      border-left: 6px solid var(--accent);
+      background: rgba(11,15,20,.55);
+      border-radius: 12px;
+      padding: 10px 12px;
+      cursor:pointer;
+      transition: transform .08s ease, border-color .08s ease;
+      position:relative;
+      overflow:hidden;
+    }
+    .block:hover{
+      transform: translateY(-1px);
+      border-color: rgba(255,255,255,.14);
+    }
+    .blockTitle{
+      font-weight: 650;
+      font-size: 14px;
+      margin:0 0 4px 0;
+      display:flex;
+      align-items:center;
       gap:10px;
     }
-    @media(min-width: 860px){
-      .grid{ grid-template-columns: 1.1fr .9fr; }
+    .blockMeta{
+      color: var(--muted);
+      font-size: 12px;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
     }
-    .sticky-footer{
-      position:fixed; left:0; right:0; bottom:0; z-index:6;
-      background: rgba(11,11,11,.94);
-      border-top:1px solid var(--border);
-      padding:10px 12px;
-      display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:space-between;
+    .tag{
+      border:1px solid rgba(255,255,255,.08);
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      color: #cfe1f3;
+      background: rgba(18,26,35,.6);
     }
-    .kpi{
-      display:flex; gap:10px; flex-wrap:wrap; align-items:center;
-      font-size:13px; color: var(--muted);
+    .small{
+      font-size: 12px;
+      color: var(--muted);
     }
-    .kpi b{ color: var(--fg); }
-    .small{ font-size:12px; color: var(--muted); }
-    .mono{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; }
-    .copyRow{ display:flex; gap:8px; align-items:center; margin-top:8px; flex-wrap:wrap; }
+
+    /* Modal */
+    .modalBackdrop{
+      position: fixed;
+      inset:0;
+      background: rgba(0,0,0,.58);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding: 18px;
+      z-index: 50;
+    }
+    .modal{
+      width: min(920px, 100%);
+      max-height: 90vh;
+      overflow:auto;
+      background: rgba(18,26,35,.92);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 18px;
+      box-shadow: 0 30px 80px rgba(0,0,0,.55);
+      backdrop-filter: blur(10px);
+    }
+    .modalHeader{
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(255,255,255,.10);
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:14px;
+    }
+    .modalHeader h2{
+      margin:0;
+      font-size: 16px;
+      line-height:1.25;
+    }
+    .modalHeader .meta{
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 12px;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .closeBtn{
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(11,15,20,.55);
+      color: var(--text);
+      padding: 8px 10px;
+      border-radius: 999px;
+      cursor:pointer;
+      white-space:nowrap;
+    }
+    .modalBody{
+      padding: 14px 16px 16px 16px;
+      display:grid;
+      gap:12px;
+    }
+    .panel{
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(11,15,20,.35);
+      border-radius: 14px;
+      padding: 12px 12px;
+    }
+    .panel h3{
+      margin:0 0 8px 0;
+      font-size: 13px;
+      letter-spacing: .2px;
+      text-transform: uppercase;
+      color: #d7e8f8;
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+    .panel ul{
+      margin:0;
+      padding-left: 18px;
+      color: #d9e7f4;
+      line-height:1.55;
+      font-size: 14px;
+    }
+    .panel pre{
+      margin:0;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: rgba(0,0,0,.25);
+      border:1px solid rgba(255,255,255,.10);
+      overflow:auto;
+      font-size: 13px;
+      line-height: 1.45;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .twoCol{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:12px;
+    }
+    @media (max-width: 820px){
+      .twoCol{grid-template-columns: 1fr}
+      input[type="search"]{width: 100%}
+    }
   </style>
 </head>
 <body>
-
-<header>
-  <h1>📍 Routine Acquisizione (Valle di Susa)</h1>
-  <span class="pill">Oggi: <b id="todayLabel"></b></span>
-  <span class="pill">Completamento: <b id="pctLabel">0%</b></span>
-
-  <select id="modeSelect" class="pill" style="appearance:none;">
-    <option value="leadbox">🎯 LeadBox (B2B)</option>
-    <option value="immobiliare">🏠 Immobiliare</option>
-  </select>
-
-  <button id="notifyBtn" class="secondary">🔔 Notifiche</button>
-  <button id="resetDayBtn" class="danger">↺ Reset oggi</button>
-</header>
-
-<main class="grid">
-  <section class="card">
-    <div class="row">
-      <div>
-        <div class="title">✅ Checklist (scegli modalità sopra)</div>
-        <div class="desc">Spunta “Fatto”, avvia i timer, copia gli script. Tutto si salva da solo nel browser.</div>
-      </div>
-      <div class="kpi">
-        <span>Portali: <b id="kpiPortali">0</b></span>
-        <span>DM: <b id="kpiDM">0</b></span>
-        <span>Call: <b id="kpiCall">0</b></span>
+  <header>
+    <div class="title">
+      <h1>Agenda Operativa Interattiva</h1>
+      <div class="sub">
+        Clicca su un blocco per aprire il <b>POP-UP operativo</b> (cosa fare, cosa dire, materiali, mindset, errori da evitare).
+        Usa la ricerca per trovare al volo “Open House”, “WhatsApp”, “script”, ecc.
       </div>
     </div>
-
-    <div class="progress"><div class="bar" id="progressBar"></div></div>
-
-    <div id="steps"></div>
-  </section>
-
-  <aside class="card">
-    <div class="title">⚙️ Impostazioni veloci</div>
-    <div class="desc">Personalizza micro-zona, obiettivi giornalieri e orari promemoria.</div>
-
-    <label>Micro-zona (scrivila come la dici tu)</label>
-    <input id="zoneInput" type="text" placeholder="Es: Avigliana + Sant’Ambrogio" />
-
-    <label>Obiettivi di oggi</label>
-    <div class="row">
-      <div style="flex:1; min-width:160px;">
-        <label class="small">Contatti portali</label>
-        <input id="goalPortali" type="number" min="0" step="1" />
-      </div>
-      <div style="flex:1; min-width:160px;">
-        <label class="small">DM attivi</label>
-        <input id="goalDM" type="number" min="0" step="1" />
-      </div>
-      <div style="flex:1; min-width:160px;">
-        <label class="small">Call</label>
-        <input id="goalCall" type="number" min="0" step="1" />
-      </div>
+    <div class="controls">
+      <input id="search" type="search" placeholder="Cerca (es. 'script', 'open', 'whatsapp')">
+      <button id="expandAll" title="Apri tutti i blocchi (in sequenza)">Apri sequenza</button>
+      <span class="chip" title="Parole chiave da tenere a mente">
+        🔑 NOME • ZONA • OPEN • AIUTO • GRAZIE
+      </span>
     </div>
+  </header>
 
-    <label>Promemoria (solo se abiliti le notifiche)</label>
-    <div class="row">
-      <div style="flex:1; min-width:180px;">
-        <label class="small">Orario 1 (HH:MM)</label>
-        <input id="rem1" type="text" placeholder="09:30" />
-      </div>
-      <div style="flex:1; min-width:180px;">
-        <label class="small">Orario 2 (HH:MM)</label>
-        <input id="rem2" type="text" placeholder="18:30" />
-      </div>
-    </div>
-
-    <div class="copyRow">
-      <button id="saveSettingsBtn">💾 Salva</button>
-      <button id="fullscreenBtn" class="secondary">⛶ Full screen</button>
-    </div>
-
-    <details style="margin-top:12px;">
-      <summary>📌 Note</summary>
-      <div class="desc" style="margin-top:8px;">
-        • Le notifiche funzionano meglio se la pagina resta aperta (o se la aggiungi alla Home).<br>
-        • Se vuoi promemoria “sempre”, mettili anche nella sveglia/calendario del telefono.
-      </div>
-    </details>
-
-    <label style="margin-top:12px;">Note di oggi</label>
-    <textarea id="dailyNotes" placeholder="Scrivi qui: risposte, obiezioni, follow-up…"></textarea>
-  </aside>
-</main>
-
-<div class="sticky-footer">
-  <div class="kpi">
-    <span class="pill">Zona: <b id="zoneLabel">—</b></span>
-    <span class="pill">Timer: <b id="timerLabel">00:00</b></span>
-  </div>
-  <div class="copyRow">
-    <button id="startTimerBtn">⏱️ Avvia timer</button>
-    <button id="pauseTimerBtn" class="secondary">⏸️ Pausa</button>
-    <button id="stopTimerBtn" class="secondary">⏹️ Stop</button>
-  </div>
-</div>
-
-<script>
-(() => {
-  const TZ = "Europe/Rome";
-  const STORAGE_KEY = "acq_routine_v2";
-  const todayLabel = document.getElementById("todayLabel");
-  const pctLabel = document.getElementById("pctLabel");
-  const progressBar = document.getElementById("progressBar");
-  const stepsEl = document.getElementById("steps");
-
-  const modeSelect = document.getElementById("modeSelect");
-
-  const zoneInput = document.getElementById("zoneInput");
-  const zoneLabel = document.getElementById("zoneLabel");
-  const goalPortali = document.getElementById("goalPortali");
-  const goalDM = document.getElementById("goalDM");
-  const goalCall = document.getElementById("goalCall");
-  const rem1 = document.getElementById("rem1");
-  const rem2 = document.getElementById("rem2");
-  const dailyNotes = document.getElementById("dailyNotes");
-
-  const kpiPortali = document.getElementById("kpiPortali");
-  const kpiDM = document.getElementById("kpiDM");
-  const kpiCall = document.getElementById("kpiCall");
-
-  const notifyBtn = document.getElementById("notifyBtn");
-  const resetDayBtn = document.getElementById("resetDayBtn");
-  const saveSettingsBtn = document.getElementById("saveSettingsBtn");
-  const fullscreenBtn = document.getElementById("fullscreenBtn");
-
-  const timerLabel = document.getElementById("timerLabel");
-  const startTimerBtn = document.getElementById("startTimerBtn");
-  const pauseTimerBtn = document.getElementById("pauseTimerBtn");
-  const stopTimerBtn = document.getElementById("stopTimerBtn");
-
-  // ---- Date helpers (local day key in Europe/Rome)
-  function getRomeDayKey(d = new Date()){
-    const fmt = new Intl.DateTimeFormat("it-IT", { timeZone: TZ, year:"numeric", month:"2-digit", day:"2-digit" });
-    const parts = fmt.formatToParts(d);
-    const y = parts.find(p=>p.type==="year").value;
-    const m = parts.find(p=>p.type==="month").value;
-    const da = parts.find(p=>p.type==="day").value;
-    return `${y}-${m}-${da}`;
-  }
-  function prettyToday(){
-    const fmt = new Intl.DateTimeFormat("it-IT", { timeZone: TZ, weekday:"long", day:"2-digit", month:"long", year:"numeric" });
-    return fmt.format(new Date());
-  }
-  todayLabel.textContent = prettyToday();
-
-  // ---- Two modes of steps
-  const STEPS_LEADBOX = [
-    {
-      id:"google",
-      title:"1) Google/Maps (20 min) – 40 URL buoni",
-      minutes:20,
-      why:"Apri aziende locali, entra nel sito ufficiale (no Google link, no directory).",
-      doList:[
-        "Cerca: 'aziende [COMUNE]' / 'artigiani [COMUNE]' / 'ristoranti [COMUNE]'",
-        "Apri solo siti ufficiali",
-        "Salva i siti (preferiti) o copia URL"
-      ],
-      scripts: [
-        { label:"Query veloci (copy)", text:"aziende [COMUNE]\nidraulico [COMUNE]\nelettricista [COMUNE]\nfalegname [COMUNE]\npalestra [COMUNE]\nristorante [COMUNE]" }
-      ],
-      kpi:{}
-    },
-    {
-      id:"urls",
-      title:"2) Incolla URL (10 min) – urls_oggi.txt",
-      minutes:10,
-      why:"Metti 1 URL per riga in LeadBox → input → urls_oggi.txt",
-      doList:[
-        "Apri Desktop → LeadBox → input → urls_oggi.txt",
-        "Incolla 1 sito per riga",
-        "Salva e chiudi"
-      ],
-      scripts: [
-        { label:"Regole anti-spazzatura (copy)", text:"✅ Sì: siti ufficiali azienda\n❌ No: google.com/search, facebook/instagram, paginegialle, aziende.it, news/blog" }
-      ],
-      kpi:{}
-    },
-    {
-      id:"run",
-      title:"3) Doppio click (2 min) – AVVIA_LEADBOX",
-      minutes:2,
-      why:"Genera master + daily (Excel) con telefoni/email e messaggi pronti.",
-      doList:[
-        "Doppio click su AVVIA_LEADBOX.bat (Desktop)",
-        "Aspetta 'FATTO!'",
-        "Apri Desktop → LeadBox → output"
-      ],
-      scripts: [
-        { label:"Comando (se serve)", text:"py LeadBox\\scripts\\leadbox.py collect LeadBox\\input\\urls_oggi.txt" }
-      ],
-      kpi:{}
-    },
-    {
-      id:"contact",
-      title:"4) Contatti (45–90 min) – 40/50 one-to-one",
-      minutes:45,
-      why:"Messaggi personalizzati, opt-out, qualità > quantità.",
-      doList:[
-        "Apri daily_YYYY-MM-DD.xlsx",
-        "Per ogni riga: personalizza 1 dettaglio",
-        "Invia (WhatsApp/Email)",
-        "Segna stato: CONTATTATO / RISPOSTO / FOLLOW_UP"
-      ],
-      scripts:[
-        { label:"WhatsApp (copy)", text:"Ciao! Sono Joseph. Ho visto {company_name} e lavoro su video brevi (Reels/TikTok) per portare richieste. Se vuoi ti mando 2 idee gratuite su misura. Se non ti interessa dimmelo pure e non ti disturbo più." },
-        { label:"Email (copy)", text:"Oggetto: 2 idee video per {company_name}\n\nCiao {company_name}, sono Joseph.\nMi occupo di video brevi pensati per generare richieste. Se ti va, ti mando 2-3 idee gratuite su misura (senza impegno). A chi posso scrivere?\n\nPS: se non ti interessa dimmelo pure e non ti disturbo più." }
-      ],
-      kpi:{ dm:+5 }
-    },
-    {
-      id:"follow",
-      title:"5) Follow-up (15 min) – chiudi conversazioni",
-      minutes:15,
-      why:"Chi non risponde spesso risponde al follow-up leggero.",
-      doList:[
-        "Apri master_contacts.xlsx",
-        "Filtra: CONTATTATO e nessuna risposta",
-        "Follow-up breve + opt-out"
-      ],
-      scripts:[
-        { label:"Follow-up (copy)", text:"Ciao! Ti disturbo un attimo: ti avevo scritto per 2 idee video gratuite per {company_name}. Ha senso sentirci 10 minuti o preferisci che non ti scriva più?" }
-      ],
-      kpi:{}
-    }
-  ];
-
-  const STEPS_IMMOBILIARE = [
-    {
-      id:"portali",
-      title:"1) Portali (20 min) – 5 contatti",
-      minutes:20,
-      why:"Obiettivo: parlare con proprietari (annunci > 90 giorni).",
-      doList:[
-        "Apri Immobiliare.it / Idealista",
-        "Filtra: zona (micro-zona) + annunci > 90 giorni",
-        "Contatta 5 proprietari (meglio privati)",
-      ],
-      scripts:[
-        {
-          label:"Messaggio Portali (copy)",
-          text:"Ciao, ho visto l’annuncio della casa a [COMUNE]. Se è online da un po’, spesso il blocco non è ‘sfortuna’ ma 1–2 cose precise. Se vuoi, in 10 minuti ti dico cosa controllare nel tuo caso."
-        }
-      ],
-      kpi:{ portali:+5 }
-    },
-    {
-      id:"reel",
-      title:"2) Reel (15 min) – 1 video",
-      minutes:15,
-      why:"È l’esca: chi si riconosce ti scrive.",
-      doList:[
-        "Hook 3s: ‘Se la tua casa in Valle di Susa è online da mesi…’",
-        "1 idea: ‘spesso non è il prezzo, ma…’",
-        "CTA: ‘Scrivimi INVENDUTA’",
-        "Pubblica su IG + TikTok"
-      ],
-      scripts:[
-        {
-          label:"Script Reel pronto",
-          text:"Se hai una casa in Valle di Susa online da mesi e non si vende, ascolta: spesso il problema non è il prezzo, ma come viene percepita da foto e annuncio. Scrivimi ‘INVENDUTA’ e ti dico cosa controllare nel tuo caso."
-        }
-      ],
-      kpi:{}
-    },
-    {
-      id:"stories",
-      title:"3) Stories (5 min) – 3 stories",
-      minutes:5,
-      why:"Le stories sono il ‘volantino moderno’ e aprono DM.",
-      doList:[
-        "Story 1: sondaggio ‘Stai pensando di vendere entro 6 mesi?’",
-        "Story 2: box ‘Comune + mq: ti dico il range’",
-        "Story 3: CTA ‘DM VALLE per check 10 min’"
-      ],
-      scripts:[
-        {
-          label:"Testo Story CTA",
-          text:"Se sei proprietario in [ZONA], scrivimi ‘VALLE’ in DM: ti dico cosa sta succedendo sul mercato e cosa controllare prima di vendere."
-        }
-      ],
-      kpi:{}
-    },
-    {
-      id:"dm",
-      title:"4) DM (25 min) – 5 DM attivi",
-      minutes:25,
-      why:"Qui si fa la conversione: domande → call.",
-      doList:[
-        "Scrivi a 5 persone: visualizzazioni stories / interazioni",
-        "Non vendere: qualifica con 4 domande",
-        "Chiudi sempre chiedendo la call"
-      ],
-      scripts:[
-        {
-          label:"DM soft (apertura)",
-          text:"Ciao! Vedo che segui i contenuti sulla Valle di Susa. Sei in fase curiosità o stai valutando di vendere nei prossimi mesi?"
-        },
-        {
-          label:"4 domande (una alla volta)",
-          text:"1) In che comune/frazione è?\n2) Prima casa, seconda casa o eredità?\n3) Da quanto è in vendita / perché vendi?\n4) Entro quando vuoi risolvere?"
-        },
-        {
-          label:"Chiusura → call",
-          text:"Perfetto. Se vuoi, in 10 minuti ti dico cosa farei io nel tuo caso. Meglio una call oggi o domani?"
-        }
-      ],
-      kpi:{ dm:+5 }
-    },
-    {
-      id:"call",
-      title:"5) Call (10 min) – 1 call breve",
-      minutes:10,
-      why:"La call serve a fissare sopralluogo, non a ‘convincere’.",
-      doList:[
-        "2 min: obiettivo + tempistiche",
-        "3 min: blocco principale",
-        "3 min: 2 azioni pratiche",
-        "2 min: proposta sopralluogo"
-      ],
-      scripts:[
-        {
-          label:"Chiusura sopralluogo",
-          text:"Ti va che passo 20 minuti a vedere casa e ti porto un piano di vendita? Così capisci subito se ha senso."
-        }
-      ],
-      kpi:{ call:+1 }
-    }
-  ];
-
-  function getStepsForMode(mode){
-    return mode === "immobiliare" ? STEPS_IMMOBILIARE : STEPS_LEADBOX;
-  }
-
-  // ---- State
-  function loadState(){
-    const raw = localStorage.getItem(STORAGE_KEY);
-    const dayKey = getRomeDayKey();
-    const defaults = {
-      dayKey,
-      mode: "leadbox",
-      settings: {
-        zone: "Valle di Susa",
-        goals: { portali:5, dm:5, call:1 },
-        reminders: { rem1:"09:30", rem2:"18:30" }
-      },
-      steps: getStepsForMode("leadbox").map(s => ({ id:s.id, done:false })),
-      kpi: { portali:0, dm:0, call:0 },
-      notes: "",
-      timer: { seconds:0, running:false, startedAt:null }
-    };
-
-    if (!raw) return defaults;
-    try {
-      const st = JSON.parse(raw);
-      // new day -> reset day-specific fields
-      if (st.dayKey !== dayKey) {
-        st.dayKey = dayKey;
-        const m = st.mode || "leadbox";
-        st.steps = getStepsForMode(m).map(s => ({ id:s.id, done:false }));
-        st.kpi = { portali:0, dm:0, call:0 };
-        st.notes = "";
-        st.timer = { seconds:0, running:false, startedAt:null };
-      }
-      return { ...defaults, ...st, settings: { ...defaults.settings, ...(st.settings||{}) } };
-    } catch {
-      return defaults;
-    }
-  }
-
-  let state = loadState();
-  function saveState(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
-
-  modeSelect.value = state.mode || "leadbox";
-
-  modeSelect.addEventListener("change", () => {
-    state.mode = modeSelect.value;
-    const activeSteps = getStepsForMode(state.mode);
-    state.steps = activeSteps.map(s => ({ id:s.id, done:false }));
-    state.kpi = { portali:0, dm:0, call:0 };
-    saveState();
-    renderHeader();
-    renderSteps();
-  });
-
-  // ---- UI render
-  function computePct(){
-    const ACTIVE_STEPS = getStepsForMode(state.mode || "leadbox");
-    const total = ACTIVE_STEPS.length;
-    const done = state.steps.filter(s=>s.done).length;
-    return total ? Math.round((done/total)*100) : 0;
-  }
-
-  function updateKPI(){
-    kpiPortali.textContent = state.kpi.portali;
-    kpiDM.textContent = state.kpi.dm;
-    kpiCall.textContent = state.kpi.call;
-  }
-
-  function renderHeader(){
-    const pct = computePct();
-    pctLabel.textContent = pct + "%";
-    progressBar.style.width = pct + "%";
-    zoneLabel.textContent = state.settings.zone || "—";
-
-    zoneInput.value = state.settings.zone || "";
-    goalPortali.value = state.settings.goals?.portali ?? 5;
-    goalDM.value = state.settings.goals?.dm ?? 5;
-    goalCall.value = state.settings.goals?.call ?? 1;
-    rem1.value = state.settings.reminders?.rem1 ?? "09:30";
-    rem2.value = state.settings.reminders?.rem2 ?? "18:30";
-    dailyNotes.value = state.notes || "";
-
-    updateKPI();
-  }
-
-  function copyToClipboard(text){
-    navigator.clipboard?.writeText(text).catch(()=>{});
-  }
-
-  function renderSteps(){
-    stepsEl.innerHTML = "";
-    const ACTIVE_STEPS = getStepsForMode(state.mode || "leadbox");
-
-    ACTIVE_STEPS.forEach(step => {
-      const sState = state.steps.find(s=>s.id===step.id) || { done:false };
-      const card = document.createElement("div");
-      card.className = "card" + (sState.done ? " done" : "");
-      card.style.marginTop = "12px";
-
-      const top = document.createElement("div");
-      top.className = "row";
-      top.innerHTML = `
-        <div>
-          <div class="title">${step.title}</div>
-          <div class="desc">${step.why}</div>
-        </div>
-        <div class="copyRow">
-          <button class="secondary" data-action="timer" data-min="${step.minutes}">⏱️ ${step.minutes}m</button>
-          <button data-action="toggle">${sState.done ? "✅ Fatto" : "⬜ Fatto"}</button>
-        </div>
-      `;
-      card.appendChild(top);
-
-      const meta = document.createElement("div");
-      meta.className = "meta";
-      meta.innerHTML = `
-        <span class="chip">Durata: ${step.minutes} min</span>
-        ${step.kpi?.portali ? `<span class="chip">+${step.kpi.portali} portali</span>` : ""}
-        ${step.kpi?.dm ? `<span class="chip">+${step.kpi.dm} DM</span>` : ""}
-        ${step.kpi?.call ? `<span class="chip">+${step.kpi.call} call</span>` : ""}
-      `;
-      card.appendChild(meta);
-
-      const list = document.createElement("div");
-      list.className = "desc";
-      list.style.marginTop = "10px";
-      list.innerHTML = "<b>Cosa fai:</b><br>" + step.doList.map(x=>"• "+x).join("<br>");
-      card.appendChild(list);
-
-      const details = document.createElement("details");
-      details.style.marginTop = "10px";
-      const sum = document.createElement("summary");
-      sum.textContent = "📋 Script pronti (copia)";
-      details.appendChild(sum);
-
-      const scriptsWrap = document.createElement("div");
-      scriptsWrap.style.marginTop = "10px";
-      step.scripts.forEach(sc => {
-        const block = document.createElement("div");
-        block.className = "card";
-        block.style.padding = "10px";
-        block.style.marginTop = "10px";
-        block.innerHTML = `
-          <div class="row">
-            <div class="title" style="font-size:13px;">${sc.label}</div>
-            <button class="secondary" data-action="copy">📎 Copia</button>
+  <main>
+    <section class="grid" aria-label="Agenda giornaliera">
+      <div class="gridHead">
+        <div class="left">ORARIO</div>
+        <div class="right">
+          <div class="small">Metodo: coltivatore (relazioni) → risultati nel medio-lungo</div>
+          <div class="legend">
+            <span><span class="dot" style="background:var(--accent)"></span>Operativo</span>
+            <span><span class="dot" style="background:var(--green)"></span>Territorio/Relazioni</span>
+            <span><span class="dot" style="background:var(--blue)"></span>Gestione/CRM</span>
+            <span><span class="dot" style="background:var(--red)"></span>Urgenze</span>
+            <span><span class="dot" style="background:var(--purple)"></span>Pianificazione</span>
           </div>
-          <div class="desc mono" style="white-space:pre-wrap; margin-top:8px;">${escapeHtml(sc.text)}</div>
-        `;
-        block.querySelector('[data-action="copy"]').addEventListener("click", () => copyToClipboard(sc.text));
-        scriptsWrap.appendChild(block);
-      });
-      details.appendChild(scriptsWrap);
-      card.appendChild(details);
+        </div>
+      </div>
+      <div class="rows" id="rows"></div>
+    </section>
+  </main>
 
-      // actions
-      top.querySelector('[data-action="toggle"]').addEventListener("click", () => toggleDone(step.id));
-      top.querySelector('[data-action="timer"]').addEventListener("click", (e) => {
-        const m = parseInt(e.currentTarget.getAttribute("data-min"), 10);
-        startStepTimer(m);
-      });
+  <!-- Modal -->
+  <div class="modalBackdrop" id="backdrop" role="dialog" aria-modal="true" aria-label="Dettagli attività">
+    <div class="modal">
+      <div class="modalHeader">
+        <div>
+          <h2 id="mTitle">Titolo</h2>
+          <div class="meta" id="mMeta"></div>
+        </div>
+        <button class="closeBtn" id="closeBtn">Chiudi ✕</button>
+      </div>
+      <div class="modalBody">
+        <div class="twoCol">
+          <div class="panel">
+            <h3>✅ Cosa fare</h3>
+            <ul id="mDo"></ul>
+          </div>
+          <div class="panel">
+            <h3>🎯 Obiettivo</h3>
+            <ul id="mGoal"></ul>
+          </div>
+        </div>
 
-      stepsEl.appendChild(card);
-    });
-  }
+        <div class="twoCol">
+          <div class="panel">
+            <h3>🗣️ Cosa dire (script)</h3>
+            <pre id="mSay"></pre>
+          </div>
+          <div class="panel">
+            <h3>🧠 Come muoverti (mindset)</h3>
+            <ul id="mMind"></ul>
+          </div>
+        </div>
 
-  function escapeHtml(str){
-    return String(str).replace(/[&<>"']/g, s => ({
-      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
-    })[s]);
-  }
+        <div class="twoCol">
+          <div class="panel">
+            <h3>🧰 Cosa preparare (materiali)</h3>
+            <ul id="mPrep"></ul>
+          </div>
+          <div class="panel">
+            <h3>⛔ Errori da evitare</h3>
+            <ul id="mAvoid"></ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-  function toggleDone(id){
-    const s = state.steps.find(x=>x.id===id);
-    if (!s) return;
-    const stepDef = getStepsForMode(state.mode || "leadbox").find(x=>x.id===id);
-    const wasDone = s.done;
-    s.done = !s.done;
+  <script>
+    const schedule = [
+      {
+        time: "08:00",
+        color: "var(--accent)",
+        title: "🧠 MINDSET – Focus & Direzione",
+        tags: ["Mindset", "Parole chiave"],
+        meta: "Avvio giornata",
+        do: [
+          "Respira 2 minuti (calma → lucidità).",
+          "Visualizza 3 risultati: 1 relazione nuova, 1 follow-up fatto bene, 1 appuntamento preparato.",
+          "Ripeti parole chiave: NOME – ZONA – OPEN – AIUTO – GRAZIE."
+        ],
+        say: "Mantra (30 secondi):\n“Costruisco relazioni, non inseguo vendite.\nSono un coltivatore: semino oggi, raccolgo nel tempo.\nOgni conversazione deve lasciare una buona sensazione.”",
+        mind: [
+          "Tono calmo, sorriso, postura aperta.",
+          "Obiettivo: essere ricordato, non convincere.",
+          "Curiosità genuina: fai domande, ascolta davvero."
+        ],
+        prep: [
+          "Biglietti da visita (sempre).",
+          "Volantino/Open House pronto sul telefono + cartaceo.",
+          "Note rapide/CRM: dove scrivere subito nomi e dettagli."
+        ],
+        avoid: [
+          "Partire in modalità “caccia”.",
+          "Fissarti su numeri senza qualità.",
+          "Saltare la preparazione perché “tanto so cosa fare”."
+        ],
+        goal: ["Entrare in modalità professionista centrato e costante."]
+      },
+      {
+        time: "08:30",
+        color: "var(--accent)",
+        title: "🎭 ROLE PLAY – Allenamento conversazioni",
+        tags: ["Script", "Allenamento"],
+        meta: "Voce alta, naturalezza",
+        do: [
+          "Simula 5 conversazioni complete (inizio → invito → aiuto → grazie → uscita).",
+          "Allenati su obiezioni: “non mi interessa”, “non conosco nessuno”, “non ho tempo”.",
+          "Riascoltati (anche con memo vocale) e togli rigidità."
+        ],
+        say:
+`Sequenza mentale: PRESENTO → INVITO → AIUTO → GRAZIE → VIA
 
-    // KPI adjustments only when marking done (not when unchecking)
-    if (!wasDone && s.done && stepDef?.kpi){
-      state.kpi.portali += stepDef.kpi.portali || 0;
-      state.kpi.dm      += stepDef.kpi.dm || 0;
-      state.kpi.call    += stepDef.kpi.call || 0;
-    }
+SCRIPT UNICO:
+"Buongiorno, mi chiamo ___ dell’Agenzia ___.
+Abbiamo appena messo in vendita un immobile qui in zona, in via ___.
+È composto da ___, prezzo ___ euro.
+Sabato 10-12 Open House aperto a tutti."
 
-    saveState();
-    renderHeader();
-    renderSteps();
-  }
+DOMANDA 1 – ACQUIRENTI:
+"Conosce qualcuno che vorrebbe vivere in questa zona?"
+- SÌ → "Perfetto, se vuole lo inviti pure all’Open House."
+- NO → "Perfetto, grazie lo stesso."
 
-  // ---- Settings
-  function saveSettings(){
-    state.settings.zone = zoneInput.value.trim() || "Valle di Susa";
-    state.settings.goals = {
-      portali: parseInt(goalPortali.value || "0",10),
-      dm: parseInt(goalDM.value || "0",10),
-      call: parseInt(goalCall.value || "0",10),
-    };
-    state.settings.reminders = {
-      rem1: rem1.value.trim(),
-      rem2: rem2.value.trim(),
-    };
-    saveState();
-    renderHeader();
-    scheduleLocalReminders(); // reschedule
-  }
+DOMANDA 2 – VENDITORI:
+"Le chiedo un ultimo aiuto.
+Chi vive qui cerca più grande/più piccolo.
+Conosce qualcuno che oggi potrebbe dover vendere casa?"
 
-  saveSettingsBtn.addEventListener("click", saveSettings);
+USCITA:
+"Grazie, se vuole passare sabato è il benvenuto. Buona giornata."`,
+        mind: [
+          "Sii breve, sorridente, non invasivo.",
+          "Non restare a chiacchierare: chiudi bene e vai via.",
+          "Se non hai energia, fai 2 role play in più prima di uscire."
+        ],
+        prep: [
+          "Volantino da mostrare (NON lasciarlo).",
+          "Punti fermi dell’immobile: via, taglio, prezzo, open house.",
+          "Penna + note sul telefono per segnare nomi."
+        ],
+        avoid: [
+          "Chiedere “Vuole vendere?” o “Valutazione?”",
+          "Parlare di commissioni/sconti.",
+          "Restare appiccicato: fai una bella uscita."
+        ],
+        goal: ["Avere uno script naturale e ripetibile senza pensarci."]
+      },
+      {
+        time: "09:00–12:00",
+        color: "var(--green)",
+        title: "🔍 RICERCA – Contatti & Relazioni",
+        tags: ["Territorio", "Networking", "Prospecting"],
+        meta: "Semina intensa",
+        do: [
+          "Presenza in zona: micro-interazioni (portiere, bar, negozi).",
+          "Partecipa/valuta gruppi variegati (manager, imprenditori, hobby, genitori, sport).",
+          "Eventi target: scuola/figli, palestra, associazioni, incontri locali.",
+          "Registra subito i contatti: nome, contesto, possibile bisogno."
+        ],
+        say:
+`Regola: chiedi AIUTO, non business.
 
-  dailyNotes.addEventListener("input", () => {
-    state.notes = dailyNotes.value;
-    saveState();
-  });
+DOMANDA 1 – ACQUIRENTI:
+"Conosce qualcuno che vorrebbe vivere in questa zona?"
 
-  resetDayBtn.addEventListener("click", () => {
-    const dayKey = getRomeDayKey();
-    state.dayKey = dayKey;
-    const activeSteps = getStepsForMode(state.mode || "leadbox");
-    state.steps = activeSteps.map(s => ({ id:s.id, done:false }));
-    state.kpi = { portali:0, dm:0, call:0 };
-    state.notes = "";
-    state.timer = { seconds:0, running:false, startedAt:null };
-    saveState();
-    renderHeader();
-    renderSteps();
-    updateTimerUI();
-  });
+DOMANDA 2 – VENDITORI:
+"Chi vive qui cerca più grande/più piccolo.
+Conosce qualcuno che oggi potrebbe dover vendere casa?"
 
-  fullscreenBtn.addEventListener("click", async () => {
-    try{
-      if (!document.fullscreenElement) await document.documentElement.requestFullscreen();
-      else await document.exitFullscreen();
-    } catch(e){ console.warn(e); }
-  });
+STOP:
+✔ Ascolta
+✔ Ringrazia
+✔ Contatto solo se richiesto`,
+        mind: [
+          "Non essere “agente segreto”: fai sapere cosa fai con naturalezza.",
+          "Biglietti sempre pronti: se c’è interesse, consegna.",
+          "Chiudi con gratitudine e vai via."
+        ],
+        prep: [
+          "Biglietti da visita.",
+          "Volantino/Open House.",
+          "Mini elenco eventi/gruppi da contattare (3 nuove opzioni a settimana)."
+        ],
+        avoid: [
+          "Spam/insistenza.",
+          "Chiacchiere infinite senza scopo.",
+          "Non segnare i contatti (si perdono)."
+        ],
+        goal: ["Generare nuove relazioni e potenziali venditori/acquirenti indiretti."]
+      },
+      {
+        time: "12:00",
+        color: "var(--blue)",
+        title: "📊 SVILUPPO – File clienti & rating",
+        tags: ["CRM", "Follow-up"],
+        meta: "Capitale relazionale",
+        do: [
+          "Aggiorna file clienti passati + centri di influenza.",
+          "Aggiungi dati utili: compleanno, telefono, email, indirizzo, note personali.",
+          "Attribuisci rating valore in base a referenze ricevute.",
+          "Pianifica ricontatto: più alto il rating → più frequente."
+        ],
+        say:
+`Messaggio tipo (quando ricontatti):
+"Ciao ___! Ti scrivo al volo: come va? Ho visto una cosa interessante in zona e mi sei venuto in mente.
+Se ti serve una mano o hai curiosità sul mercato, ci sono."`,
+        mind: [
+          "Il file è un investimento: il ROI migliore è su chi già ti conosce.",
+          "Ogni nota personale è benzina per relazioni autentiche."
+        ],
+        prep: [
+          "Template file/CRM pronto.",
+          "Lista ricontatti settimanali (15–30 min al giorno)."
+        ],
+        avoid: [
+          "Fare il file “quando ho tempo”.",
+          "Mancanza di dati → follow-up freddi.",
+          "Ricontatti senza valore."
+        ],
+        goal: ["Avere un sistema che ti dice chi contattare e quando."]
+      },
+      {
+        time: "12:30",
+        color: "var(--blue)",
+        title: "🗂 AMMINISTRAZIONE – Ordine & documenti",
+        tags: ["Back office"],
+        meta: "Pulizia operativa",
+        do: [
+          "Email necessarie e solo quelle.",
+          "Documenti pratiche, caricamenti, richieste info.",
+          "Aggiornamento note su appuntamenti/immobili."
+        ],
+        say: "Regola: qui non si vende. Qui si mette ordine.",
+        mind: ["Ritmo veloce, checklist, zero distrazioni."],
+        prep: ["Cartella documenti, checklist pratiche, accesso CRM."],
+        avoid: ["Finire a navigare/scrollare.", "Aprire attività commerciali in questo blocco."],
+        goal: ["Chiudere le pendenze e liberare spazio mentale."]
+      },
+      {
+        time: "13:00–14:00",
+        color: "var(--purple)",
+        title: "🍽 PAUSA – Recupero energie",
+        tags: ["Recupero"],
+        meta: "Stacca davvero",
+        do: [
+          "Mangia senza schermo almeno 15 minuti.",
+          "Passeggiata breve o reset mentale.",
+          "Se sei in contesto sociale: micro-networking naturale."
+        ],
+        say: "Se capita: “Sì, faccio l’agente immobiliare. In che zona sei?” (senza push).",
+        mind: ["Ricarica = performance pomeriggio."],
+        prep: ["Acqua, snack semplice, scarpe comode."],
+        avoid: ["Saltare pausa e arrivare scarico.", "Scroll infinito."],
+        goal: ["Tornare lucido e presente."]
+      },
+      {
+        time: "14:00",
+        color: "var(--green)",
+        title: "📍 PRESENZA – Territorio & visibilità",
+        tags: ["Relazioni", "Brand personale"],
+        meta: "Fatti vedere",
+        do: [
+          "Giro mirato: punti di aggregazione, attività locali, contatti caldi.",
+          "Racconta cosa fai con 1 frase chiara.",
+          "Consegna biglietto solo quando ha senso."
+        ],
+        say:
+`1 frase:
+"Io mi occupo di compravendite qui in zona: aiuto le persone a muoversi bene, senza stress."
 
-  // ---- Global timer
-  let interval = null;
-
-  function updateTimerUI(){
-    const sec = state.timer.seconds;
-    const mm = String(Math.floor(sec/60)).padStart(2,"0");
-    const ss = String(sec%60).padStart(2,"0");
-    timerLabel.textContent = `${mm}:${ss}`;
-  }
-
-  function tick(){
-    if (!state.timer.running) return;
-    state.timer.seconds += 1;
-    saveState();
-    updateTimerUI();
-  }
-
-  function startGlobalTimer(){
-    if (state.timer.running) return;
-    state.timer.running = true;
-    saveState();
-    if (!interval) interval = setInterval(tick, 1000);
-  }
-  function pauseGlobalTimer(){
-    state.timer.running = false;
-    saveState();
-  }
-  function stopGlobalTimer(){
-    state.timer.running = false;
-    state.timer.seconds = 0;
-    saveState();
-    updateTimerUI();
-  }
-
-  startTimerBtn.addEventListener("click", startGlobalTimer);
-  pauseTimerBtn.addEventListener("click", pauseGlobalTimer);
-  stopTimerBtn.addEventListener("click", stopGlobalTimer);
-
-  function startStepTimer(minutes){
-    stopGlobalTimer();
-    state.timer.running = true;
-    state.timer.seconds = 0;
-    saveState();
-    updateTimerUI();
-    if (!interval) interval = setInterval(tick, 1000);
-
-    // Local countdown alert
-    const target = minutes * 60;
-    const check = setInterval(() => {
-      if (!state.timer.running) return;
-      if (state.timer.seconds >= target){
-        clearInterval(check);
-        state.timer.running = false;
-        saveState();
-        notify(`Timer finito: ${minutes} minuti`, "Passa allo step successivo 👊");
+Chiusura:
+"Se ti serve una mano o conosci qualcuno in fase di cambio casa, fammi sapere."`,
+        mind: [
+          "Tono leggero, niente pressione.",
+          "Obiettivo: essere riconoscibile e affidabile."
+        ],
+        prep: ["Biglietti, agenda note, eventuali mini-materiali di zona."],
+        avoid: ["Essere invisibile.", "Vendere invece di creare relazione."],
+        goal: ["Aumentare la tua presenza percepita in zona."]
+      },
+      {
+        time: "15:00",
+        color: "var(--red)",
+        title: "⚠ IMPREVISTI / Recupero",
+        tags: ["Urgenze"],
+        meta: "Buffer intelligente",
+        do: [
+          "Gestisci urgenze vere (non procrastinazioni).",
+          "Chiamate rapide, conferme appuntamenti, solleciti.",
+          "Ripulisci inbox/CRM 15 minuti."
+        ],
+        say: "Telefonata conferma: “Ciao ___, confermo per ___ alle ___. Ti va bene?”",
+        mind: ["Calma e priorità: prima ciò che sblocca."],
+        prep: ["Lista priorità, numeri rapidi, template messaggi."],
+        avoid: ["Riempire il buffer di cose inutili.", "Perdere focus."],
+        goal: ["Togliere attriti dal resto della giornata."]
+      },
+      {
+        time: "16:00",
+        color: "var(--blue)",
+        title: "🧩 PREQUALIFICHE / PACCHETTI",
+        tags: ["Preparazione", "Qualifica"],
+        meta: "Arriva pronto",
+        do: [
+          "Pre-qualifica clienti (budget, tempi, motivazione, vincoli).",
+          "Prepara pacchetto appuntamento: comparabili, punti forza, prossimi step.",
+          "Definisci 3 domande chiave per l’incontro."
+        ],
+        say:
+`Domande:
+1) "Tempistiche realistiche?"
+2) "Motivo del cambio?"
+3) "Cosa è NON negoziabile per voi?"`,
+        mind: ["Professionalità = chiarezza. Meno improvvisazione."],
+        prep: [
+          "Scheda cliente.",
+          "Materiali immobile (foto, planimetria, punti di zona).",
+          "Lista documenti necessari."
+        ],
+        avoid: ["Arrivare “a braccio”.", "Non chiarire tempi e vincoli."],
+        goal: ["Aumentare conversione e fiducia negli appuntamenti."]
+      },
+      {
+        time: "17:30–18:45",
+        color: "var(--green)",
+        title: "🤝 APPUNTAMENTI – Relazione & fiducia",
+        tags: ["Incontri"],
+        meta: "Ascolto attivo",
+        do: [
+          "Apri con 2 minuti di relazione (non vendita).",
+          "Ascolta, prendi note, riassumi ciò che hai capito.",
+          "Chiudi con prossimi step chiari."
+        ],
+        say:
+`Struttura:
+- "Mi racconti la situazione?"
+- "Se ho capito bene, per voi è importante ___ e ___."
+- "Prossimo step: ___ entro ___."`,
+        mind: ["Niente pressione. Chiarezza e cura."],
+        prep: ["Materiali appuntamento, note cliente, checklist documenti."],
+        avoid: ["Parlare troppo.", "Saltare i prossimi step."],
+        goal: ["Farli sentire capiti e guidati."]
+      },
+      {
+        time: "18:45",
+        color: "var(--purple)",
+        title: "📝 PIANIFICAZIONE – Domani & follow-up",
+        tags: ["Review", "Piano"],
+        meta: "Crescita continua",
+        do: [
+          "Rivedi cosa ha funzionato oggi (1 cosa).",
+          "Segna 3 follow-up da fare domani.",
+          "Pianifica 1 azione networking concreta (gruppo/evento)."
+        ],
+        say: "Domani vinco se: faccio follow-up + semino 1 nuova relazione.",
+        mind: ["Costanza batte intensità casuale."],
+        prep: ["Lista follow-up, calendario, mini-obiettivi."],
+        avoid: ["Finire senza piano.", "Sottovalutare i follow-up."],
+        goal: ["Chiudere la giornata con direzione chiara."]
+      },
+      {
+        time: "Mensile",
+        color: "var(--accent)",
+        title: "📲 WhatsApp Broadcast – Newsletter di Valore",
+        tags: ["WhatsApp", "Valore", "Reciprocità"],
+        meta: "1 volta al mese",
+        do: [
+          "Invia 1 contenuto utile (tassi mutui, surroga, trend di zona, bonus).",
+          "Rendi tutto cliccabile (link).",
+          "Se in lista ci sono professionisti: dai business prima di chiedere."
+        ],
+        say:
+`Regola:
+Non vendere. Informare.
+Messaggio tipo:
+"Ciao! Ti giro un aggiornamento utile su ___ (2 min di lettura). Se vuoi capirne l’impatto nella tua zona, scrivimi."`,
+        mind: ["Reciprocità: dare → fiducia → opportunità."],
+        prep: ["Template newsletter, link, mini-grafico o bullet semplici."],
+        avoid: ["Spam.", "Promo aggressive.", "Messaggi troppo lunghi."],
+        goal: ["Restare presente con valore, non con pressione."]
+      },
+      {
+        time: "Compleanni",
+        color: "var(--accent)",
+        title: "🎁 SORPRESA – Compleanni clienti (ROI altissimo)",
+        tags: ["Fidelizzazione"],
+        meta: "Automazione/programma",
+        do: [
+          "Seleziona clienti top (rating alto).",
+          "Invia regalo (es. bottiglia + biglietto scritto a mano) tramite servizio esterno.",
+          "Segna in CRM che è stato inviato."
+        ],
+        say: "Biglietto: breve, umano, personale. Zero vendita.",
+        mind: ["Marketing migliore: su chi già ti conosce."],
+        prep: ["Lista compleanni, indirizzi, budget, testo biglietti."],
+        avoid: ["Farne troppi senza criterio.", "Messaggi freddi/copincolla."],
+        goal: ["Lasciare un segno e aumentare referral nel tempo."]
       }
-    }, 500);
-  }
+    ];
 
-  // ---- Notifications
-  function canNotify(){ return "Notification" in window; }
+    const rowsEl = document.getElementById("rows");
+    const searchEl = document.getElementById("search");
+    const expandBtn = document.getElementById("expandAll");
 
-  async function requestNotify(){
-    if (!canNotify()) { alert("Notifiche non supportate in questo browser."); return; }
-    const perm = await Notification.requestPermission();
-    if (perm === "granted") {
-      notifyBtn.textContent = "🔔 Notifiche ON";
-      scheduleLocalReminders();
-      notify("Notifiche attive", "Ti ricorderò la routine agli orari impostati.");
-    } else {
-      notifyBtn.textContent = "🔔 Notifiche";
+    const backdrop = document.getElementById("backdrop");
+    const closeBtn = document.getElementById("closeBtn");
+
+    const mTitle = document.getElementById("mTitle");
+    const mMeta = document.getElementById("mMeta");
+    const mDo = document.getElementById("mDo");
+    const mGoal = document.getElementById("mGoal");
+    const mSay = document.getElementById("mSay");
+    const mMind = document.getElementById("mMind");
+    const mPrep = document.getElementById("mPrep");
+    const mAvoid = document.getElementById("mAvoid");
+
+    function li(text){
+      const el = document.createElement("li");
+      el.textContent = text;
+      return el;
     }
-  }
 
-  function notify(title, body){
-    if (canNotify() && Notification.permission === "granted") {
-      try { new Notification(title, { body }); } catch {}
+    function openModal(item){
+      mTitle.textContent = item.title;
+
+      // meta chips
+      mMeta.innerHTML = "";
+      const chips = [
+        {label: `⏰ ${item.time}`},
+        {label: item.meta ? `📌 ${item.meta}` : null}
+      ].filter(Boolean);
+
+      item.tags?.forEach(t => chips.push({label: `🏷 ${t}`}));
+
+      chips.forEach(c=>{
+        const s = document.createElement("span");
+        s.className = "tag";
+        s.textContent = c.label;
+        mMeta.appendChild(s);
+      });
+
+      // lists
+      mDo.innerHTML = ""; item.do.forEach(x=> mDo.appendChild(li(x)));
+      mGoal.innerHTML=""; item.goal.forEach(x=> mGoal.appendChild(li(x)));
+      mMind.innerHTML=""; item.mind.forEach(x=> mMind.appendChild(li(x)));
+      mPrep.innerHTML=""; item.prep.forEach(x=> mPrep.appendChild(li(x)));
+      mAvoid.innerHTML=""; item.avoid.forEach(x=> mAvoid.appendChild(li(x)));
+
+      mSay.textContent = item.say || "";
+
+      backdrop.style.display = "flex";
+      document.body.style.overflow = "hidden";
     }
-  }
 
-  notifyBtn.addEventListener("click", requestNotify);
+    function closeModal(){
+      backdrop.style.display = "none";
+      document.body.style.overflow = "";
+    }
 
-  // Local reminders while page is open (simple scheduler)
-  let reminderTimers = [];
-  function clearReminders(){
-    reminderTimers.forEach(t => clearTimeout(t));
-    reminderTimers = [];
-  }
+    closeBtn.addEventListener("click", closeModal);
+    backdrop.addEventListener("click", (e)=>{
+      if(e.target === backdrop) closeModal();
+    });
+    window.addEventListener("keydown", (e)=>{
+      if(e.key === "Escape" && backdrop.style.display === "flex") closeModal();
+    });
 
-  function parseHHMM(s){
-    const m = /^(\d{1,2}):(\d{2})$/.exec((s||"").trim());
-    if (!m) return null;
-    const hh = Math.max(0, Math.min(23, parseInt(m[1],10)));
-    const mm = Math.max(0, Math.min(59, parseInt(m[2],10)));
-    return { hh, mm };
-  }
+    function render(filter=""){
+      rowsEl.innerHTML = "";
+      const q = filter.trim().toLowerCase();
 
-  function scheduleOne(hhmm, label){
-    const t = parseHHMM(hhmm);
-    if (!t) return;
-    // Compute next occurrence using local Date (good enough for daily reminders)
-    const now = new Date();
-    const target = new Date();
-    target.setHours(t.hh, t.mm, 0, 0);
-    if (target <= now) target.setDate(target.getDate() + 1);
-    const ms = target.getTime() - now.getTime();
-    const id = setTimeout(() => {
-      notify("Routine acquisizione", label);
-      // reschedule for next day
-      scheduleLocalReminders();
-    }, ms);
-    reminderTimers.push(id);
-  }
+      schedule
+        .filter(item=>{
+          if(!q) return true;
+          const hay = [
+            item.time, item.title, item.meta,
+            ...(item.tags||[]),
+            ...(item.do||[]),
+            item.say,
+            ...(item.mind||[]),
+            ...(item.prep||[]),
+            ...(item.avoid||[]),
+            ...(item.goal||[])
+          ].join(" ").toLowerCase();
+          return hay.includes(q);
+        })
+        .forEach((item, idx)=>{
+          const row = document.createElement("div");
+          row.className = "row";
 
-  function scheduleLocalReminders(){
-    clearReminders();
-    if (!(canNotify() && Notification.permission === "granted")) return;
+          const time = document.createElement("div");
+          time.className = "time";
+          time.textContent = item.time;
 
-    const z = state.settings.zone || "Valle di Susa";
-    const msg1 = `Routine (${state.mode === "immobiliare" ? "Immobiliare" : "LeadBox"}): inizia adesso – ${z}`;
-    const msg2 = state.mode === "immobiliare"
-      ? `DM + Call: chiudi conversazioni e fissa sopralluoghi`
-      : `DM/Email: chiudi conversazioni e fissa call`;
+          const slot = document.createElement("div");
+          slot.className = "slot";
 
-    scheduleOne(state.settings.reminders?.rem1, msg1);
-    scheduleOne(state.settings.reminders?.rem2, msg2);
-  }
+          const block = document.createElement("div");
+          block.className = "block";
+          block.style.borderLeftColor = item.color || "var(--accent)";
 
-  // ---- Init
-  function init(){
-    renderHeader();
-    renderSteps();
-    updateTimerUI();
+          const t = document.createElement("div");
+          t.className = "blockTitle";
+          t.textContent = item.title;
 
-    if (canNotify() && Notification.permission === "granted") notifyBtn.textContent = "🔔 Notifiche ON";
+          const meta = document.createElement("div");
+          meta.className = "blockMeta";
+          if(item.meta){
+            const s = document.createElement("span");
+            s.className = "tag";
+            s.textContent = item.meta;
+            meta.appendChild(s);
+          }
+          (item.tags||[]).slice(0,4).forEach(tag=>{
+            const s = document.createElement("span");
+            s.className = "tag";
+            s.textContent = tag;
+            meta.appendChild(s);
+          });
 
-    scheduleLocalReminders();
-  }
-  init();
-})();
-</script>
+          block.appendChild(t);
+          block.appendChild(meta);
+
+          block.addEventListener("click", ()=> openModal(item));
+
+          slot.appendChild(block);
+          row.appendChild(time);
+          row.appendChild(slot);
+          rowsEl.appendChild(row);
+        });
+
+      if(rowsEl.children.length === 0){
+        const empty = document.createElement("div");
+        empty.style.padding = "18px";
+        empty.style.color = "var(--muted)";
+        empty.textContent = "Nessun risultato. Prova a cercare 'Open', 'WhatsApp', 'script', 'prequalifiche'...";
+        rowsEl.appendChild(empty);
+      }
+    }
+
+    searchEl.addEventListener("input", (e)=> render(e.target.value));
+
+    // Apri sequenza: apre modali uno dopo l’altro (utile come “flow”)
+    expandBtn.addEventListener("click", ()=>{
+      const visible = Array.from(rowsEl.querySelectorAll(".block"));
+      if(!visible.length) return;
+
+      // trova gli item filtrati correnti in base alla ricerca
+      const q = searchEl.value.trim().toLowerCase();
+      const items = schedule.filter(item=>{
+        if(!q) return true;
+        const hay = [
+          item.time, item.title, item.meta,
+          ...(item.tags||[]),
+          ...(item.do||[]),
+          item.say,
+          ...(item.mind||[]),
+          ...(item.prep||[]),
+          ...(item.avoid||[]),
+          ...(item.goal||[])
+        ].join(" ").toLowerCase();
+        return hay.includes(q);
+      });
+
+      let i = 0;
+      openModal(items[i]);
+
+      // quando chiudi, apre il prossimo
+      const originalClose = closeModal;
+      function chainedClose(){
+        originalClose();
+        i++;
+        if(i < items.length){
+          setTimeout(()=> openModal(items[i]), 120);
+        }else{
+          // ripristina close normale
+          closeModal = originalClose;
+        }
+      }
+      // hack semplice: sostituiamo temporaneamente l'handler del bottone
+      closeBtn.onclick = chainedClose;
+      backdrop.onclick = (e)=>{ if(e.target===backdrop) chainedClose(); };
+      window.onkeydown = (e)=>{ if(e.key==="Escape" && backdrop.style.display==="flex") chainedClose(); };
+    });
+
+    render();
+  </script>
 </body>
 </html>
