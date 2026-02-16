@@ -1,909 +1,132 @@
-<!doctype html>
+ 
+<!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Agenda Operativa – Agente Immobiliare</title>
-  <style>
-    :root{
-      --bg:#0b0f14;
-      --card:#121a23;
-      --muted:#8aa0b6;
-      --text:#e8f0f7;
-      --line:#223142;
-      --accent:#ff7a18;
-      --green:#1fbf75;
-      --blue:#4b7bec;
-      --red:#ff5c5c;
-      --purple:#a55eea;
-      --shadow: 0 14px 40px rgba(0,0,0,.35);
-      --radius: 16px;
-    }
-    *{box-sizing:border-box}
-    body{
-      margin:0;
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
-      background: radial-gradient(1200px 800px at 20% -10%, rgba(255,122,24,.18), transparent 55%),
-                  radial-gradient(900px 700px at 110% 10%, rgba(31,191,117,.14), transparent 50%),
-                  var(--bg);
-      color: var(--text);
-      padding: 22px;
-    }
-    header{
-      max-width: 1100px;
-      margin: 0 auto 18px auto;
-      display:flex;
-      gap:14px;
-      align-items:flex-start;
-      justify-content:space-between;
-      flex-wrap:wrap;
-    }
-    .title{
-      display:flex;
-      flex-direction:column;
-      gap:6px;
-    }
-    h1{
-      font-size: 20px;
-      margin:0;
-      letter-spacing:.2px;
-    }
-    .sub{
-      color: var(--muted);
-      font-size: 13px;
-      line-height:1.35;
-      max-width: 720px;
-    }
-    .controls{
-      display:flex;
-      gap:10px;
-      align-items:center;
-      flex-wrap:wrap;
-      justify-content:flex-end;
-    }
-    .chip{
-      border:1px solid var(--line);
-      background: rgba(18,26,35,.65);
-      color: var(--text);
-      padding: 9px 10px;
-      border-radius: 999px;
-      font-size: 13px;
-      display:flex;
-      align-items:center;
-      gap:8px;
-    }
-    input[type="search"]{
-      border:1px solid var(--line);
-      background: rgba(18,26,35,.65);
-      color: var(--text);
-      padding: 10px 12px;
-      border-radius: 999px;
-      outline:none;
-      width: 260px;
-    }
-    input[type="search"]::placeholder{color:#6f879f}
-    button{
-      border:1px solid var(--line);
-      background: rgba(18,26,35,.65);
-      color: var(--text);
-      padding: 10px 12px;
-      border-radius: 999px;
-      cursor:pointer;
-    }
-    button:hover{border-color:#35506a}
-    main{
-      max-width: 1100px;
-      margin: 0 auto;
-      display:grid;
-      grid-template-columns: 1fr;
-      gap:14px;
-    }
-    .grid{
-      border:1px solid var(--line);
-      background: rgba(18,26,35,.55);
-      border-radius: var(--radius);
-      overflow:hidden;
-      box-shadow: var(--shadow);
-    }
-    .gridHead{
-      display:grid;
-      grid-template-columns: 92px 1fr;
-      gap:0;
-      padding: 12px 14px;
-      border-bottom:1px solid var(--line);
-      background: linear-gradient(180deg, rgba(255,255,255,.03), transparent);
-      align-items:center;
-    }
-    .gridHead .left{color: var(--muted); font-size:12px}
-    .gridHead .right{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      flex-wrap:wrap;
-    }
-    .legend{
-      display:flex; gap:10px; flex-wrap:wrap;
-      color: var(--muted); font-size:12px;
-    }
-    .dot{width:10px;height:10px;border-radius:999px;display:inline-block;margin-right:6px}
-    .rows{
-      display:flex;
-      flex-direction:column;
-    }
-    .row{
-      display:grid;
-      grid-template-columns: 92px 1fr;
-      gap:0;
-      border-top:1px solid rgba(34,49,66,.45);
-      min-height: 64px;
-    }
-    .time{
-      padding: 12px 14px;
-      color: var(--muted);
-      font-size: 13px;
-      border-right:1px solid rgba(34,49,66,.45);
-      display:flex;
-      align-items:center;
-      justify-content:flex-start;
-    }
-    .slot{
-      padding: 10px 12px;
-      display:flex;
-      align-items:center;
-      gap:10px;
-      flex-wrap:wrap;
-    }
-    .block{
-      flex: 1 1 520px;
-      border:1px solid rgba(255,255,255,.07);
-      border-left: 6px solid var(--accent);
-      background: rgba(11,15,20,.55);
-      border-radius: 12px;
-      padding: 10px 12px;
-      cursor:pointer;
-      transition: transform .08s ease, border-color .08s ease;
-      position:relative;
-      overflow:hidden;
-    }
-    .block:hover{
-      transform: translateY(-1px);
-      border-color: rgba(255,255,255,.14);
-    }
-    .blockTitle{
-      font-weight: 650;
-      font-size: 14px;
-      margin:0 0 4px 0;
-      display:flex;
-      align-items:center;
-      gap:10px;
-    }
-    .blockMeta{
-      color: var(--muted);
-      font-size: 12px;
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-    }
-    .tag{
-      border:1px solid rgba(255,255,255,.08);
-      padding: 3px 8px;
-      border-radius: 999px;
-      font-size: 12px;
-      color: #cfe1f3;
-      background: rgba(18,26,35,.6);
-    }
-    .small{
-      font-size: 12px;
-      color: var(--muted);
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Domande Strategiche di Negoziazione</title>
 
-    /* Modal */
-    .modalBackdrop{
-      position: fixed;
-      inset:0;
-      background: rgba(0,0,0,.58);
-      display:none;
-      align-items:center;
-      justify-content:center;
-      padding: 18px;
-      z-index: 50;
-    }
-    .modal{
-      width: min(920px, 100%);
-      max-height: 90vh;
-      overflow:auto;
-      background: rgba(18,26,35,.92);
-      border: 1px solid rgba(255,255,255,.12);
-      border-radius: 18px;
-      box-shadow: 0 30px 80px rgba(0,0,0,.55);
-      backdrop-filter: blur(10px);
-    }
-    .modalHeader{
-      padding: 14px 16px;
-      border-bottom: 1px solid rgba(255,255,255,.10);
-      display:flex;
-      align-items:flex-start;
-      justify-content:space-between;
-      gap:14px;
-    }
-    .modalHeader h2{
-      margin:0;
-      font-size: 16px;
-      line-height:1.25;
-    }
-    .modalHeader .meta{
-      margin-top: 6px;
-      color: var(--muted);
-      font-size: 12px;
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-    }
-    .closeBtn{
-      border:1px solid rgba(255,255,255,.14);
-      background: rgba(11,15,20,.55);
-      color: var(--text);
-      padding: 8px 10px;
-      border-radius: 999px;
-      cursor:pointer;
-      white-space:nowrap;
-    }
-    .modalBody{
-      padding: 14px 16px 16px 16px;
-      display:grid;
-      gap:12px;
-    }
-    .panel{
-      border:1px solid rgba(255,255,255,.10);
-      background: rgba(11,15,20,.35);
-      border-radius: 14px;
-      padding: 12px 12px;
-    }
-    .panel h3{
-      margin:0 0 8px 0;
-      font-size: 13px;
-      letter-spacing: .2px;
-      text-transform: uppercase;
-      color: #d7e8f8;
-      display:flex;
-      align-items:center;
-      gap:8px;
-    }
-    .panel ul{
-      margin:0;
-      padding-left: 18px;
-      color: #d9e7f4;
-      line-height:1.55;
-      font-size: 14px;
-    }
-    .panel pre{
-      margin:0;
-      padding: 10px 12px;
-      border-radius: 12px;
-      background: rgba(0,0,0,.25);
-      border:1px solid rgba(255,255,255,.10);
-      overflow:auto;
-      font-size: 13px;
-      line-height: 1.45;
-      white-space: pre-wrap;
-      word-break: break-word;
-    }
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #111;
+    color: #fff;
+    line-height: 1.6;
+}
 
-    .twoCol{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap:12px;
-    }
-    @media (max-width: 820px){
-      .twoCol{grid-template-columns: 1fr}
-      input[type="search"]{width: 100%}
-    }
-  </style>
+header {
+    background: #000;
+    padding: 20px;
+    text-align: center;
+    font-size: 22px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    border-bottom: 2px solid #444;
+}
+
+.section {
+    padding: 20px;
+    border-bottom: 1px solid #333;
+}
+
+.section h2 {
+    font-size: 18px;
+    margin-bottom: 15px;
+    color: #00d4ff;
+}
+
+.question {
+    background: #1c1c1c;
+    padding: 12px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.question:hover {
+    background: #2a2a2a;
+}
+
+footer {
+    text-align: center;
+    padding: 15px;
+    font-size: 12px;
+    color: #888;
+}
+</style>
+
 </head>
 <body>
-  <header>
-    <div class="title">
-      <h1>Agenda Operativa Interattiva</h1>
-      <div class="sub">
-        Clicca su un blocco per aprire il <b>POP-UP operativo</b> (cosa fare, cosa dire, materiali, mindset, errori da evitare).
-        Usa la ricerca per trovare al volo “Open House”, “WhatsApp”, “script”, ecc.
-      </div>
-    </div>
-    <div class="controls">
-      <input id="search" type="search" placeholder="Cerca (es. 'script', 'open', 'whatsapp')">
-      <button id="expandAll" title="Apri tutti i blocchi (in sequenza)">Apri sequenza</button>
-      <span class="chip" title="Parole chiave da tenere a mente">
-        🔑 NOME • ZONA • OPEN • AIUTO • GRAZIE
-      </span>
-    </div>
-  </header>
 
-  <main>
-    <section class="grid" aria-label="Agenda giornaliera">
-      <div class="gridHead">
-        <div class="left">ORARIO</div>
-        <div class="right">
-          <div class="small">Metodo: coltivatore (relazioni) → risultati nel medio-lungo</div>
-          <div class="legend">
-            <span><span class="dot" style="background:var(--accent)"></span>Operativo</span>
-            <span><span class="dot" style="background:var(--green)"></span>Territorio/Relazioni</span>
-            <span><span class="dot" style="background:var(--blue)"></span>Gestione/CRM</span>
-            <span><span class="dot" style="background:var(--red)"></span>Urgenze</span>
-            <span><span class="dot" style="background:var(--purple)"></span>Pianificazione</span>
-          </div>
-        </div>
-      </div>
-      <div class="rows" id="rows"></div>
-    </section>
-  </main>
+<header>
+DOMANDE STRATEGICHE DI NEGOZIAZIONE
+</header>
 
-  <!-- Modal -->
-  <div class="modalBackdrop" id="backdrop" role="dialog" aria-modal="true" aria-label="Dettagli attività">
-    <div class="modal">
-      <div class="modalHeader">
-        <div>
-          <h2 id="mTitle">Titolo</h2>
-          <div class="meta" id="mMeta"></div>
-        </div>
-        <button class="closeBtn" id="closeBtn">Chiudi ✕</button>
-      </div>
-      <div class="modalBody">
-        <div class="twoCol">
-          <div class="panel">
-            <h3>✅ Cosa fare</h3>
-            <ul id="mDo"></ul>
-          </div>
-          <div class="panel">
-            <h3>🎯 Obiettivo</h3>
-            <ul id="mGoal"></ul>
-          </div>
-        </div>
+<div class="section">
+<h2>Stimolo del NO</h2>
 
-        <div class="twoCol">
-          <div class="panel">
-            <h3>🗣️ Cosa dire (script)</h3>
-            <pre id="mSay"></pre>
-          </div>
-          <div class="panel">
-            <h3>🧠 Come muoverti (mindset)</h3>
-            <ul id="mMind"></ul>
-          </div>
-        </div>
+<div class="question">È un cattivo momento?</div>
+<div class="question">Non è interessato a parlarne?</div>
+<div class="question">Ha già deciso di rinunciare al progetto?</div>
+<div class="question">Che cosa non vuole?</div>
+<div class="question">Ha già deciso di non procedere?</div>
+<div class="question">È un cattivo momento per fare due chiacchiere?</div>
 
-        <div class="twoCol">
-          <div class="panel">
-            <h3>🧰 Cosa preparare (materiali)</h3>
-            <ul id="mPrep"></ul>
-          </div>
-          <div class="panel">
-            <h3>⛔ Errori da evitare</h3>
-            <ul id="mAvoid"></ul>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+</div>
 
-  <script>
-    const schedule = [
-      {
-        time: "08:00",
-        color: "var(--accent)",
-        title: "🧠 MINDSET – Focus & Direzione",
-        tags: ["Mindset", "Parole chiave"],
-        meta: "Avvio giornata",
-        do: [
-          "Respira 2 minuti (calma → lucidità).",
-          "Visualizza 3 risultati: 1 relazione nuova, 1 follow-up fatto bene, 1 appuntamento preparato.",
-          "Ripeti parole chiave: NOME – ZONA – OPEN – AIUTO – GRAZIE."
-        ],
-        say: "Mantra (30 secondi):\n“Costruisco relazioni, non inseguo vendite.\nSono un coltivatore: semino oggi, raccolgo nel tempo.\nOgni conversazione deve lasciare una buona sensazione.”",
-        mind: [
-          "Tono calmo, sorriso, postura aperta.",
-          "Obiettivo: essere ricordato, non convincere.",
-          "Curiosità genuina: fai domande, ascolta davvero."
-        ],
-        prep: [
-          "Biglietti da visita (sempre).",
-          "Volantino/Open House pronto sul telefono + cartaceo.",
-          "Note rapide/CRM: dove scrivere subito nomi e dettagli."
-        ],
-        avoid: [
-          "Partire in modalità “caccia”.",
-          "Fissarti su numeri senza qualità.",
-          "Saltare la preparazione perché “tanto so cosa fare”."
-        ],
-        goal: ["Entrare in modalità professionista centrato e costante."]
-      },
-      {
-        time: "08:30",
-        color: "var(--accent)",
-        title: "🎭 ROLE PLAY – Allenamento conversazioni",
-        tags: ["Script", "Allenamento"],
-        meta: "Voce alta, naturalezza",
-        do: [
-          "Simula 5 conversazioni complete (inizio → invito → aiuto → grazie → uscita).",
-          "Allenati su obiezioni: “non mi interessa”, “non conosco nessuno”, “non ho tempo”.",
-          "Riascoltati (anche con memo vocale) e togli rigidità."
-        ],
-        say:
-`Sequenza mentale: PRESENTO → INVITO → AIUTO → GRAZIE → VIA
+<div class="section">
+<h2>Domande Calibrate</h2>
 
-SCRIPT UNICO:
-"Buongiorno, mi chiamo ___ dell’Agenzia ___.
-Abbiamo appena messo in vendita un immobile qui in zona, in via ___.
-È composto da ___, prezzo ___ euro.
-Sabato 10-12 Open House aperto a tutti."
+<div class="question">Qual è la sfida più grande che state affrontando?</div>
+<div class="question">Cosa vi porta a questa conclusione?</div>
+<div class="question">Come posso accettare questa proposta?</div>
+<div class="question">Cosa succede se non facciamo nulla?</div>
+<div class="question">Come possiamo risolvere questo problema in modo che soddisfi le esigenze di entrambi?</div>
+<div class="question">Cosa c'è di così importante per voi in questo punto?</div>
+<div class="question">Come dovrei fare a realizzare una cosa del genere?</div>
+<div class="question">Qual è l'obiettivo principale qui?</div>
+<div class="question">Quali ostacoli dobbiamo superare per procedere?</div>
+<div class="question">Come ti sembra questo accordo?</div>
+<div class="question">Cosa c’è di così importante per volersene andare?</div>
 
-DOMANDA 1 – ACQUIRENTI:
-"Conosce qualcuno che vorrebbe vivere in questa zona?"
-- SÌ → "Perfetto, se vuole lo inviti pure all’Open House."
-- NO → "Perfetto, grazie lo stesso."
+</div>
 
-DOMANDA 2 – VENDITORI:
-"Le chiedo un ultimo aiuto.
-Chi vive qui cerca più grande/più piccolo.
-Conosce qualcuno che oggi potrebbe dover vendere casa?"
+<div class="section">
+<h2>Domande Orientate alla Soluzione</h2>
 
-USCITA:
-"Grazie, se vuole passare sabato è il benvenuto. Buona giornata."`,
-        mind: [
-          "Sii breve, sorridente, non invasivo.",
-          "Non restare a chiacchierare: chiudi bene e vai via.",
-          "Se non hai energia, fai 2 role play in più prima di uscire."
-        ],
-        prep: [
-          "Volantino da mostrare (NON lasciarlo).",
-          "Punti fermi dell’immobile: via, taglio, prezzo, open house.",
-          "Penna + note sul telefono per segnare nomi."
-        ],
-        avoid: [
-          "Chiedere “Vuole vendere?” o “Valutazione?”",
-          "Parlare di commissioni/sconti.",
-          "Restare appiccicato: fai una bella uscita."
-        ],
-        goal: ["Avere uno script naturale e ripetibile senza pensarci."]
-      },
-      {
-        time: "09:00–12:00",
-        color: "var(--green)",
-        title: "🔍 RICERCA – Contatti & Relazioni",
-        tags: ["Territorio", "Networking", "Prospecting"],
-        meta: "Semina intensa",
-        do: [
-          "Presenza in zona: micro-interazioni (portiere, bar, negozi).",
-          "Partecipa/valuta gruppi variegati (manager, imprenditori, hobby, genitori, sport).",
-          "Eventi target: scuola/figli, palestra, associazioni, incontri locali.",
-          "Registra subito i contatti: nome, contesto, possibile bisogno."
-        ],
-        say:
-`Regola: chiedi AIUTO, non business.
+<div class="question">Qual è l’obiettivo che vogliamo raggiungere?</div>
+<div class="question">Cosa possiamo fare concretamente per superare questo ostacolo?</div>
+<div class="question">Qual è il primo passo pratico?</div>
+<div class="question">Come possiamo ottenere lo stesso risultato con le risorse attuali?</div>
+<div class="question">Quale azione specifica possiamo intraprendere?</div>
 
-DOMANDA 1 – ACQUIRENTI:
-"Conosce qualcuno che vorrebbe vivere in questa zona?"
+</div>
 
-DOMANDA 2 – VENDITORI:
-"Chi vive qui cerca più grande/più piccolo.
-Conosce qualcuno che oggi potrebbe dover vendere casa?"
+<div class="section">
+<h2>Domande Strategiche Avanzate</h2>
 
-STOP:
-✔ Ascolta
-✔ Ringrazia
-✔ Contatto solo se richiesto`,
-        mind: [
-          "Non essere “agente segreto”: fai sapere cosa fai con naturalezza.",
-          "Biglietti sempre pronti: se c’è interesse, consegna.",
-          "Chiudi con gratitudine e vai via."
-        ],
-        prep: [
-          "Biglietti da visita.",
-          "Volantino/Open House.",
-          "Mini elenco eventi/gruppi da contattare (3 nuove opzioni a settimana)."
-        ],
-        avoid: [
-          "Spam/insistenza.",
-          "Chiacchiere infinite senza scopo.",
-          "Non segnare i contatti (si perdono)."
-        ],
-        goal: ["Generare nuove relazioni e potenziali venditori/acquirenti indiretti."]
-      },
-      {
-        time: "12:00",
-        color: "var(--blue)",
-        title: "📊 SVILUPPO – File clienti & rating",
-        tags: ["CRM", "Follow-up"],
-        meta: "Capitale relazionale",
-        do: [
-          "Aggiorna file clienti passati + centri di influenza.",
-          "Aggiungi dati utili: compleanno, telefono, email, indirizzo, note personali.",
-          "Attribuisci rating valore in base a referenze ricevute.",
-          "Pianifica ricontatto: più alto il rating → più frequente."
-        ],
-        say:
-`Messaggio tipo (quando ricontatti):
-"Ciao ___! Ti scrivo al volo: come va? Ho visto una cosa interessante in zona e mi sei venuto in mente.
-Se ti serve una mano o hai curiosità sul mercato, ci sono."`,
-        mind: [
-          "Il file è un investimento: il ROI migliore è su chi già ti conosce.",
-          "Ogni nota personale è benzina per relazioni autentiche."
-        ],
-        prep: [
-          "Template file/CRM pronto.",
-          "Lista ricontatti settimanali (15–30 min al giorno)."
-        ],
-        avoid: [
-          "Fare il file “quando ho tempo”.",
-          "Mancanza di dati → follow-up freddi.",
-          "Ricontatti senza valore."
-        ],
-        goal: ["Avere un sistema che ti dice chi contattare e quando."]
-      },
-      {
-        time: "12:30",
-        color: "var(--blue)",
-        title: "🗂 AMMINISTRAZIONE – Ordine & documenti",
-        tags: ["Back office"],
-        meta: "Pulizia operativa",
-        do: [
-          "Email necessarie e solo quelle.",
-          "Documenti pratiche, caricamenti, richieste info.",
-          "Aggiornamento note su appuntamenti/immobili."
-        ],
-        say: "Regola: qui non si vende. Qui si mette ordine.",
-        mind: ["Ritmo veloce, checklist, zero distrazioni."],
-        prep: ["Cartella documenti, checklist pratiche, accesso CRM."],
-        avoid: ["Finire a navigare/scrollare.", "Aprire attività commerciali in questo blocco."],
-        goal: ["Chiudere le pendenze e liberare spazio mentale."]
-      },
-      {
-        time: "13:00–14:00",
-        color: "var(--purple)",
-        title: "🍽 PAUSA – Recupero energie",
-        tags: ["Recupero"],
-        meta: "Stacca davvero",
-        do: [
-          "Mangia senza schermo almeno 15 minuti.",
-          "Passeggiata breve o reset mentale.",
-          "Se sei in contesto sociale: micro-networking naturale."
-        ],
-        say: "Se capita: “Sì, faccio l’agente immobiliare. In che zona sei?” (senza push).",
-        mind: ["Ricarica = performance pomeriggio."],
-        prep: ["Acqua, snack semplice, scarpe comode."],
-        avoid: ["Saltare pausa e arrivare scarico.", "Scroll infinito."],
-        goal: ["Tornare lucido e presente."]
-      },
-      {
-        time: "14:00",
-        color: "var(--green)",
-        title: "📍 PRESENZA – Territorio & visibilità",
-        tags: ["Relazioni", "Brand personale"],
-        meta: "Fatti vedere",
-        do: [
-          "Giro mirato: punti di aggregazione, attività locali, contatti caldi.",
-          "Racconta cosa fai con 1 frase chiara.",
-          "Consegna biglietto solo quando ha senso."
-        ],
-        say:
-`1 frase:
-"Io mi occupo di compravendite qui in zona: aiuto le persone a muoversi bene, senza stress."
+<div class="question">Che cosa sta succedendo che non sto vedendo?</div>
+<div class="question">Che cosa per lei è davvero in gioco qui?</div>
+<div class="question">Cosa teme se questo accordo non viene raggiunto?</div>
+<div class="question">Cosa spera realmente di ottenere?</div>
+<div class="question">Quale informazione nascosta potrebbe cambiare tutto?</div>
+<div class="question">Qual è l’evento scatenante?</div>
+<div class="question">Qual è il vero problema?</div>
+<div class="question">Quali opzioni sono inaccettabili?</div>
+<div class="question">Quale soluzione è accettabile per entrambi?</div>
+<div class="question">Cosa dovrebbe accadere perché questo diventi accettabile?</div>
+<div class="question">Come posso fare in modo che questo funzioni per lei?</div>
+<div class="question">Cosa non vuole assolutamente che accada?</div>
+<div class="question">Cosa accade se procediamo così?</div>
+<div class="question">Cosa accade se non procediamo?</div>
 
-Chiusura:
-"Se ti serve una mano o conosci qualcuno in fase di cambio casa, fammi sapere."`,
-        mind: [
-          "Tono leggero, niente pressione.",
-          "Obiettivo: essere riconoscibile e affidabile."
-        ],
-        prep: ["Biglietti, agenda note, eventuali mini-materiali di zona."],
-        avoid: ["Essere invisibile.", "Vendere invece di creare relazione."],
-        goal: ["Aumentare la tua presenza percepita in zona."]
-      },
-      {
-        time: "15:00",
-        color: "var(--red)",
-        title: "⚠ IMPREVISTI / Recupero",
-        tags: ["Urgenze"],
-        meta: "Buffer intelligente",
-        do: [
-          "Gestisci urgenze vere (non procrastinazioni).",
-          "Chiamate rapide, conferme appuntamenti, solleciti.",
-          "Ripulisci inbox/CRM 15 minuti."
-        ],
-        say: "Telefonata conferma: “Ciao ___, confermo per ___ alle ___. Ti va bene?”",
-        mind: ["Calma e priorità: prima ciò che sblocca."],
-        prep: ["Lista priorità, numeri rapidi, template messaggi."],
-        avoid: ["Riempire il buffer di cose inutili.", "Perdere focus."],
-        goal: ["Togliere attriti dal resto della giornata."]
-      },
-      {
-        time: "16:00",
-        color: "var(--blue)",
-        title: "🧩 PREQUALIFICHE / PACCHETTI",
-        tags: ["Preparazione", "Qualifica"],
-        meta: "Arriva pronto",
-        do: [
-          "Pre-qualifica clienti (budget, tempi, motivazione, vincoli).",
-          "Prepara pacchetto appuntamento: comparabili, punti forza, prossimi step.",
-          "Definisci 3 domande chiave per l’incontro."
-        ],
-        say:
-`Domande:
-1) "Tempistiche realistiche?"
-2) "Motivo del cambio?"
-3) "Cosa è NON negoziabile per voi?"`,
-        mind: ["Professionalità = chiarezza. Meno improvvisazione."],
-        prep: [
-          "Scheda cliente.",
-          "Materiali immobile (foto, planimetria, punti di zona).",
-          "Lista documenti necessari."
-        ],
-        avoid: ["Arrivare “a braccio”.", "Non chiarire tempi e vincoli."],
-        goal: ["Aumentare conversione e fiducia negli appuntamenti."]
-      },
-      {
-        time: "17:30–18:45",
-        color: "var(--green)",
-        title: "🤝 APPUNTAMENTI – Relazione & fiducia",
-        tags: ["Incontri"],
-        meta: "Ascolto attivo",
-        do: [
-          "Apri con 2 minuti di relazione (non vendita).",
-          "Ascolta, prendi note, riassumi ciò che hai capito.",
-          "Chiudi con prossimi step chiari."
-        ],
-        say:
-`Struttura:
-- "Mi racconti la situazione?"
-- "Se ho capito bene, per voi è importante ___ e ___."
-- "Prossimo step: ___ entro ___."`,
-        mind: ["Niente pressione. Chiarezza e cura."],
-        prep: ["Materiali appuntamento, note cliente, checklist documenti."],
-        avoid: ["Parlare troppo.", "Saltare i prossimi step."],
-        goal: ["Farli sentire capiti e guidati."]
-      },
-      {
-        time: "18:45",
-        color: "var(--purple)",
-        title: "📝 PIANIFICAZIONE – Domani & follow-up",
-        tags: ["Review", "Piano"],
-        meta: "Crescita continua",
-        do: [
-          "Rivedi cosa ha funzionato oggi (1 cosa).",
-          "Segna 3 follow-up da fare domani.",
-          "Pianifica 1 azione networking concreta (gruppo/evento)."
-        ],
-        say: "Domani vinco se: faccio follow-up + semino 1 nuova relazione.",
-        mind: ["Costanza batte intensità casuale."],
-        prep: ["Lista follow-up, calendario, mini-obiettivi."],
-        avoid: ["Finire senza piano.", "Sottovalutare i follow-up."],
-        goal: ["Chiudere la giornata con direzione chiara."]
-      },
-      {
-        time: "Mensile",
-        color: "var(--accent)",
-        title: "📲 WhatsApp Broadcast – Newsletter di Valore",
-        tags: ["WhatsApp", "Valore", "Reciprocità"],
-        meta: "1 volta al mese",
-        do: [
-          "Invia 1 contenuto utile (tassi mutui, surroga, trend di zona, bonus).",
-          "Rendi tutto cliccabile (link).",
-          "Se in lista ci sono professionisti: dai business prima di chiedere."
-        ],
-        say:
-`Regola:
-Non vendere. Informare.
-Messaggio tipo:
-"Ciao! Ti giro un aggiornamento utile su ___ (2 min di lettura). Se vuoi capirne l’impatto nella tua zona, scrivimi."`,
-        mind: ["Reciprocità: dare → fiducia → opportunità."],
-        prep: ["Template newsletter, link, mini-grafico o bullet semplici."],
-        avoid: ["Spam.", "Promo aggressive.", "Messaggi troppo lunghi."],
-        goal: ["Restare presente con valore, non con pressione."]
-      },
-      {
-        time: "Compleanni",
-        color: "var(--accent)",
-        title: "🎁 SORPRESA – Compleanni clienti (ROI altissimo)",
-        tags: ["Fidelizzazione"],
-        meta: "Automazione/programma",
-        do: [
-          "Seleziona clienti top (rating alto).",
-          "Invia regalo (es. bottiglia + biglietto scritto a mano) tramite servizio esterno.",
-          "Segna in CRM che è stato inviato."
-        ],
-        say: "Biglietto: breve, umano, personale. Zero vendita.",
-        mind: ["Marketing migliore: su chi già ti conosce."],
-        prep: ["Lista compleanni, indirizzi, budget, testo biglietti."],
-        avoid: ["Farne troppi senza criterio.", "Messaggi freddi/copincolla."],
-        goal: ["Lasciare un segno e aumentare referral nel tempo."]
-      }
-    ];
+</div>
 
-    const rowsEl = document.getElementById("rows");
-    const searchEl = document.getElementById("search");
-    const expandBtn = document.getElementById("expandAll");
+<footer>
+Strumento operativo personale – Versione Mobile
+</footer>
 
-    const backdrop = document.getElementById("backdrop");
-    const closeBtn = document.getElementById("closeBtn");
-
-    const mTitle = document.getElementById("mTitle");
-    const mMeta = document.getElementById("mMeta");
-    const mDo = document.getElementById("mDo");
-    const mGoal = document.getElementById("mGoal");
-    const mSay = document.getElementById("mSay");
-    const mMind = document.getElementById("mMind");
-    const mPrep = document.getElementById("mPrep");
-    const mAvoid = document.getElementById("mAvoid");
-
-    function li(text){
-      const el = document.createElement("li");
-      el.textContent = text;
-      return el;
-    }
-
-    function openModal(item){
-      mTitle.textContent = item.title;
-
-      // meta chips
-      mMeta.innerHTML = "";
-      const chips = [
-        {label: `⏰ ${item.time}`},
-        {label: item.meta ? `📌 ${item.meta}` : null}
-      ].filter(Boolean);
-
-      item.tags?.forEach(t => chips.push({label: `🏷 ${t}`}));
-
-      chips.forEach(c=>{
-        const s = document.createElement("span");
-        s.className = "tag";
-        s.textContent = c.label;
-        mMeta.appendChild(s);
-      });
-
-      // lists
-      mDo.innerHTML = ""; item.do.forEach(x=> mDo.appendChild(li(x)));
-      mGoal.innerHTML=""; item.goal.forEach(x=> mGoal.appendChild(li(x)));
-      mMind.innerHTML=""; item.mind.forEach(x=> mMind.appendChild(li(x)));
-      mPrep.innerHTML=""; item.prep.forEach(x=> mPrep.appendChild(li(x)));
-      mAvoid.innerHTML=""; item.avoid.forEach(x=> mAvoid.appendChild(li(x)));
-
-      mSay.textContent = item.say || "";
-
-      backdrop.style.display = "flex";
-      document.body.style.overflow = "hidden";
-    }
-
-    function closeModal(){
-      backdrop.style.display = "none";
-      document.body.style.overflow = "";
-    }
-
-    closeBtn.addEventListener("click", closeModal);
-    backdrop.addEventListener("click", (e)=>{
-      if(e.target === backdrop) closeModal();
-    });
-    window.addEventListener("keydown", (e)=>{
-      if(e.key === "Escape" && backdrop.style.display === "flex") closeModal();
-    });
-
-    function render(filter=""){
-      rowsEl.innerHTML = "";
-      const q = filter.trim().toLowerCase();
-
-      schedule
-        .filter(item=>{
-          if(!q) return true;
-          const hay = [
-            item.time, item.title, item.meta,
-            ...(item.tags||[]),
-            ...(item.do||[]),
-            item.say,
-            ...(item.mind||[]),
-            ...(item.prep||[]),
-            ...(item.avoid||[]),
-            ...(item.goal||[])
-          ].join(" ").toLowerCase();
-          return hay.includes(q);
-        })
-        .forEach((item, idx)=>{
-          const row = document.createElement("div");
-          row.className = "row";
-
-          const time = document.createElement("div");
-          time.className = "time";
-          time.textContent = item.time;
-
-          const slot = document.createElement("div");
-          slot.className = "slot";
-
-          const block = document.createElement("div");
-          block.className = "block";
-          block.style.borderLeftColor = item.color || "var(--accent)";
-
-          const t = document.createElement("div");
-          t.className = "blockTitle";
-          t.textContent = item.title;
-
-          const meta = document.createElement("div");
-          meta.className = "blockMeta";
-          if(item.meta){
-            const s = document.createElement("span");
-            s.className = "tag";
-            s.textContent = item.meta;
-            meta.appendChild(s);
-          }
-          (item.tags||[]).slice(0,4).forEach(tag=>{
-            const s = document.createElement("span");
-            s.className = "tag";
-            s.textContent = tag;
-            meta.appendChild(s);
-          });
-
-          block.appendChild(t);
-          block.appendChild(meta);
-
-          block.addEventListener("click", ()=> openModal(item));
-
-          slot.appendChild(block);
-          row.appendChild(time);
-          row.appendChild(slot);
-          rowsEl.appendChild(row);
-        });
-
-      if(rowsEl.children.length === 0){
-        const empty = document.createElement("div");
-        empty.style.padding = "18px";
-        empty.style.color = "var(--muted)";
-        empty.textContent = "Nessun risultato. Prova a cercare 'Open', 'WhatsApp', 'script', 'prequalifiche'...";
-        rowsEl.appendChild(empty);
-      }
-    }
-
-    searchEl.addEventListener("input", (e)=> render(e.target.value));
-
-    // Apri sequenza: apre modali uno dopo l’altro (utile come “flow”)
-    expandBtn.addEventListener("click", ()=>{
-      const visible = Array.from(rowsEl.querySelectorAll(".block"));
-      if(!visible.length) return;
-
-      // trova gli item filtrati correnti in base alla ricerca
-      const q = searchEl.value.trim().toLowerCase();
-      const items = schedule.filter(item=>{
-        if(!q) return true;
-        const hay = [
-          item.time, item.title, item.meta,
-          ...(item.tags||[]),
-          ...(item.do||[]),
-          item.say,
-          ...(item.mind||[]),
-          ...(item.prep||[]),
-          ...(item.avoid||[]),
-          ...(item.goal||[])
-        ].join(" ").toLowerCase();
-        return hay.includes(q);
-      });
-
-      let i = 0;
-      openModal(items[i]);
-
-      // quando chiudi, apre il prossimo
-      const originalClose = closeModal;
-      function chainedClose(){
-        originalClose();
-        i++;
-        if(i < items.length){
-          setTimeout(()=> openModal(items[i]), 120);
-        }else{
-          // ripristina close normale
-          closeModal = originalClose;
-        }
-      }
-      // hack semplice: sostituiamo temporaneamente l'handler del bottone
-      closeBtn.onclick = chainedClose;
-      backdrop.onclick = (e)=>{ if(e.target===backdrop) chainedClose(); };
-      window.onkeydown = (e)=>{ if(e.key==="Escape" && backdrop.style.display==="flex") chainedClose(); };
-    });
-
-    render();
-  </script>
 </body>
 </html>
